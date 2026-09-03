@@ -1,0 +1,4 @@
+- insert:
+    - id: dsh-moa
+      name: '@goodandready/dsh-moa'
+      config: {}
