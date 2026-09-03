@@ -69,6 +69,7 @@ test('client module loads and registers slot and trigger without syntax errors',
   const localesRegistered = {}
   const mockCtx = {
     slots: {
+      inject: (_name, fn) => fn(),
       register: (meta, comp) => {
         slotsRegistered.push({ meta, comp })
       },
@@ -92,9 +93,10 @@ test('client module loads and registers slot and trigger without syntax errors',
 
   loadedModule.apply(mockCtx)
   assert.ok(localesRegistered['dsh-moa'], 'Locale registered for dsh-moa')
-  assert.equal(slotsRegistered.length, 1, 'Settings slot registered')
-  assert.equal(slotsRegistered[0].meta.name, 'settings.plugin.item')
-  assert.equal(slotsRegistered[0].meta.key, 'dsh-moa')
+  assert.equal(slotsRegistered.length, 2, 'Both settings.section and settings.plugin.item slots registered')
+  const names = slotsRegistered.map((s) => s.meta.name)
+  assert.ok(names.includes('settings.section'))
+  assert.ok(names.includes('settings.plugin.item'))
 })
 
 test('no hardcoded machine paths or credentials in tracked source files', () => {
