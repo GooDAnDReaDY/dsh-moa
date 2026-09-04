@@ -236,3 +236,13 @@ test('MoaRunnerAdapter: streams progress delta and completes with synthesis', as
   assert.ok(finishChunk)
   assert.equal(finishChunk.reason.kind, 'stop')
 })
+
+test('MoaRunnerAdapter: listModels conforms to DSH adapter metadata contract', async () => {
+  const adapter = new MoaRunnerAdapter(() => ({}))
+  const models = await adapter.listModels('moa-runner')
+  assert.equal(Array.isArray(models), true)
+  assert.equal(models.length, 1)
+  assert.equal(models[0].provider, 'moa-runner')
+  assert.equal(models[0].id, 'ensemble')
+  assert.equal(typeof models[0].name, 'string')
+})
