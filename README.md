@@ -8,17 +8,24 @@
 
 `dsh-moa` introduces the **Mixture of Agents** architecture to DeepSeek Harness, inspired by Hermes Agent and OpenClaw.
 
-Instead of routing a complex problem to a single language model, `dsh-moa` executes a collaborative two-phase pipeline:
-1. **Candidate Proposers (Advisors):** Multiple independent models query the prompt concurrently to produce diverse, creative, and distinct solutions.
-2. **Aggregator (Judge / Synthesizer):** A frontier reasoning model critically compares all candidate responses, eliminates errors and hallucinations, and synthesizes the optimal unified answer.
-3. **One-Shot Session Model Restoration:** The slash command operates strictly as a one-shot turn modifier. As soon as the synthesis completes (even on errors), the session automatically and cleanly reverts to the user's primary working model.
+Instead of routing a complex problem to a single language model, `dsh-moa` executes a collaborative multi-phase pipeline:
+1. **Interactive Requirement Refinement (Adaptive):** For broad or underspecified prompts (e.g. `/moa build a calculator`), advisor models formulate clarifying options and the judge synthesizes a structured 2-4 question questionnaire before generating code.
+2. **Candidate Proposers (Advisors) & File Isolation:** Multiple independent models query the prompt concurrently to produce diverse, creative, and distinct solutions. Each candidate's generated files are isolated under `.moa/candidate-N/`.
+3. **Aggregator (Judge / Synthesizer) & Promotion:** A frontier reasoning model critically compares all candidate solutions, chooses the best implementation via a machine marker (`WINNER_CANDIDATE_INDEX: N`), and promotes the winner's files directly into the project root directory while cleaning up temporary sandboxes.
+4. **Live Canvas Integration:** If web files (HTML, JSX, etc.) are generated, `dsh-moa` automatically notifies `dsh-live-canvas` via its REST API, enabling instant 1-click visual previewing.
+5. **Token-Efficient Code Summarization:** Chat responses present clean architectural summaries, file listings, and interactive links without dumping thousands of lines of raw code into the chat history.
+6. **One-Shot Session Model Restoration:** The slash command operates strictly as a one-shot turn modifier. As soon as the synthesis completes (even on errors), the session automatically and cleanly reverts to the user's primary working model.
 
 ---
 
 ## Features
 
 - **Slash Command Integration (`/moa`):** Built-in autocompletion in the DeepSeek Harness web composer via `inputTriggers`.
-- **Parallel Fan-out:** Fast concurrent model evaluation with graceful degradation (if one proposer fails, the aggregator still receives the rest).
+- **Adaptive Questionnaire Gate:** Detects broad requests and interactively asks clarifying questions with recommended answers.
+- **Parallel Fan-out with Live Heartbeats:** Fast concurrent model evaluation with real-time progress indicators (`⏳ [Ns] Processing...`, per-model completion badges).
+- **Disk-Level Workspace Isolation:** Candidates create real files on disk in temporary workspaces; the judge picks the winning candidate and promotes files to the workspace.
+- **Live Canvas 1-Click Integration:** Automatically creates sandbox sessions in `@goodandready/dsh-live-canvas` for generated web applications.
+- **Token-Saving Chat Output:** Strips voluminous raw code dumps in chat messages in favor of compact file listings and markdown summaries.
 - **Advisory Context Isolation:** Tool dumps and bulky system prompts are stripped from candidate advisor context, preventing prompt bloat and "missing tools" refusals.
 - **DSH Native Settings Card:** Collapsible plugin card under `Settings → Plugins → Mixture of Agents` built using native `--dsw-alias-*` theme tokens.
 - **Named Presets:** Configure custom MoA presets such as `default`, `code-review`, or `deep-reasoning`.
@@ -39,6 +46,12 @@ Or target a specific configured preset:
 
 ```text
 /moa deep-reasoning analyze this concurrency bottleneck
+```
+
+To build a project with real files:
+
+```text
+/moa build an interactive scientific calculator in HTML/CSS/JS
 ```
 
 ---
@@ -79,34 +92,22 @@ In **Settings → Plugins → Mixture of Agents**:
                        |  2. Cleans context for advisory advisors              |
                        +-------------------------------------------------------+
                                                   |
-                             +--------------------+--------------------+
-                             |                    |                    |
-                             v                    v                    v
-                      +--------------+     +--------------+     +--------------+
-                      |  Proposer 1  |     |  Proposer 2  |     |  Proposer 3  |
-                      |  (DeepSeek)  |     |    (GPT)     |     |   (Claude)   |
-                      +--------------+     +--------------+     +--------------+
-                             |                    |                    |
-                             +--------------------+--------------------+
-                                                  | (Parallel responses)
                                                   v
                        +-------------------------------------------------------+
-                       |               Aggregator / Judge Model                |
-                       |    Compares candidates, rectifies flaws & synthesizes |
-                       +-------------------------------------------------------+
-                                                  |
-                                                  v
-                       +-------------------------------------------------------+
-                       |                  finally block                        |
-                       |       Guaranteed restore to initial session model     |
+                       |             MoA Runner (lib/moa-runner.js)            |
+                       |  1. Evaluates broadness -> Questionnaire or Sandbox   |
+                       |  2. Parallel fan-out -> writes .moa/candidate-N/      |
+                       |  3. Judge evaluation -> WINNER_CANDIDATE_INDEX        |
+                       |  4. File Promotion -> moves winner files to root      |
+                       |  5. Live Canvas API -> registers visual preview       |
                        +-------------------------------------------------------+
 ```
 
 ---
 
-## Verification & Testing
+## Testing
 
-Zero-network unit and contract tests run through `node --test`:
+Run unit and contract test suite without network dependencies:
 
 ```bash
 node --test test/*.test.mjs
