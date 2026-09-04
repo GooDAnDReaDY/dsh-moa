@@ -66,6 +66,7 @@ test('client module loads and registers slot and trigger without syntax errors',
 
   // Test apply execution
   const slotsRegistered = []
+  const triggersRegistered = []
   const localesRegistered = {}
   const mockCtx = {
     slots: {
