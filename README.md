@@ -1,120 +1,190 @@
-# @goodandready/dsh-moa
+# 📦 @goodandready/dsh-moa
 
-> **Mixture of Agents (MoA)** plugin for **DeepSeek Harness** adding the `/moa <prompt>` slash command.
+<div align="center">
 
----
+<h3>Mixture of Agents (MoA) Multi-Model Collaboration & Synthesis Engine for DeepSeek Harness</h3>
 
-## Overview
+<p align="center">
+  <a href="https://www.npmjs.com/package/@goodandready/dsh-moa"><img src="https://img.shields.io/npm/v/@goodandready/dsh-moa.svg?style=for-the-badge&color=6366f1&labelColor=1e1b4b" alt="npm version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/GooDAnDReaDY/dsh-moa.svg?style=for-the-badge&color=10b981&labelColor=064e3b" alt="license"></a>
+  <a href="https://github.com/topics/dsh-plugin"><img src="https://img.shields.io/badge/DSH-Plugin-8b5cf6.svg?style=for-the-badge&labelColor=2e1065" alt="DSH Plugin"></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node-20%2B-f59e0b.svg?style=for-the-badge&labelColor=451a03" alt="Node version"></a>
+</p>
 
-`dsh-moa` introduces the **Mixture of Agents** architecture to DeepSeek Harness, inspired by Hermes Agent and OpenClaw.
+<p align="center">
+  <a href="https://goodandready.app/"><img src="https://img.shields.io/badge/All_Author_Projects-goodandready.app-ff4500.svg?style=for-the-badge&logo=rocket&logoColor=white&labelColor=1a1a2e" alt="GoodAndReady Showcase"></a>
+</p>
 
-Instead of routing a complex problem to a single language model, `dsh-moa` executes a collaborative multi-phase pipeline:
-1. **Interactive Requirement Refinement (Adaptive):** For broad or underspecified prompts (e.g. `/moa build a calculator`), advisor models formulate clarifying options and the judge synthesizes a structured 2-4 question questionnaire before generating code.
-2. **Candidate Proposers (Advisors) & File Isolation:** Multiple independent models query the prompt concurrently to produce diverse, creative, and distinct solutions. Each candidate's generated files are isolated under `.moa/candidate-N/`.
-3. **Aggregator (Judge / Synthesizer) & Promotion:** A frontier reasoning model critically compares all candidate solutions, chooses the best implementation via a machine marker (`WINNER_CANDIDATE_INDEX: N`), and promotes the winner's files directly into the project root directory while cleaning up temporary sandboxes.
-4. **Live Canvas Integration:** If web files (HTML, JSX, etc.) are generated, `dsh-moa` automatically notifies `dsh-live-canvas` via its REST API, enabling instant 1-click visual previewing.
-5. **Token-Efficient Code Summarization:** Chat responses present clean architectural summaries, file listings, and interactive links without dumping thousands of lines of raw code into the chat history.
-6. **One-Shot Session Model Restoration:** The slash command operates strictly as a one-shot turn modifier. As soon as the synthesis completes (even on errors), the session automatically and cleanly reverts to the user's primary working model.
+<p align="center">
+  <a href="README.md"><b>🇬🇧 English</b></a> •
+  <a href="docs/README.ru.md"><b>🇷🇺 Русский</b></a> •
+  <a href="docs/README.zh.md"><b>🇨🇳 中文说明</b></a>
+</p>
 
----
-
-## Features
-
-- **Slash Command Integration (`/moa`):** Built-in autocompletion in the DeepSeek Harness web composer via `inputTriggers`.
-- **Adaptive Questionnaire Gate:** Detects broad requests and interactively asks clarifying questions with recommended answers.
-- **Parallel Fan-out with Live Heartbeats:** Fast concurrent model evaluation with real-time progress indicators (`⏳ [Ns] Processing...`, per-model completion badges).
-- **Disk-Level Workspace Isolation:** Candidates create real files on disk in temporary workspaces; the judge picks the winning candidate and promotes files to the workspace.
-- **Live Canvas 1-Click Integration:** Automatically creates sandbox sessions in `@goodandready/dsh-live-canvas` for generated web applications.
-- **Token-Saving Chat Output:** Strips voluminous raw code dumps in chat messages in favor of compact file listings and markdown summaries.
-- **Advisory Context Isolation:** Tool dumps and bulky system prompts are stripped from candidate advisor context, preventing prompt bloat and "missing tools" refusals.
-- **DSH Native Settings Card:** Collapsible plugin card under `Settings → Plugins → Mixture of Agents` built using native `--dsw-alias-*` theme tokens.
-- **Named Presets:** Configure custom MoA presets such as `default`, `code-review`, or `deep-reasoning`.
+</div>
 
 ---
 
-## Usage
+## ⚡ Overview & The Problem
 
-### In Composer
+Single-model AI generation often suffers from blind spots, single-perspective biases, hallucinated architectural choices, and inconsistent code quality on challenging engineering tasks. When prompted with ambiguous or complex specifications, a single model may make premature assumptions and produce monolithic, unvetted implementations.
 
-Type `/moa` in the DeepSeek Harness chat input:
+**`@goodandready/dsh-moa`** brings the **Mixture of Agents (MoA)** architecture natively to DeepSeek Harness via the `/moa` slash command:
+
+1. **Adaptive Clarification Questionnaire**: For broad or underspecified prompts, advisor models formulate clarifying options and the judge synthesizes a structured 2–4 question questionnaire before generating code.
+2. **Parallel Proposers Fan-Out & Workspace Isolation**: Multiple independent models evaluate the prompt concurrently. Each candidate's proposed files are written to isolated disk sandboxes (`.moa/candidate-N/`), avoiding cross-pollution.
+3. **Frontier Judge Evaluation & File Promotion**: A flagship reasoning model critically benchmarks all proposals, selects the winning candidate via machine markers (`WINNER_CANDIDATE_INDEX: N`), and promotes the winner's files directly into the project root directory.
+4. **Instant Live Canvas Previewing**: When web applications or UI components are generated, `dsh-moa` integrates seamlessly with `@goodandready/dsh-live-canvas`, automatically spawning sandboxes for 1-click browser previewing.
+5. **Token-Saving Chat Summarization**: Replaces massive code dumps in chat bubbles with compact file listings and clean architectural summaries.
+6. **One-Shot Session Model Restoration**: Executes cleanly as a one-shot turn modifier, automatically reverting back to the user's primary session model immediately after completion.
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    subgraph Input ["User Interaction (Chat Composer)"]
+        Cmd["Slash Command: /moa [preset] &lt;prompt&gt;"]
+        Gate{"Ambiguity Check & Questionnaire"}
+        QModal["Interactive Clarifying Questions<br/>(Options & Write-in responses)"]
+    end
+
+    subgraph Proposers ["Parallel Proposer Layer (Advisors)"]
+        P1["Proposer Model 1<br/>(Creative Approach)"]
+        P2["Proposer Model 2<br/>(Alternative Design)"]
+        P3["Proposer Model 3<br/>(Performant Strategy)"]
+        WS1[".moa/candidate-1/<br/>(Isolated Files)"]
+        WS2[".moa/candidate-2/<br/>(Isolated Files)"]
+        WS3[".moa/candidate-3/<br/>(Isolated Files)"]
+    end
+
+    subgraph Judge ["Synthesis & Promotion Layer"]
+        Aggregator["Frontier Judge Model<br/>(Cross-Evaluation & Code Critique)"]
+        WinnerMarker{"WINNER_CANDIDATE_INDEX"}
+        Promote["Promote Winner Files<br/>(Move to project root & cleanup sandboxes)"]
+        LiveCanvas["Live Canvas Integration<br/>(Auto-open Web UI sandbox)"]
+        Summary["Token-Saving Summary<br/>(File overview & architecture highlights)"]
+    end
+
+    Cmd --> Gate
+    Gate -->|Broad/Underspecified| QModal
+    QModal -->|User Answers| P1 & P2 & P3
+    Gate -->|Explicit/Detailed| P1 & P2 & P3
+    P1 --> WS1
+    P2 --> WS2
+    P3 --> WS3
+    WS1 & WS2 & WS3 --> Aggregator
+    Aggregator --> WinnerMarker
+    WinnerMarker --> Promote
+    Promote --> LiveCanvas
+    Promote --> Summary
+```
+
+---
+
+## ✨ Features & Capabilities
+
+### 1. Slash Command (`/moa`) & Autocompletion
+Integrated directly into the DeepSeek Harness composer via client input triggers. Typing `/moa` shows presets and instant autocompletion:
 
 ```text
-/moa explain the Raft consensus algorithm with state transitions
+/moa build a real-time reactive dashboard with charts and websocket updates
 ```
 
-Or target a specific configured preset:
+Or target a specific named preset:
 
 ```text
-/moa deep-reasoning analyze this concurrency bottleneck
+/moa:code-review audit the auth middleware and security boundaries
 ```
 
-To build a project with real files:
+### 2. Adaptive Questionnaire Gate
+When prompts are open-ended or lack architectural specifications (e.g. *"build a calculator app"*), advisor models detect ambiguities and formulate focused clarifying questions (e.g., UI style, persistence backend, framework choice) before generating code.
 
-```text
-/moa build an interactive scientific calculator in HTML/CSS/JS
-```
+### 3. Parallel Fan-Out with Live Heartbeats
+* Proposers query concurrently with live heartbeat progress badges (`⏳ [3s] Processing...`, per-model completion status).
+* Bulky system prompts and tool schemas are cleanly stripped from advisor contexts, eliminating "missing tools" refusals and token bloat.
+
+### 4. Disk-Level Candidate Isolation & Promotion
+Unlike standard chat-only MoA, `dsh-moa` isolates file generation onto the filesystem:
+* Each proposer generates files into `.moa/candidate-1/`, `.moa/candidate-2/`, etc.
+* The Judge compares implementations and selects the optimal solution with `WINNER_CANDIDATE_INDEX: N`.
+* The winner's files are promoted to the workspace root, and temporary candidate directories are pruned automatically.
+
+### 5. Live Canvas 1-Click Preview
+If web files (`index.html`, React/JSX components, Vue, CSS) are generated, `dsh-moa` communicates with `@goodandready/dsh-live-canvas` via its REST endpoint to instantiate a live preview container with 1-click instant access.
+
+### 6. Native Settings Card & Presets
+Configure your models in `Settings → Plugins → Mixture of Agents`:
+* Set custom Proposer models (e.g., fast generative models for diverse ideas).
+* Set the Aggregator / Judge model (e.g., deep reasoning models for rigorous critique).
+* Configure named presets (`default`, `code-review`, `deep-reasoning`).
 
 ---
 
-## Configuration
+## 📦 Installation
 
-In **Settings → Plugins → Mixture of Agents**:
-
-| Field | Description | Default |
-|---|---|---|
-| **Default Preset** | Name of the default preset applied when no preset name is specified | `default` |
-| **Proposer Models** | Array of `{ provider, model }` candidates queried in parallel | `deepseek:deepseek-chat`, `openai:gpt-4o` |
-| **Aggregator Model** | Leading judge model synthesizing candidate responses | `anthropic:claude-3-7-sonnet` |
-| **Reference Temperature** | Sampling temperature for proposer candidates | `0.6` |
-| **Aggregator Temperature** | Sampling temperature for the synthesizer model | `0.4` |
-| **Max Tokens** | Maximum tokens for generation | `4096` |
-
----
-
-## Architecture
-
-```
-                       +-------------------------------------------------------+
-                       |              User Input in DSH Composer               |
-                       |             "/moa <complex problem prompt>"           |
-                       +-------------------------------------------------------+
-                                                  |
-                                                  v
-                       +-------------------------------------------------------+
-                       |             Client Trigger (lib/client.js)            |
-                       |       Autocomplete via inputTriggers, sends to agent  |
-                       +-------------------------------------------------------+
-                                                  |
-                                                  v
-                       +-------------------------------------------------------+
-                       |            Host Interceptor (lib/index.js)            |
-                       |  1. Records initial session model (originalModel)     |
-                       |  2. Cleans context for advisory advisors              |
-                       +-------------------------------------------------------+
-                                                  |
-                                                  v
-                       +-------------------------------------------------------+
-                       |             MoA Runner (lib/moa-runner.js)            |
-                       |  1. Evaluates broadness -> Questionnaire or Sandbox   |
-                       |  2. Parallel fan-out -> writes .moa/candidate-N/      |
-                       |  3. Judge evaluation -> WINNER_CANDIDATE_INDEX        |
-                       |  4. File Promotion -> moves winner files to root      |
-                       |  5. Live Canvas API -> registers visual preview       |
-                       +-------------------------------------------------------+
-```
-
----
-
-## Testing
-
-Run unit and contract test suite without network dependencies:
+Install into your DeepSeek Harness web profile:
 
 ```bash
-node --test test/*.test.mjs
+dsh plugin --profile web add @goodandready/dsh-moa
+```
+
+Restart your DeepSeek Harness instance and refresh the browser.
+
+---
+
+## ⚙️ Configuration (`settings.yaml`)
+
+Configure presets and model pipelines in `settings.yaml` or through the Web UI Settings panel:
+
+```yaml
+# settings.yaml
+dsh-moa:
+  defaultPreset: "default"
+  presets:
+    default:
+      references:
+        - provider: "your-fast-provider"
+          model: "your-creative-model"
+        - provider: "your-fast-provider"
+          model: "your-balanced-model"
+      aggregator:
+        provider: "your-reasoning-provider"
+        model: "your-judge-model"
+    code-review:
+      references:
+        - provider: "your-fast-provider"
+          model: "your-security-model"
+        - provider: "your-fast-provider"
+          model: "your-performance-model"
+      aggregator:
+        provider: "your-reasoning-provider"
+        model: "your-judge-model"
+```
+
+### Configuration Parameters
+
+| Parameter | Type | Default | Description |
+|:---|:---|:---|:---|
+| `defaultPreset` | `string` | `"default"` | Default preset invoked when typing `/moa <prompt>` |
+| `presets.<name>.references` | `array` | `[...]` | List of proposer models queried concurrently during the proposal phase |
+| `presets.<name>.aggregator` | `object` | `{...}` | Frontier judge model responsible for synthesis, critique, and winner selection |
+| `enableQuestionnaire` | `boolean` | `true` | Enable interactive clarifying questionnaire for underspecified requests |
+| `autoPromoteWinner` | `boolean` | `true` | Automatically promote the judge's selected winner files into the project workspace |
+
+---
+
+## 🧪 Testing
+
+Run the automated test suite:
+
+```bash
+npm test
 ```
 
 ---
 
-## License
+## 📄 License
 
 MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
