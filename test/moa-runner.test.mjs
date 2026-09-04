@@ -58,6 +58,8 @@ test('buildSynthesisPrompt: contains user prompt and labeled reference blocks', 
   assert.ok(prompt.includes('Add an index on column X'))
   assert.ok(prompt.includes('Reference 2 — anthropic:claude:'))
   assert.ok(prompt.includes('Partition the table by date'))
+  assert.ok(prompt.includes('Вердикт судьи'))
+  assert.ok(prompt.includes('Чей вариант выбран'))
 })
 
 test('parseMoACommand: parses bare /moa, default prompt and preset selection', () => {
@@ -193,6 +195,6 @@ test('formatMoAResponse: formats candidate outputs and judge synthesis cleanly',
   assert.ok(output.includes('Candidate 2 code'))
 
   // Verify aggregator synthesis
-  assert.ok(output.includes('Итоговое решение (Синтез: codex:gpt-5.6-sol)'))
+  assert.ok(output.includes('Вердикт судьи и итоговое решение (Синтез: codex:gpt-5.6-sol)'))
   assert.ok(output.includes('Final synthesized calculator code in HTML'))
 })
