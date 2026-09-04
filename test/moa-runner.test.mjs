@@ -7,6 +7,7 @@ import {
   parseMoACommand,
   runReferencesParallel,
   runMoAPipeline,
+  formatMoAResponse,
 } from '../lib/moa-runner.js'
 
 test('slotLabel: formats provider and model slots', () => {
@@ -166,4 +167,32 @@ test('runMoAPipeline: aggregator failure falls back to joined candidates', async
   assert.ok(res.content.includes('Aggregator error: 503 Service Unavailable'))
   assert.ok(res.content.includes('Fallback candidate outputs'))
   assert.ok(res.content.includes('Proposal 1 text'))
+})
+
+test('formatMoAResponse: formats candidate outputs and judge synthesis cleanly', () => {
+  const moaResult = {
+    content: 'Final synthesized calculator code in HTML',
+    aggregator: 'codex:gpt-5.6-sol',
+    presetName: 'default',
+    references: [
+      { label: 'opencode-go:deepseek-v4-flash', text: 'Candidate 1 code', ok: true },
+      { label: 'grok:grok-build-0.1', text: 'Candidate 2 code', ok: true },
+    ],
+  }
+
+  const output = formatMoAResponse({ moaResult, presetName: 'default' })
+
+  // Verify headers
+  assert.ok(output.includes('Mixture of Agents (Пресет: default | Судья: codex:gpt-5.6-sol)'))
+  assert.ok(output.includes('Ответы моделей-советников (2):'))
+
+  // Verify candidate 1 and 2
+  assert.ok(output.includes('Модель 1: opencode-go:deepseek-v4-flash'))
+  assert.ok(output.includes('Candidate 1 code'))
+  assert.ok(output.includes('Модель 2: grok:grok-build-0.1'))
+  assert.ok(output.includes('Candidate 2 code'))
+
+  // Verify aggregator synthesis
+  assert.ok(output.includes('Итоговое решение (Синтез: codex:gpt-5.6-sol)'))
+  assert.ok(output.includes('Final synthesized calculator code in HTML'))
 })
