@@ -1,5 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { MoaRunnerAdapter } from '../lib/moa-runner.js'
 import {
   slotLabel,
   cleanAdvisoryMessages,
@@ -197,4 +198,41 @@ test('formatMoAResponse: formats candidate outputs and judge synthesis cleanly',
   // Verify aggregator synthesis
   assert.ok(output.includes('Вердикт судьи и итоговое решение (Синтез: codex:gpt-5.6-sol)'))
   assert.ok(output.includes('Final synthesized calculator code in HTML'))
+})
+
+test('MoaRunnerAdapter: streams progress delta and completes with synthesis', async () => {
+  const getMoaContext = () => ({
+    targetPreset: {
+      name: 'test-preset',
+      reference_models: [{ provider: 'p1', model: 'm1' }],
+      aggregator: { provider: 'p2', model: 'm2' },
+    },
+    userPrompt: 'write hello world',
+    messages: [],
+    callLlm: async () => 'hello world result',
+  })
+
+  const adapter = new MoaRunnerAdapter(getMoaContext)
+  const chunks = []
+
+  for await (const chunk of adapter.stream({ messages: [{ role: 'user', content: '/moa write hello world' }] })) {
+    chunks.push(chunk)
+  }
+
+  // 1. First chunk should be block-start
+  assert.equal(chunks[0].type, 'block-start')
+
+  // 2. Second chunk should be immediate progress text-delta
+  assert.equal(chunks[1].type, 'text-delta')
+  assert.ok(chunks[1].text.includes('Mixture of Agents запущен'))
+
+  // 3. Middle chunk should contain full formatted synthesis
+  const synthDelta = chunks.find((c, i) => i > 1 && c.type === 'text-delta')
+  assert.ok(synthDelta)
+  assert.ok(synthDelta.text.includes('hello world result'))
+
+  // 4. Final chunks should be block-end, usage, and finish stop
+  const finishChunk = chunks.find(c => c.type === 'finish')
+  assert.ok(finishChunk)
+  assert.equal(finishChunk.reason.kind, 'stop')
 })
