@@ -9,6 +9,7 @@ import {
   runReferencesParallel,
   runMoAPipeline,
   formatMoAResponse,
+  stripOrSummarizeCode,
 } from '../lib/moa-runner.js'
 
 test('slotLabel: formats provider and model slots', () => {
@@ -198,6 +199,45 @@ test('formatMoAResponse: formats candidate outputs and judge synthesis cleanly',
   // Verify aggregator synthesis
   assert.ok(output.includes('Вердикт судьи и итоговое решение (Синтез: codex:gpt-5.6-sol)'))
   assert.ok(output.includes('Final synthesized calculator code in HTML'))
+})
+
+test('stripOrSummarizeCode: summarizes multi-line code blocks to save tokens', () => {
+  const input = `Вот моё решение:\n\n\`\`\`html index.html\n<!DOCTYPE html>\n<html>\n<body>\n<h1>Calc</h1>\n<script>console.log("hello");</script>\n</body>\n</html>\n\`\`\`\n\nГотово к запуску!`
+  const result = stripOrSummarizeCode(input)
+  assert.ok(!result.includes('<!DOCTYPE html>'))
+  assert.ok(result.includes('индекс.html') || result.includes('index.html') || result.includes('строк сохранены на диск'))
+  assert.ok(result.includes('Готово к запуску!'))
+})
+
+test('formatMoAResponse: includes Live Canvas preview link and summarizes promoted files', () => {
+  const moaResult = {
+    kind: 'synthesis',
+    content: 'Решение принято. Победитель: Кандидат 1.\n\n\`\`\`html\n<!DOCTYPE html>...\n\`\`\`',
+    aggregator: 'codex:gpt-5.6-sol',
+    presetName: 'default',
+    promotedFiles: ['index.html'],
+    liveCanvas: {
+      canvasId: 'canvas-12345',
+      title: 'index.html',
+      filePath: 'index.html',
+      previewUrl: '/dsh-live-canvas/sandbox/canvas-12345',
+    },
+    references: [
+      {
+        label: 'opencode-go:deepseek-v4-flash',
+        text: 'Кандидат 1 создал калькулятор.\n\`\`\`html index.html\n<html>50 lines of code</html>\n\`\`\`',
+        ok: true,
+        files: [{ relativePath: 'index.html' }],
+      },
+    ],
+  }
+
+  const output = formatMoAResponse({ moaResult, presetName: 'default' })
+  assert.ok(output.includes('Созданы файлы в проекте'))
+  assert.ok(output.includes('index.html'))
+  assert.ok(output.includes('Live Canvas'))
+  assert.ok(output.includes('/dsh-live-canvas/sandbox/canvas-12345'))
+  assert.ok(!output.includes('50 lines of code')) // Code should be summarized, not dumped
 })
 
 test('MoaRunnerAdapter: streams progress delta and completes with synthesis', async () => {
