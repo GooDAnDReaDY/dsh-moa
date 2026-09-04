@@ -1,0 +1,106 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import os from 'node:os'
+import {
+  extractFileBlocks,
+  writeCandidateWorkspace,
+  promoteCandidateWorkspace,
+  cleanMoaWorkspaces,
+} from '../lib/file-workspace.js'
+
+test('extractFileBlocks: parses markdown blocks with file= attribute', () => {
+  const md = `
+Here is the code:
+\`\`\`html file="index.html"
+<!DOCTYPE html>
+<html><body><h1>Calc</h1></body></html>
+\`\`\`
+
+And the styling:
+\`\`\`css filepath=style.css
+body { background: #111; color: #fff; }
+\`\`\`
+`
+  const files = extractFileBlocks(md)
+  assert.equal(files.length, 2)
+  assert.equal(files[0].relativePath, 'index.html')
+  assert.ok(files[0].content.includes('<h1>Calc</h1>'))
+  assert.equal(files[1].relativePath, 'style.css')
+  assert.ok(files[1].content.includes('background: #111'))
+})
+
+test('extractFileBlocks: parses headers like ### File: app.js', () => {
+  const md = `
+### File: app.js
+\`\`\`javascript
+console.log('started');
+\`\`\`
+`
+  const files = extractFileBlocks(md)
+  assert.equal(files.length, 1)
+  assert.equal(files[0].relativePath, 'app.js')
+  assert.ok(files[0].content.includes("console.log('started')"))
+})
+
+test('extractFileBlocks: fallback to single standalone block', () => {
+  const md = `
+\`\`\`html
+<!DOCTYPE html>
+<html><body>Calculator</body></html>
+\`\`\`
+`
+  const files = extractFileBlocks(md)
+  assert.equal(files.length, 1)
+  assert.equal(files[0].relativePath, 'index.html')
+  assert.ok(files[0].content.includes('Calculator'))
+})
+
+test('writeCandidateWorkspace & promoteCandidateWorkspace: isolate and promote winner', async () => {
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'moa-test-'))
+
+  try {
+    const candidate1Files = [
+      { relativePath: 'index.html', content: '<h1>Candidate 1</h1>' },
+      { relativePath: 'src/app.js', content: 'const ver = 1;' },
+    ]
+    const candidate2Files = [
+      { relativePath: 'index.html', content: '<h1>Candidate 2 Winner</h1>' },
+      { relativePath: 'src/app.js', content: 'const ver = 2;' },
+      { relativePath: 'README.md', content: '# Readme' },
+    ]
+
+    // 1. Write candidates
+    await writeCandidateWorkspace(tmpDir, 1, candidate1Files)
+    await writeCandidateWorkspace(tmpDir, 2, candidate2Files)
+
+    // Check candidate 1 exists in .moa/candidate-1
+    const c1Html = await fs.readFile(path.join(tmpDir, '.moa', 'candidate-1', 'index.html'), 'utf8')
+    assert.equal(c1Html, '<h1>Candidate 1</h1>')
+
+    // Check candidate 2 exists in .moa/candidate-2
+    const c2Html = await fs.readFile(path.join(tmpDir, '.moa', 'candidate-2', 'index.html'), 'utf8')
+    assert.equal(c2Html, '<h1>Candidate 2 Winner</h1>')
+
+    // 2. Promote candidate 2
+    const promoted = await promoteCandidateWorkspace(tmpDir, 2)
+    assert.equal(promoted.length, 3)
+    assert.ok(promoted.includes('index.html'))
+    assert.ok(promoted.includes('src/app.js'))
+    assert.ok(promoted.includes('README.md'))
+
+    // 3. Verify files now exist at root
+    const rootHtml = await fs.readFile(path.join(tmpDir, 'index.html'), 'utf8')
+    assert.equal(rootHtml, '<h1>Candidate 2 Winner</h1>')
+
+    const rootApp = await fs.readFile(path.join(tmpDir, 'src', 'app.js'), 'utf8')
+    assert.equal(rootApp, 'const ver = 2;')
+
+    // 4. Verify .moa directory is removed
+    const moaExists = await fs.stat(path.join(tmpDir, '.moa')).then(() => true).catch(() => false)
+    assert.equal(moaExists, false)
+  } finally {
+    await fs.rm(tmpDir, { recursive: true, force: true })
+  }
+})

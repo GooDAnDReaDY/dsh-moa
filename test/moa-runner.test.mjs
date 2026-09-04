@@ -227,7 +227,7 @@ test('MoaRunnerAdapter: streams progress delta and completes with synthesis', as
   assert.ok(chunks[1].text.includes('Mixture of Agents запущен'))
 
   // 3. Middle chunk should contain full formatted synthesis
-  const synthDelta = chunks.find((c, i) => i > 1 && c.type === 'text-delta')
+  const synthDelta = chunks.findLast(c => c.type === 'text-delta')
   assert.ok(synthDelta)
   assert.ok(synthDelta.text.includes('hello world result'))
 
