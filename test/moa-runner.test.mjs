@@ -11,7 +11,7 @@ import {
   stripOrSummarizeCode,
   MoaRunnerAdapter,
   estimateTokenCost,
-  MODEL_PRICING_REGISTRY,
+  
 } from '../lib/moa-runner.js'
 
 test('estimateTokenCost: computes accurate token costs for known and fallback models', () => {
@@ -24,10 +24,10 @@ test('estimateTokenCost: computes accurate token costs for known and fallback mo
   // (10000 * 0.14 / 1e6) + (5000 * 0.28 / 1e6) = 0.0014 + 0.0014 = 0.0028
   assert.equal(dsCost.costUsd, 0.0028)
 
-  const gptSlot = { provider: 'codex', model: 'gpt-5.6-sol' }
-  const gptCost = estimateTokenCost(gptSlot, { inputTokens: 100000, outputTokens: 10000 })
+  const customSlot = { provider: 'codex', model: 'custom-model' }
+  const customCost = estimateTokenCost(customSlot, { inputTokens: 100000, outputTokens: 10000 }, { 'codex/custom-model': { input: 2.50, output: 10.00 } })
   // (100000 * 2.50 / 1e6) + (10000 * 10.00 / 1e6) = 0.25 + 0.10 = 0.35
-  assert.equal(gptCost.costUsd, 0.35)
+  assert.equal(customCost.costUsd, 0.35)
 })
 
 test('slotLabel: formats provider and model slots', () => {

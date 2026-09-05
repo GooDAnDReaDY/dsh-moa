@@ -37,7 +37,7 @@ Single-model AI generation often suffers from blind spots, single-perspective bi
 4. **Instant Live Canvas Previewing**: When web applications or UI components are generated, `dsh-moa` integrates seamlessly with `@goodandready/dsh-live-canvas`, automatically spawning sandboxes for 1-click browser previewing.
 5. **Token-Saving Chat Summarization**: Replaces massive code dumps in chat bubbles with compact file listings and clean architectural summaries.
 6. **One-Shot Session Model Restoration**: Executes cleanly as a one-shot turn modifier, automatically reverting back to the user's primary session model immediately after completion.
-7. **Inherent Cost Tracking & Token Estimation**: Embedded pricing calculator for frontier models estimating token usage and run costs directly in the summary badge without external dependencies.
+7. **Dynamic Model Pricing Catalog & Token Estimation**: Real-time rate resolution for 300+ models fetched automatically in the background from OpenRouter's public catalog (cached locally in `~/.dsh/storages/dsh-moa-catalog.json` for 24h), plus support for direct vendor rates and custom `prices` overrides in `settings.yaml`.
 8. **Refinement Mode (Incremental Edits)**: Automatically detects existing codebase context to generate precise delta modifications instead of destructive full-file rewrites.
 9. **Fast Mode & Custom Judge Criteria**: Ultra-fast single-model preset for quick tasks and customizable evaluation guidelines for the judge.
 10. **Run History & Win-Rate Leaderboard**: Persistent logging with built-in REST endpoints (`/dsh-moa/history` and `/dsh-moa/leaderboard`).
@@ -156,6 +156,13 @@ dsh-moa:
       aggregator:
         provider: "your-reasoning-provider"
         model: "your-judge-model"
+  prices:
+    "my-provider/my-model":
+      input: 0.20
+      output: 0.80
+    "ollama/*":
+      input: 0
+      output: 0
     code-review:
       references:
         - provider: "your-fast-provider"
