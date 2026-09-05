@@ -94,9 +94,8 @@ test('client module loads and registers slot and trigger without syntax errors',
 
   loadedModule.apply(mockCtx)
   assert.ok(localesRegistered['dsh-moa'], 'Locale registered for dsh-moa')
-  assert.equal(slotsRegistered.length, 2, 'Both settings.section and settings.plugin.item slots registered')
+  assert.equal(slotsRegistered.length, 1, 'settings.plugin.item slot registered')
   const names = slotsRegistered.map((s) => s.meta.name)
-  assert.ok(names.includes('settings.section'))
   assert.ok(names.includes('settings.plugin.item'))
 })
 
