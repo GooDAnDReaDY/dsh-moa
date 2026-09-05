@@ -37,6 +37,10 @@ Single-model AI generation often suffers from blind spots, single-perspective bi
 4. **Instant Live Canvas Previewing**: When web applications or UI components are generated, `dsh-moa` integrates seamlessly with `@goodandready/dsh-live-canvas`, automatically spawning sandboxes for 1-click browser previewing.
 5. **Token-Saving Chat Summarization**: Replaces massive code dumps in chat bubbles with compact file listings and clean architectural summaries.
 6. **One-Shot Session Model Restoration**: Executes cleanly as a one-shot turn modifier, automatically reverting back to the user's primary session model immediately after completion.
+7. **Inherent Cost Tracking & Token Estimation**: Embedded pricing calculator for frontier models estimating token usage and run costs directly in the summary badge without external dependencies.
+8. **Refinement Mode (Incremental Edits)**: Automatically detects existing codebase context to generate precise delta modifications instead of destructive full-file rewrites.
+9. **Fast Mode & Custom Judge Criteria**: Ultra-fast single-model preset for quick tasks and customizable evaluation guidelines for the judge.
+10. **Run History & Win-Rate Leaderboard**: Persistent logging with built-in REST endpoints (`/dsh-moa/history` and `/dsh-moa/leaderboard`).
 
 ---
 
@@ -172,6 +176,16 @@ dsh-moa:
 | `presets.<name>.aggregator` | `object` | `{...}` | Frontier judge model responsible for synthesis, critique, and winner selection |
 | `enableQuestionnaire` | `boolean` | `true` | Enable interactive clarifying questionnaire for underspecified requests |
 | `autoPromoteWinner` | `boolean` | `true` | Automatically promote the judge's selected winner files into the project workspace |
+
+---
+
+## 📊 REST API & Endpoints
+
+| Endpoint | Method | Description |
+|:---|:---|:---|
+| `/dsh-moa/presets` | `GET` | Returns list of configured MoA presets |
+| `/dsh-moa/history?limit=20&offset=0` | `GET` | Returns recent MoA runs with candidates, winner, cost, and tokens |
+| `/dsh-moa/leaderboard` | `GET` | Computes model win-rate leaderboard and average execution costs |
 
 ---
 

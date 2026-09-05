@@ -8,6 +8,8 @@ import {
   writeCandidateWorkspace,
   promoteCandidateWorkspace,
   cleanMoaWorkspaces,
+  collectProjectContext,
+  isRefinementTask,
 } from '../lib/file-workspace.js'
 
 test('extractFileBlocks: parses markdown blocks with file= attribute', () => {
@@ -55,6 +57,30 @@ test('extractFileBlocks: fallback to single standalone block', () => {
   assert.equal(files.length, 1)
   assert.equal(files[0].relativePath, 'index.html')
   assert.ok(files[0].content.includes('Calculator'))
+})
+
+test('collectProjectContext & isRefinementTask: context reading and refinement detection', async () => {
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'moa-ctx-test-'))
+
+  try {
+    await fs.writeFile(path.join(tmpDir, 'index.html'), '<html><body>Hello</body></html>')
+    await fs.mkdir(path.join(tmpDir, 'src'), { recursive: true })
+    await fs.writeFile(path.join(tmpDir, 'src', 'main.js'), 'console.log("main");')
+
+    const ctx = await collectProjectContext(tmpDir, 4000)
+    assert.equal(ctx.files.length, 2)
+    assert.ok(ctx.files.some((f) => f.relativePath === 'index.html'))
+    assert.ok(ctx.files.some((f) => f.relativePath === 'src/main.js'))
+
+    // Refinement checks
+    assert.equal(isRefinementTask('добавь темную тему', ctx.files), true)
+    assert.equal(isRefinementTask('fix color', ctx.files), true)
+    assert.equal(isRefinementTask('change button style', ctx.files), true)
+    assert.equal(isRefinementTask('сделай игру крестики нолики с нуля на react с полным стейтом', ctx.files), false)
+    assert.equal(isRefinementTask('добавь темную тему', []), false)
+  } finally {
+    await fs.rm(tmpDir, { recursive: true, force: true })
+  }
 })
 
 test('writeCandidateWorkspace & promoteCandidateWorkspace: isolate and promote winner', async () => {
