@@ -28,19 +28,28 @@ test('client module loads and registers slot and trigger without syntax errors',
   const clientSrc = fs.readFileSync(clientPath, 'utf8')
 
   let loadedModule = null
+  const fakeReact = {
+    createElement: (type, props, ...children) => {
+      if (typeof type === 'function') {
+        return type(Object.assign({}, props, { children }))
+      }
+      return { type, props, children }
+    },
+    useState: (val) => [typeof val === 'function' ? val() : val, () => {}],
+    useEffect: (fn) => { try { fn() } catch (_) {} },
+    useCallback: (fn) => fn,
+    useMemo: (fn) => fn(),
+    useRef: (val) => ({ current: val }),
+    useId: () => 'id-1',
+    Fragment: 'Fragment',
+  }
+
   const fakeWindow = {
     __ModuleLoader__: {
       load: ({ id, factory }) => {
         assert.equal(id, '@goodandready/dsh-moa')
         const fakeRequire = (name) => {
-          if (name === 'react') {
-            return {
-              createElement: () => ({}),
-              useState: (val) => [val, () => {}],
-              useEffect: (fn) => { fn() },
-              Fragment: 'Fragment',
-            }
-          }
+          if (name === 'react') return fakeReact
           if (name === '@deepseek-ai/dsh-client-ui-primitives') {
             return { IconChevronDownOutline14: () => ({}) }
           }
@@ -53,8 +62,9 @@ test('client module loads and registers slot and trigger without syntax errors',
 
   const context = vm.createContext({
     window: fakeWindow,
-    document: { head: { appendChild: () => {} }, createElement: () => ({ set textContent(_) {} }) },
+    document: { head: { appendChild: () => {} }, createElement: () => ({ set textContent(_) {} }), addEventListener: () => {}, removeEventListener: () => {} },
     console,
+    fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({ ok: true }) }),
   })
 
   const script = new vm.Script(clientSrc)
@@ -76,10 +86,11 @@ test('client module loads and registers slot and trigger without syntax errors',
       },
     },
     locale: {
-      register: (ns, dicts) => {
-        localesRegistered[ns] = dicts
+      register: (ns, localeOrDicts, dicts) => {
+        localesRegistered[ns] = dicts || localeOrDicts
       },
       bind: () => (k) => k,
+      getSnapshot: () => ({ active: 'ru' }),
     },
     effect: (fn) => fn(),
     get: (svc) => {
@@ -97,6 +108,26 @@ test('client module loads and registers slot and trigger without syntax errors',
   assert.equal(slotsRegistered.length, 1, 'settings.plugin.item slot registered')
   const names = slotsRegistered.map((s) => s.meta.name)
   assert.ok(names.includes('settings.plugin.item'))
+
+  // Test full render of MoACard in expanded/ready state
+  const CardComp = slotsRegistered[0].comp
+  const stateMap = {
+    0: 'ready', // status
+    1: [{ name: 'default', reference_models: [{ provider: 'opencode-go', model: 'deepseek-v4-flash' }], aggregator: { provider: 'codex', model: 'gpt-5.6-sol' }, aggregator_temperature: 0.4, reference_temperature: 0.6, judge_criteria: 'strict tests' }],
+    2: 'default', // defaultPreset
+    3: [{ provider: 'opencode-go', model: 'deepseek-v4-flash', label: 'deepseek-v4-flash' }],
+    4: '',
+    5: true, // open=true
+  }
+  let callIdx = 0
+  fakeReact.useState = (initVal) => {
+    const idx = callIdx++
+    const val = stateMap[idx] !== undefined ? stateMap[idx] : (typeof initVal === 'function' ? initVal() : initVal)
+    return [val, () => {}]
+  }
+
+  const rendered = CardComp({ ctx: mockCtx, t: (k) => k })
+  assert.ok(rendered, 'MoACard renders without uncaught ReferenceError/TypeError')
 })
 
 test('no hardcoded machine paths or credentials in tracked source files', () => {
