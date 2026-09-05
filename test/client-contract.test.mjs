@@ -31,6 +31,10 @@ test('client module loads and registers slot and trigger without syntax errors',
   const fakeReact = {
     createElement: (type, props, ...children) => {
       if (typeof type === 'function') {
+        if (type.prototype && type.prototype.render) {
+          const inst = new type(Object.assign({}, props, { children }))
+          return inst.render()
+        }
         return type(Object.assign({}, props, { children }))
       }
       return { type, props, children }
@@ -42,6 +46,11 @@ test('client module loads and registers slot and trigger without syntax errors',
     useRef: (val) => ({ current: val }),
     useId: () => 'id-1',
     Fragment: 'Fragment',
+    Component: class {
+      constructor(props) { this.props = props; this.state = {}; }
+      setState(next) { Object.assign(this.state, typeof next === 'function' ? next(this.state) : next); }
+      render() { return this.props.children; }
+    },
   }
 
   const fakeWindow = {
