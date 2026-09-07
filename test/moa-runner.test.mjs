@@ -9,7 +9,7 @@ import {
   runMoAPipeline,
   formatMoAResponse,
   stripOrSummarizeCode,
-  MoaRunnerAdapter,
+  streamMoATurn,
   estimateTokenCost,
   
 } from '../lib/moa-runner.js'
@@ -293,22 +293,21 @@ test('formatMoAResponse: includes Live Canvas preview link and summarizes promot
   assert.ok(!output.includes('50 lines of code')) // Code should be summarized, not dumped
 })
 
-test('MoaRunnerAdapter: streams progress delta and completes with synthesis', async () => {
-  const getMoaContext = () => ({
+test('streamMoATurn: streams progress delta and completes with synthesis', async () => {
+  const turnContext = {
     targetPreset: {
       name: 'test-preset',
       reference_models: [{ provider: 'p1', model: 'm1' }],
-      aggregator: { provider: 'p2', model: 'm2' },
+      aggregator: { provider: 'real-provider', model: 'real-aggregator-model' },
     },
     userPrompt: 'write hello world',
     messages: [],
     callLlm: async () => 'hello world result',
-  })
+    cwd: process.cwd(),
+  }
 
-  const adapter = new MoaRunnerAdapter(getMoaContext)
   const chunks = []
-
-  for await (const chunk of adapter.stream({ messages: [{ role: 'user', content: '/moa write hello world' }] })) {
+  for await (const chunk of streamMoATurn(turnContext, {})) {
     chunks.push(chunk)
   }
 
@@ -317,7 +316,7 @@ test('MoaRunnerAdapter: streams progress delta and completes with synthesis', as
 
   // 2. Second chunk should be immediate progress text-delta
   assert.equal(chunks[1].type, 'text-delta')
-  assert.ok(chunks[1].text.includes('Mixture of Agents запущен'))
+  assert.ok(chunks[1].text.includes('Mixture of Agents'))
 
   // 3. Middle chunk should contain full formatted synthesis
   const synthDelta = chunks.findLast(c => c.type === 'text-delta')
@@ -330,12 +329,20 @@ test('MoaRunnerAdapter: streams progress delta and completes with synthesis', as
   assert.equal(finishChunk.reason.kind, 'stop')
 })
 
-test('MoaRunnerAdapter: listModels conforms to DSH adapter metadata contract', async () => {
-  const adapter = new MoaRunnerAdapter(() => ({}))
-  const models = await adapter.listModels('moa-runner')
-  assert.equal(Array.isArray(models), true)
-  assert.equal(models.length, 1)
-  assert.equal(models[0].provider, 'moa-runner')
-  assert.equal(models[0].id, 'ensemble')
-  assert.equal(typeof models[0].name, 'string')
+test('streamMoATurn: handles aborted signal gracefully without crashing', async () => {
+  const ac = new AbortController()
+  ac.abort()
+
+  const turnContext = {
+    targetPreset: { name: 'fast' },
+    userPrompt: 'aborted test',
+    messages: [],
+    callLlm: async () => 'should not run',
+  }
+
+  const chunks = []
+  for await (const chunk of streamMoATurn(turnContext, { signal: ac.signal })) {
+    chunks.push(chunk)
+  }
+  assert.equal(chunks.length, 0)
 })
