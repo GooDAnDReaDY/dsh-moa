@@ -3,12 +3,12 @@
 ## Product / Purpose
 - Назначение: Плагин для DeepSeek Harness, реализующий архитектуру Mixture of Agents (MoA) через команду `/moa <prompt>`. Позволяет параллельно генерировать варианты решения задачи несколькими моделями-кандидатами (proposers / reference models), после чего ведущая модель-агрегатор (judge / aggregator) оценивает ответы, отбирает лучшее, устраняет ошибки, продвигает созданные файлы в корень проекта и синтезирует итоговый результат. После завершения команды агент автоматически возвращается к основной модели текущей сессии.
 - Аудитория: Пользователи DeepSeek Harness, решающие сложные инженерные, исследовательские, математические и архитектурные задачи, требующие ансамбля моделей и перекрёстной валидации.
-- Статус: Active Development / Production Ready
+- Статус: Active Development / Production Ready (quality-audit batch 2026-09-11: честная аналитика, English-canonical UI, безопасность сбора контекста)
 
 ## User Surfaces
 - Web/UI: Выпадающее меню composer при вводе `/moa` с подсказкой и описанием; отображение стриминга MoA-хода в чате в реальном времени с индикаторами кандидатов; карточка настроек плагина в DSH Settings Card (слот `settings.plugin.item`, ключ `dsh-moa`).
 - DSH UI / settings / slots: слот `settings.plugin.item` ядра DSH. Сворачиваемая карточка настроек пресетов, советников, агрегатора, опросника и параметров генерации, оформленная в едином стиле с `dsh-clinebot`.
-- API: HTTP endpoints хоста: `GET /dsh-moa/status`, `GET /dsh-moa/presets`, `POST /dsh-moa/presets`, `GET /dsh-moa/models`, `GET /dsh-moa/history`, `GET /dsh-moa/leaderboard`, `POST /dsh-moa/run`.
+- API: HTTP endpoints хоста: `GET /dsh-moa/status`, `GET /dsh-moa/presets`, `POST /dsh-moa/presets` (payload валидируется схемой; принимает `enabled`), `GET /dsh-moa/models`, `GET /dsh-moa/history`, `GET /dsh-moa/leaderboard`, `GET /dsh-moa/runs/<id>`, `POST /dsh-moa/run` (400 при `enabled: false`).
 - CLI / Slash Commands: Команда `/moa <prompt>` и `/moa [preset] <prompt>` в строке ввода DSH.
 - Документация: `docs/design/DESIGN.md`, `README.md`, `README.ru.md`.
 
@@ -25,14 +25,15 @@
 
 ## Components And States
 - Компоненты:
-  1. `MoACard` / `MoAEditor` — панель настройки плагина со статусной строкой, секциями пресетов, советников, судьи и телеметрией.
+  1. `MoACard` / `MoAEditor` — панель настройки плагина со статусной строкой, секциями пресетов, советников, судьи, телеметрией и переключателем `enabled`.
   2. `SearchableModelPicker` — быстрый выпадающий поиск моделей по провайдеру/названию с фильтрацией и поддержкой произвольных моделей.
   3. `MoAErrorBoundary` — изоляция UI-ошибок с кнопкой повторной попытки.
 - Loading / empty / error / success:
   - `loading` — состояние инициализации настроек и загрузки списка доступных моделей.
-  - `ready` — активная конфигурация с валидным списком моделей и бейджем готовности.
+  - `ready` — активная конфигурация с валидным списком моделей; статусный бейдж отражает фактический ответ `GET /dsh-moa/status` (online / offline / disabled), а не рисуется безусловно.
   - `unavailable` — хост недоступен с кнопкой повторного подключения.
-  - `error` — индикация ошибки валидации или сохранения в `moa-alert-err`.
+  - `error` — индикация ошибки валидации или сохранения в `moa-alert-err`; невалидный payload `POST /dsh-moa/presets` отклоняется с 400.
+- Телеметрия: сетка статистики показывает Total Runs, Avg Run Cost (из `GET /dsh-moa/history`), Configured Models и Total Presets; при отсутствии данных — «—».
 - Формы, валидация и действия: Валидация наличия хотя бы одного советника и одного агрегатора.
 
 ## User Flows
@@ -55,4 +56,8 @@
 - 2026-09-07 — Маршрутизация на реальные модели провайдеров (`targetPreset.aggregator`) без фиктивных сущностей.
 - 2026-09-08 — Опциональный опросник (`ask_clarifying_questions`), zero-latency live delta queue streaming.
 - 2026-09-10 — Унификация UI с дизайн-стандартом `dsh-clinebot` (статусные чипы в header, секционные карточки, дизайн-токены `--dsw-alias-*`, глубокий аудит устойчивости).
+- 2026-09-11 — English-canonical пользовательские строки (сервер и клиент); ru-перевод предоставляет translation-плагин, собственный ru-дубль из пакета удалён. Причина: стандарт DSH (dsh-plugin-authoring); пересмотр — только по явному решению владельца.
+- 2026-09-11 — Заглушка Live Canvas удалена (фабрикация `http://localhost:3000/preview/...`); заявления README сняты. Реальная интеграция с `dsh-live-canvas` — отдельная задача (Gitea #46). Changed: прежний пункт про автопревью больше не действует.
+- 2026-09-11 — Статусный бейдж карточки отражает фактический `GET /dsh-moa/status` (online / offline / disabled); телеметрия Total Runs / Avg Run Cost берётся из `GET /dsh-moa/history`. Причина: карточка не должна показывать состояния, которые она не проверяла.
+- 2026-09-11 — Переключатель `enabled` в карточке сохраняется через `settingsScope`/REST и влияет на `/moa`-turn и `POST /dsh-moa/run`.
 

@@ -34,13 +34,12 @@ Single-model AI generation often suffers from blind spots, single-perspective bi
 1. **Adaptive Clarification Questionnaire**: For broad or underspecified prompts, advisor models formulate clarifying options and the judge synthesizes a structured 2–4 question questionnaire before generating code.
 2. **Parallel Proposers Fan-Out & Workspace Isolation**: Multiple independent models evaluate the prompt concurrently. Each candidate's proposed files are written to isolated disk sandboxes (`.moa/candidate-N/`), avoiding cross-pollution.
 3. **Frontier Judge Evaluation & File Promotion**: A flagship reasoning model critically benchmarks all proposals, selects the winning candidate via machine markers (`WINNER_CANDIDATE_INDEX: N`), and promotes the winner's files directly into the project root directory.
-4. **Instant Live Canvas Previewing**: When web applications or UI components are generated, `dsh-moa` integrates seamlessly with `@goodandready/dsh-live-canvas`, automatically spawning sandboxes for 1-click browser previewing.
-5. **Token-Saving Chat Summarization**: Replaces massive code dumps in chat bubbles with compact file listings and clean architectural summaries.
-6. **One-Shot Session Model Restoration**: Executes cleanly as a one-shot turn modifier, automatically reverting back to the user's primary session model immediately after completion.
-7. **Dynamic Model Pricing Catalog & Token Estimation**: Real-time rate resolution for 300+ models fetched automatically in the background from OpenRouter's public catalog (cached locally in `~/.dsh/storages/dsh-moa-catalog.json` for 24h), plus support for direct vendor rates and custom `prices` overrides in `settings.yaml`.
-8. **Refinement Mode (Incremental Edits)**: Automatically detects existing codebase context to generate precise delta modifications instead of destructive full-file rewrites.
-9. **Fast Mode & Custom Judge Criteria**: Ultra-fast single-model preset for quick tasks and customizable evaluation guidelines for the judge.
-10. **Run History & Win-Rate Leaderboard**: Persistent logging with built-in REST endpoints (`/dsh-moa/history` and `/dsh-moa/leaderboard`).
+4. **Token-Saving Chat Summarization**: Replaces massive code dumps in chat bubbles with compact file listings and clean architectural summaries.
+5. **One-Shot Session Model Restoration**: Executes cleanly as a one-shot turn modifier, automatically reverting back to the user's primary session model immediately after completion.
+6. **Dynamic Model Pricing Catalog & Token Estimation**: Real-time rate resolution for 300+ models fetched automatically in the background from OpenRouter's public catalog (cached locally in `~/.dsh/storages/dsh-moa-catalog.json` for 24h), plus support for direct vendor rates and custom `prices` overrides in `settings.yaml`.
+7. **Refinement Mode (Incremental Edits)**: Automatically detects existing codebase context to generate precise delta modifications instead of destructive full-file rewrites.
+8. **Fast Mode & Custom Judge Criteria**: Ultra-fast single-model preset for quick tasks and customizable evaluation guidelines for the judge.
+9. **Run History & Win-Rate Leaderboard**: Persistent logging of every run kind (synthesis, fast mode, questionnaire) with built-in REST endpoints (`/dsh-moa/history`, `/dsh-moa/leaderboard`, `/dsh-moa/runs/<id>`).
 
 ---
 
@@ -67,7 +66,6 @@ graph TD
         Aggregator["Frontier Judge Model<br/>(Cross-Evaluation & Code Critique)"]
         WinnerMarker{"WINNER_CANDIDATE_INDEX"}
         Promote["Promote Winner Files<br/>(Move to project root & cleanup sandboxes)"]
-        LiveCanvas["Live Canvas Integration<br/>(Auto-open Web UI sandbox)"]
         Summary["Token-Saving Summary<br/>(File overview & architecture highlights)"]
     end
 
@@ -81,7 +79,6 @@ graph TD
     WS1 & WS2 & WS3 --> Aggregator
     Aggregator --> WinnerMarker
     WinnerMarker --> Promote
-    Promote --> LiveCanvas
     Promote --> Summary
 ```
 
@@ -99,7 +96,13 @@ Integrated directly into the DeepSeek Harness composer via client input triggers
 Or target a specific named preset:
 
 ```text
-/moa:code-review audit the auth middleware and security boundaries
+/moa code-review audit the auth middleware and security boundaries
+```
+
+The flag form is equivalent:
+
+```text
+/moa --preset=deep-reasoning solve this math problem step by step
 ```
 
 ### 2. Adaptive Questionnaire Gate
@@ -115,14 +118,12 @@ Unlike standard chat-only MoA, `dsh-moa` isolates file generation onto the files
 * The Judge compares implementations and selects the optimal solution with `WINNER_CANDIDATE_INDEX: N`.
 * The winner's files are promoted to the workspace root, and temporary candidate directories are pruned automatically.
 
-### 5. Live Canvas 1-Click Preview
-If web files (`index.html`, React/JSX components, Vue, CSS) are generated, `dsh-moa` communicates with `@goodandready/dsh-live-canvas` via its REST endpoint to instantiate a live preview container with 1-click instant access.
-
-### 6. Native Settings Card & Presets
+### 5. Native Settings Card & Presets
 Configure your models in `Settings → Plugins → Mixture of Agents`:
 * Set custom Proposer models (e.g., fast generative models for diverse ideas).
 * Set the Aggregator / Judge model (e.g., deep reasoning models for rigorous critique).
-* Configure named presets (`default`, `code-review`, `deep-reasoning`).
+* Configure named presets (`default`, `fast`, `deep-reasoning`), judge criteria and temperatures.
+* Enable or disable MoA and see the real host status chip; the telemetry grid shows total runs and average run cost.
 
 ---
 
@@ -140,22 +141,13 @@ Restart your DeepSeek Harness instance and refresh the browser.
 
 ## ⚙️ Configuration (`settings.yaml`)
 
-Configure presets and model pipelines in `settings.yaml` or through the Web UI Settings panel:
+Configure presets and model pipelines in `settings.yaml` or through the Web UI Settings panel (Settings → Plugins → Mixture of Agents):
 
 ```yaml
 # settings.yaml
 dsh-moa:
-  defaultPreset: "default"
-  presets:
-    default:
-      references:
-        - provider: "your-fast-provider"
-          model: "your-creative-model"
-        - provider: "your-fast-provider"
-          model: "your-balanced-model"
-      aggregator:
-        provider: "your-reasoning-provider"
-        model: "your-judge-model"
+  enabled: true
+  default_preset: "default"
   prices:
     "my-provider/my-model":
       input: 0.20
@@ -163,26 +155,47 @@ dsh-moa:
     "ollama/*":
       input: 0
       output: 0
-    code-review:
-      references:
+  presets:
+    - name: default
+      ask_clarifying_questions: true
+      reference_models:
         - provider: "your-fast-provider"
-          model: "your-security-model"
+          model: "your-creative-model"
         - provider: "your-fast-provider"
-          model: "your-performance-model"
+          model: "your-balanced-model"
       aggregator:
         provider: "your-reasoning-provider"
         model: "your-judge-model"
+      reference_temperature: 0.6
+      aggregator_temperature: 0.4
+      max_tokens: 4096
+      judge_criteria: ""
+    - name: fast
+      ask_clarifying_questions: false
+      reference_models:
+        - provider: "your-fast-provider"
+          model: "your-fast-model"
+      aggregator:
+        provider: "your-fast-provider"
+        model: "your-fast-model"
 ```
 
 ### Configuration Parameters
 
 | Parameter | Type | Default | Description |
 |:---|:---|:---|:---|
-| `defaultPreset` | `string` | `"default"` | Default preset invoked when typing `/moa <prompt>` |
-| `presets.<name>.references` | `array` | `[...]` | List of proposer models queried concurrently during the proposal phase |
-| `presets.<name>.aggregator` | `object` | `{...}` | Frontier judge model responsible for synthesis, critique, and winner selection |
-| `enableQuestionnaire` | `boolean` | `true` | Enable interactive clarifying questionnaire for underspecified requests |
-| `autoPromoteWinner` | `boolean` | `true` | Automatically promote the judge's selected winner files into the project workspace |
+| `enabled` | `boolean` | `true` | Master switch for the `/moa` command, turn routing and `POST /dsh-moa/run` (editable in the settings card) |
+| `default_preset` | `string` | `"default"` | Preset invoked when typing `/moa <prompt>` without an explicit preset |
+| `presets` | `array` | `[...]` | Named presets; selected via `/moa <name> <prompt>` or `/moa --preset=<name> <prompt>` |
+| `presets[].reference_models` | `array` | `[...]` | Proposer models queried concurrently during the proposal phase |
+| `presets[].aggregator` | `object` | `{...}` | Judge model responsible for synthesis, critique, and winner selection |
+| `presets[].ask_clarifying_questions` | `boolean` | `true` | Synthesize a clarifying questionnaire for broad/underspecified prompts (per preset) |
+| `presets[].reference_temperature` / `.aggregator_temperature` | `number` | `0.6` / `0.4` | Sampling temperatures for proposers and judge |
+| `presets[].max_tokens` | `number` | `4096` | Max output tokens per model call |
+| `presets[].judge_criteria` | `string` | `""` | Optional extra evaluation criteria passed to the judge |
+| `prices` | `map` | `{}` | Custom USD-per-1M-token rates (`"provider/model"`, `"provider/*"`, `"*"`) applied to cost estimation |
+
+> **Privacy note:** in refinement mode, readable project files (up to ~16k characters; dotfiles such as `.env*` are excluded) are included in the prompts sent to the configured candidate and judge providers. Avoid running `/moa` in projects whose non-dotfile files contain secrets.
 
 ---
 
@@ -190,9 +203,14 @@ dsh-moa:
 
 | Endpoint | Method | Description |
 |:---|:---|:---|
-| `/dsh-moa/presets` | `GET` | Returns list of configured MoA presets |
+| `/dsh-moa/status` | `GET` | Health/enablement snapshot used by the settings card status chip |
+| `/dsh-moa/presets` | `GET` | Returns the configured MoA presets and default preset |
+| `/dsh-moa/presets` | `POST` | Replaces presets/default preset/enabled after schema validation (400 on invalid payload) |
+| `/dsh-moa/models` | `GET` | Lists models available for candidate/judge slots |
 | `/dsh-moa/history?limit=20&offset=0` | `GET` | Returns recent MoA runs with candidates, winner, cost, and tokens |
 | `/dsh-moa/leaderboard` | `GET` | Computes model win-rate leaderboard and average execution costs |
+| `/dsh-moa/runs/<id>` | `GET` | Returns a single recorded run by id |
+| `/dsh-moa/run` | `POST` | Runs the full MoA pipeline over HTTP (400 when `enabled: false`) |
 
 ---
 

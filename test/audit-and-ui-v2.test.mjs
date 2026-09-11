@@ -66,6 +66,11 @@ test('parseWinnerIndex: extracts winner index from various judge verdict formats
   assert.equal(parseWinnerIndex('Выбран лучший вариант: Кандидат 3', 1), 3)
   assert.equal(parseWinnerIndex('The best approach is Reference 2 because...', 1), 2)
   assert.equal(parseWinnerIndex('No structured marker present', 1), 1)
+  // Out-of-range indices fall back to the default instead of pointing to a
+  // non-existing candidate
+  assert.equal(parseWinnerIndex('WINNER_CANDIDATE_INDEX: 99', 1, 2), 1)
+  assert.equal(parseWinnerIndex('WINNER_CANDIDATE_INDEX: 2', 1, 2), 2)
+  assert.equal(parseWinnerIndex('Кандидат 5 выбран', 1, 2), 1)
 })
 
 test('pricing: resetMemoryCatalog clears cached models and refreshes correctly', () => {

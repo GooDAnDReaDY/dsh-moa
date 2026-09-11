@@ -167,11 +167,13 @@ test('runMoAPipeline: full flow of parallel proposers + aggregator synthesis', a
       return `Candidate response from ${params.model}`
     }
 
+    const histFile = path.join(tmpDir, 'history.jsonl')
     const res = await runMoAPipeline({
       userPrompt: 'Explain quantum computing',
       preset,
       callLlm: mockCallLlm,
       cwd: tmpDir,
+      historyFilePath: histFile,
     })
 
     assert.equal(res.aggregator, 'anthropic:claude-3-7-sonnet')
@@ -180,6 +182,13 @@ test('runMoAPipeline: full flow of parallel proposers + aggregator synthesis', a
     assert.equal(res.references[0].text, 'Candidate response from gpt-4o')
     assert.equal(res.references[1].text, 'Candidate response from deepseek-v3')
     assert.ok(res.usage.totalTokens > 0)
+
+    // History records the real provider/model identity of every candidate
+    const recorded = JSON.parse(fs.readFileSync(histFile, 'utf8').trim().split('\n').pop())
+    assert.equal(recorded.winnerModel, 'openai:gpt-4o')
+    assert.equal(recorded.candidates[0].provider, 'openai')
+    assert.equal(recorded.candidates[0].model, 'gpt-4o')
+    assert.equal(recorded.candidates[1].provider, 'deepseek')
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true })
   }
@@ -201,16 +210,25 @@ test('runMoAPipeline: fast mode with 1 candidate bypasses aggregator', async () 
       return 'Fast single candidate response ```html file="index.html"\n<h1>Fast</h1>\n```'
     }
 
+    const histFile = path.join(tmpDir, 'history.jsonl')
     const res = await runMoAPipeline({
       userPrompt: 'Fast generate header',
       preset,
       callLlm: mockCallLlm,
       cwd: tmpDir,
+      historyFilePath: histFile,
     })
 
     assert.equal(aggregatorCalled, false, 'Aggregator is bypassed in fast mode')
     assert.equal(res.isFastMode, true)
     assert.ok(res.promotedFiles.includes('index.html'))
+
+    // Fast-mode runs are recorded in history with the real candidate identity
+    const recorded = JSON.parse(fs.readFileSync(histFile, 'utf8').trim().split('\n').pop())
+    assert.equal(recorded.isFastMode, true)
+    assert.equal(recorded.candidates[0].provider, 'opencode-go')
+    assert.equal(recorded.candidates[0].model, 'deepseek-v4-flash')
+    assert.equal(recorded.winnerModel, 'opencode-go:deepseek-v4-flash')
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true })
   }
@@ -240,6 +258,7 @@ test('runMoAPipeline: aggregator failure falls back to joined candidates', async
       preset,
       callLlm: mockCallLlm,
       cwd: tmpDir,
+      historyFilePath: path.join(tmpDir, 'history.jsonl'),
     })
 
     assert.ok(res.content.includes('Aggregator error: 503 Service Unavailable'))
@@ -263,16 +282,16 @@ test('formatMoAResponse: formats candidate outputs, judge synthesis, and cost br
 
   const output = formatMoAResponse({ moaResult, presetName: 'default' })
 
-  assert.ok(output.includes('Mixture of Agents (Пресет: default | Судья: codex:gpt-5.6-sol)'))
-  assert.ok(output.includes('Стоимость запуска') && output.includes('$0.0240') && output.includes('12.4k'))
-  assert.ok(output.includes('Ответы моделей-советников (2):'))
+  assert.ok(output.includes('Mixture of Agents (Preset: default | Judge: codex:gpt-5.6-sol)'))
+  assert.ok(output.includes('Run cost') && output.includes('$0.0240') && output.includes('12.4k'))
+  assert.ok(output.includes('Advisor responses (2):'))
 
-  assert.ok(output.includes('Модель 1: opencode-go:deepseek-v4-flash'))
+  assert.ok(output.includes('Model 1: opencode-go:deepseek-v4-flash'))
   assert.ok(output.includes('Candidate 1 code'))
-  assert.ok(output.includes('Модель 2: grok:grok-build-0.1'))
+  assert.ok(output.includes('Model 2: grok:grok-build-0.1'))
   assert.ok(output.includes('Candidate 2 code'))
 
-  assert.ok(output.includes('Вердикт судьи и итоговое решение (Синтез: codex:gpt-5.6-sol)'))
+  assert.ok(output.includes('Judge verdict and final synthesis (Synthesis: codex:gpt-5.6-sol)'))
   assert.ok(output.includes('Final synthesized calculator code in HTML'))
 })
 
@@ -280,7 +299,7 @@ test('stripOrSummarizeCode: summarizes multi-line code blocks to save tokens', (
   const input = `Вот моё решение:\n\n\`\`\`html index.html\n<!DOCTYPE html>\n<html>\n<body>\n<h1>Calc</h1>\n<script>console.log("hello");</script>\n</body>\n</html>\n\`\`\`\n\nГотово к запуску!`
   const result = stripOrSummarizeCode(input)
   assert.ok(!result.includes('<!DOCTYPE html>'))
-  assert.ok(result.includes('индекс.html') || result.includes('index.html') || result.includes('строк сохранены на диск'))
+  assert.ok(result.includes('index.html') || result.includes('lines saved to disk'))
   assert.ok(result.includes('Готово к запуску!'))
 })
 
@@ -308,7 +327,7 @@ test('formatMoAResponse: includes Live Canvas preview link and summarizes promot
   }
 
   const output = formatMoAResponse({ moaResult, presetName: 'default' })
-  assert.ok(output.includes('Созданы файлы в проекте'))
+  assert.ok(output.includes('Files created in the project'))
   assert.ok(output.includes('index.html'))
   assert.ok(output.includes('Live Canvas'))
   assert.ok(output.includes('/dsh-live-canvas/sandbox/canvas-12345'))
@@ -328,6 +347,7 @@ test('streamMoATurn: streams progress delta and completes with synthesis', async
       messages: [],
       callLlm: async () => 'hello world result',
       cwd: tmpDir,
+      historyFilePath: path.join(tmpDir, 'history.jsonl'),
     }
 
     const chunks = []
@@ -342,6 +362,10 @@ test('streamMoATurn: streams progress delta and completes with synthesis', async
     const synthDelta = chunks.findLast(c => c.type === 'text-delta')
     assert.ok(synthDelta)
     assert.ok(synthDelta.text.includes('hello world result'))
+
+    const usageChunk = chunks.find(c => c.type === 'usage')
+    assert.ok(usageChunk)
+    assert.ok(usageChunk.usage.inputTokens > 0, 'usage reports estimated tokens, not a magic constant')
 
     const finishChunk = chunks.find(c => c.type === 'finish')
     assert.ok(finishChunk)
@@ -367,5 +391,59 @@ test('streamMoATurn: handles aborted signal gracefully without crashing', async 
     chunks.push(chunk)
   }
   assert.equal(chunks.length, 0)
+})
+
+test('runMoAPipeline: questionnaire branch cleans candidate workspaces and records history', async () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'moa-q-cleanup-'))
+  try {
+    const preset = {
+      name: 'with-q',
+      ask_clarifying_questions: true,
+      reference_models: [
+        { provider: 'p1', model: 'm1' },
+        { provider: 'p2', model: 'm2' },
+      ],
+      aggregator: { provider: 'agg', model: 'judge' },
+    }
+
+    const mockCallLlm = async (params) => {
+      if (params.model === 'judge') {
+        return '1. Format: single-file or React? 2. Style: minimal or neubrutalism?'
+      }
+      return 'Proposal ```html file="index.html"\n<h1>Snake</h1>\n```'
+    }
+
+    const histFile = path.join(tmpDir, 'history.jsonl')
+    const res = await runMoAPipeline({
+      userPrompt: 'создай змейку',
+      preset,
+      callLlm: mockCallLlm,
+      cwd: tmpDir,
+      historyFilePath: histFile,
+    })
+
+    assert.equal(res.kind, 'questions')
+    assert.equal(fs.existsSync(path.join(tmpDir, '.moa')), false, 'candidate workspaces must be cleaned in the questions branch')
+
+    const recorded = JSON.parse(fs.readFileSync(histFile, 'utf8').trim().split('\n').pop())
+    assert.equal(recorded.winnerIndex, -1)
+    assert.equal(recorded.candidates[0].provider, 'p1')
+    assert.equal(recorded.candidates[0].model, 'm1')
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true })
+  }
+})
+
+test('runReferencesParallel: config prices override applies to cost estimation', async () => {
+  const references = [{ provider: 'myprov', model: 'mymodel' }]
+  const mockCallLlm = async () => 'short output'
+  const prices = { 'myprov/mymodel': { input: 0, output: 2 } }
+
+  const results = await runReferencesParallel(references, [{ role: 'user', content: 'test prompt' }], { prices }, mockCallLlm)
+  assert.equal(results[0].ok, true)
+
+  const usage = results[0].usage
+  const expected = Number(((usage.outputTokens / 1e6) * 2).toFixed(5))
+  assert.equal(results[0].costUsd, expected, 'cost is computed from the custom prices override, not fallback rates')
 })
 

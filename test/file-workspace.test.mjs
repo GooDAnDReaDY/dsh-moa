@@ -67,10 +67,16 @@ test('collectProjectContext & isRefinementTask: context reading and refinement d
     await fs.mkdir(path.join(tmpDir, 'src'), { recursive: true })
     await fs.writeFile(path.join(tmpDir, 'src', 'main.js'), 'console.log("main");')
 
+    // Dotfiles, including .env and .env.* variants, must never be collected
+    await fs.writeFile(path.join(tmpDir, '.env'), 'SECRET=1')
+    await fs.writeFile(path.join(tmpDir, '.env.json'), '{"apiKey":"x"}')
+    await fs.writeFile(path.join(tmpDir, '.env.yaml'), 'apiKey: secret')
+
     const ctx = await collectProjectContext(tmpDir, 4000)
     assert.equal(ctx.files.length, 2)
     assert.ok(ctx.files.some((f) => f.relativePath === 'index.html'))
     assert.ok(ctx.files.some((f) => f.relativePath === 'src/main.js'))
+    assert.ok(!ctx.files.some((f) => f.relativePath.startsWith('.env')), 'dotfiles like .env.json must not be shipped to model providers')
 
     // Refinement checks
     assert.equal(isRefinementTask('добавь темную тему', ctx.files), true)
