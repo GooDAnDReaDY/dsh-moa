@@ -40,6 +40,7 @@
 7. **增量修改模式 (Refinement Mode)**：自动感知现有代码库上下文，生成精确的增量修改而非破坏性的整文件重写。
 8. **快速模式与自定义评审标准**：面向快速任务的单模型极简管线，以及可自定义的裁判评审准则。
 9. **运行历史与胜率排行榜**：对每一类运行（综合、快速模式、问卷）进行持久化记录，并内置 REST 端点（`/dsh-moa/history`、`/dsh-moa/leaderboard`、`/dsh-moa/runs/<id>`）。
+10. **Live Canvas 一键预览（可选）**：当同一 profile 中安装了 `@goodandready/dsh-live-canvas` 时，提升到项目根目录的 HTML 会被推入其沙箱，MoA 回答附带一键预览链接；未安装时该步骤静默跳过。
 
 ---
 
@@ -124,6 +125,9 @@ graph TD
 * 配置裁判模型（强推理模型进行严谨审查）。
 * 自定义命名预设 (`default`, `fast`, `deep-reasoning`)、裁判评审准则与温度。
 * 启用/停用 MoA 开关并查看真实的主机状态徽章；遥测网格展示总运行次数与平均运行成本。
+
+### 6. Live Canvas 一键预览（可选）
+若同一 profile 中安装了 `@goodandready/dsh-live-canvas`，`dsh-moa` 会将提升后的 HTML 文件推送到 Live Canvas 的 REST 契约（`POST /dsh-live-canvas/api/preview`，由同一 harness webServer 提供服务），并在回答中附上一键预览链接（`/dsh-live-canvas/sandbox/<id>`）。未安装该插件时此步骤静默跳过——日志无报错，也不会出现死链接。
 
 ---
 

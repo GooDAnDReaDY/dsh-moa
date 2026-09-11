@@ -60,4 +60,5 @@
 - 2026-09-11 — Заглушка Live Canvas удалена (фабрикация `http://localhost:3000/preview/...`); заявления README сняты. Реальная интеграция с `dsh-live-canvas` — отдельная задача (Gitea #46). Changed: прежний пункт про автопревью больше не действует.
 - 2026-09-11 — Статусный бейдж карточки отражает фактический `GET /dsh-moa/status` (online / offline / disabled); телеметрия Total Runs / Avg Run Cost берётся из `GET /dsh-moa/history`. Причина: карточка не должна показывать состояния, которые она не проверяла.
 - 2026-09-11 — Переключатель `enabled` в карточке сохраняется через `settingsScope`/REST и влияет на `/moa`-turn и `POST /dsh-moa/run`.
+- 2026-09-11 (вечер) — Интеграция с Live Canvas реализована через собственный REST-контракт `@goodandready/dsh-live-canvas` (`POST /dsh-live-canvas/api/preview`, self-call на порт хоста `ctx.webServer.port`) с тихой деградацией при отсутствии плагина (любая ошибка → ответ без preview-ссылки). Заменяет прежнее решение об удалении фабрикованной заглушки: ссылка `/dsh-live-canvas/sandbox/<id>` теперь создаётся реальной песочницей.
 
