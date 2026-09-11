@@ -40,6 +40,7 @@ Single-model AI generation often suffers from blind spots, single-perspective bi
 7. **Refinement Mode (Incremental Edits)**: Automatically detects existing codebase context to generate precise delta modifications instead of destructive full-file rewrites.
 8. **Fast Mode & Custom Judge Criteria**: Ultra-fast single-model preset for quick tasks and customizable evaluation guidelines for the judge.
 9. **Run History & Win-Rate Leaderboard**: Persistent logging of every run kind (synthesis, fast mode, questionnaire) with built-in REST endpoints (`/dsh-moa/history`, `/dsh-moa/leaderboard`, `/dsh-moa/runs/<id>`).
+10. **Live Canvas 1-Click Preview (optional)**: when the `@goodandready/dsh-live-canvas` plugin is installed in the same profile, the promoted HTML is pushed to its sandbox and the MoA answer carries a one-click preview link; without it the step is skipped silently.
 
 ---
 
@@ -124,6 +125,9 @@ Configure your models in `Settings → Plugins → Mixture of Agents`:
 * Set the Aggregator / Judge model (e.g., deep reasoning models for rigorous critique).
 * Configure named presets (`default`, `fast`, `deep-reasoning`), judge criteria and temperatures.
 * Enable or disable MoA and see the real host status chip; the telemetry grid shows total runs and average run cost.
+
+### 6. Live Canvas 1-Click Preview (optional)
+If `@goodandready/dsh-live-canvas` is installed in the same profile, `dsh-moa` pushes the promoted HTML file to the Live Canvas REST contract (`POST /dsh-live-canvas/api/preview`, served by the same harness webServer) and appends a one-click preview link (`/dsh-live-canvas/sandbox/<id>`) to the answer. Without the plugin the step is skipped silently — no errors in the log, no dead links.
 
 ---
 
