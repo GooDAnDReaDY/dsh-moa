@@ -125,8 +125,11 @@ test('client module loads and registers slot and trigger without syntax errors',
     1: [{ name: 'default', reference_models: [{ provider: 'opencode-go', model: 'deepseek-v4-flash' }], aggregator: { provider: 'codex', model: 'gpt-5.6-sol' }, aggregator_temperature: 0.4, reference_temperature: 0.6, judge_criteria: 'strict tests' }],
     2: 'default', // defaultPreset
     3: [{ provider: 'opencode-go', model: 'deepseek-v4-flash', label: 'deepseek-v4-flash' }],
-    4: '',
-    5: true, // open=true
+    4: '', // saveStatus
+    5: true, // enabled
+    6: 'online', // hostStatus
+    7: { totalRuns: 0, avgCostUsd: null }, // stats
+    8: true, // open=true
   }
   let callIdx = 0
   fakeReact.useState = (initVal) => {
