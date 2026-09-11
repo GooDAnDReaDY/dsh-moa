@@ -74,6 +74,12 @@ test('history: records run, reads paginated history, and calculates leaderboard'
     assert.equal(m1Stats.wins, 2)
     assert.equal(m1Stats.runs, 2)
     assert.equal(m1Stats.winRate, 100)
+
+    // Exact win matching: other candidates are never credited
+    const m2Stats = lb.models.find((m) => m.modelKey === 'p2:m2')
+    assert.ok(m2Stats)
+    assert.equal(m2Stats.wins, 0)
+    assert.equal(m2Stats.runs, 1)
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true })
   }

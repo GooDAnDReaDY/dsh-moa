@@ -25,11 +25,14 @@ test('runMoAPipeline: ask_clarifying_questions=false bypasses questionnaire on b
     return `Output from ${params.model}`
   }
 
+  const histFile = path.join(os.tmpdir(), `moa-hist-${Date.now()}-${Math.random().toString(36).slice(2)}.jsonl`)
+
   // 1. Broad prompt with questions enabled returns questionnaire
   const res1 = await runMoAPipeline({
     userPrompt: 'создай змейку',
     preset: presetWithQuestions,
     callLlm: mockCallLlm,
+    historyFilePath: histFile,
   })
   assert.equal(res1.kind, 'questions')
 
@@ -38,10 +41,13 @@ test('runMoAPipeline: ask_clarifying_questions=false bypasses questionnaire on b
     userPrompt: 'создай змейку',
     preset: presetWithoutQuestions,
     callLlm: mockCallLlm,
+    historyFilePath: histFile,
   })
   assert.notEqual(res2.kind, 'questions')
   assert.equal(res2.references.length, 2)
   assert.ok(res2.content)
+
+  try { fs.rmSync(histFile, { force: true }) } catch {}
 })
 
 test('runMoAPipeline: fast-fails immediately when 100% of candidate models fail without calling judge', async () => {
@@ -71,7 +77,7 @@ test('runMoAPipeline: fast-fails immediately when 100% of candidate models fail 
 
   assert.equal(judgeCalled, false, 'Aggregator/judge must not be called when 100% candidates fail')
   assert.equal(res.kind, 'failure')
-  assert.ok(res.content.includes('Все модели-советники (2) завершились с ошибкой'))
+  assert.ok(res.content.includes('All advisor models (2) failed'))
   assert.ok(res.content.includes('401 Invalid API Key'))
   assert.equal(res.usage.totalCostUsd, 0)
 })
