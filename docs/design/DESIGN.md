@@ -62,3 +62,5 @@
 - 2026-09-11 — Переключатель `enabled` в карточке сохраняется через `settingsScope`/REST и влияет на `/moa`-turn и `POST /dsh-moa/run`.
 - 2026-09-11 (вечер) — Интеграция с Live Canvas реализована через собственный REST-контракт `@goodandready/dsh-live-canvas` (`POST /dsh-live-canvas/api/preview`, self-call на порт хоста `ctx.webServer.port`) с тихой деградацией при отсутствии плагина (любая ошибка → ответ без preview-ссылки). Заменяет прежнее решение об удалении фабрикованной заглушки: ссылка `/dsh-live-canvas/sandbox/<id>` теперь создаётся реальной песочницей.
 
+
+- 2026-09-12 — Реализация кураторского синтеза (`curator_synthesis`), строгой рубрики антипаттернов (`ANTIPATTERNS_RUBRIC`), живого потокового стриминга куратора (`stream_aggregator`), кворума кандидатов с льготным периодом (`quorum_enabled`, `grace_period_sec`), авторетрая транзиентных ошибок (`callWithTransientRetry`) и цепочки запасных судей (`aggregator_fallbacks`). Все опции конфигурируются в пресетах с сохранением 100% обратной совместимости.
