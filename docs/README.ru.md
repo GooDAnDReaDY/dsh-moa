@@ -199,6 +199,7 @@ dsh-moa:
 | `presets[].quorum_enabled` | `boolean` | `false` | Защита от зависших моделей (stragglers): запуск синтеза при ответе от >= 60% кандидатов |
 | `presets[].grace_period_sec` | `number` | `10` | Грейс-период (в секундах) ожидания оставшихся моделей после достижения кворума |
 | `presets[].aggregator_fallbacks` | `array` | `[]` | Список запасных моделей-судей при сбоях основной модели агрегатора |
+| `presets[].blind_evaluation` | `boolean` | `false` | Обезличивание имен кандидатов («Candidate 1», «Candidate 2») для исключения предвзятости судьи |
 | `presets[].reference_timeout_sec` | `number` | `60` | Таймаут опроса каждого кандидата в секундах |
 | `presets[].aggregator_timeout_sec` | `number` | `180` | Таймаут синтеза решения судьей в секундах |
 | `presets[].reference_temperature` / `.aggregator_temperature` | `number` | `0.6` / `0.4` | Температуры сэмплирования советников и судьи |
