@@ -64,3 +64,5 @@
 
 
 - 2026-09-12 — Реализация кураторского синтеза (`curator_synthesis`), строгой рубрики антипаттернов (`ANTIPATTERNS_RUBRIC`), живого потокового стриминга куратора (`stream_aggregator`), кворума кандидатов с льготным периодом (`quorum_enabled`, `grace_period_sec`), авторетрая транзиентных ошибок (`callWithTransientRetry`) и цепочки запасных судей (`aggregator_fallbacks`). Все опции конфигурируются в пресетах с сохранением 100% обратной совместимости.
+
+- 2026-09-12 (вечер) — Декомпозиция lib/moa-runner.js на специализированные модули (`lib/moa-prompts.js`, `lib/moa-parser.js`, `lib/moa-runner.js`) с соблюдением канонического лимита <= 800 строк. Реализация автоматической ротации истории при превышении 10 МБ (`rotateHistoryFileIfNeeded`) и неблокирующего асинхронного сохранения (`recordMoaRunAsync`). Настраиваемые таймауты кандидатов и агрегатора (`reference_timeout_sec`, `aggregator_timeout_sec`).
