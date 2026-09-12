@@ -199,6 +199,8 @@ dsh-moa:
 | `presets[].quorum_enabled` | `boolean` | `false` | Straggler mitigation: proceed with synthesis once >= 60% candidates respond |
 | `presets[].grace_period_sec` | `number` | `10` | Grace period in seconds to wait for stragglers after quorum is reached |
 | `presets[].aggregator_fallbacks` | `array` | `[]` | Ordered fallback judge models tried if primary aggregator encounters transient errors |
+| `presets[].reference_timeout_sec` | `number` | `60` | Per-candidate execution timeout in seconds |
+| `presets[].aggregator_timeout_sec` | `number` | `180` | Aggregator/judge synthesis timeout in seconds |
 | `presets[].reference_temperature` / `.aggregator_temperature` | `number` | `0.6` / `0.4` | Sampling temperatures for proposers and judge |
 | `presets[].max_tokens` | `number` | `4096` | Max output tokens per model call |
 | `presets[].judge_criteria` | `string` | `""` | Optional extra evaluation criteria passed to the judge |
