@@ -153,7 +153,43 @@ Restart your DeepSeek Harness instance and refresh the browser.
 
 ---
 
+## ⚡ 10 Specialized Built-in Presets & Candidate Personas
+
+v0.2.13 introduces 10 ready-to-use presets engineered for real-world software workflows:
+
+| Preset Name | Purpose | Default Aggregator | Peer Critique | Blind Eval |
+| :--- | :--- | :--- | :---: | :---: |
+| `default` | Balanced multi-model generation | `codex:gpt-5.6-sol` | Optional | Off |
+| `code-review` | Thorough peer review & vulnerability detection | `codex:gpt-5.6-sol` | On | On |
+| `fast-audit` | Ultra-fast single-model audit (Fast Mode) | `codex:gpt-5.6-sol` | Off | Off |
+| `deep-architect` | Distributed systems & complex architectures | `codex:gpt-5.6-sol` | On | Off |
+| `bug-hunter` | Root cause discovery & adversarial edge cases | `codex:gpt-5.6-sol` | On | Off |
+| `refactor-cleanup` | Dead-code pruning & standard-library simplicity | `codex:gpt-5.6-sol` | Off | Off |
+| `frontend-ui` | High-fidelity responsive web interfaces | `codex:gpt-5.6-sol` | Off | Off |
+| `security-audit` | Zero-trust threat analysis & sanitization | `codex:gpt-5.6-sol` | On | On |
+| `math-logic` | Deterministic algorithmic proofs & math logic | `codex:gpt-5.6-sol` | On | Off |
+| `creative-brainstorm`| Divergent lateral thinking & ideation | `codex:gpt-5.6-sol` | Off | Off |
+
+### Candidate Personas (`role_persona`)
+Assign archetypal engineering mentalities to individual candidate slots to ensure genuine perspective divergence:
+- **`minimalist` (Ponytail Senior)**: standard library first, zero external dependencies, minimal moving parts.
+- **`robustness`**: defensive coding, boundary validation, graceful fallback handling, idempotent operations.
+- **`performance`**: algorithmic complexity minimization, memory efficiency, zero-copy operations.
+- **`tester`**: test-driven methodology, high branch coverage, explicit assertion design.
+- **`general`**: balanced standard engineering approach.
+
+---
+
+## 🤝 Consilium Round 2 (Peer Critique) & Syntax Auto-Fix Gate
+
+- **Consilium (Round 2)**: Enable `peer_critique_enabled: true` in preset settings. Each candidate receives peer proposals and submits an improved, hardened iteration before judge evaluation.
+- **Syntax Pre-Check Gate**: In-memory JS/MJS and JSON syntax verification runs automatically on all candidate files. If a proposal contains syntax errors, it is flagged with `[⚠️ Syntax Warning]` and the judge receives a strict mandate: *if this candidate has superior design, auto-correct the syntax in the synthesized deliverable and award them the win*.
+- **User Candidate Override**: Enable `allow_candidate_override: true` to preserve candidate sandboxes in `.moa/candidate-N/`. At any time, promote any candidate using `/moa promote <runId> <candidateIndex>` or the UI button.
+
+---
+
 ## ⚙️ Configuration (`settings.yaml`)
+
 
 Configure presets and model pipelines in `settings.yaml` or through the Web UI Settings panel (Settings → Plugins → Mixture of Agents):
 
