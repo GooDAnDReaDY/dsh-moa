@@ -71,3 +71,9 @@
 - 2026-09-13 — Расширение функционала MoA (Gitea Issue #59): интерактивный селектор альтернативного кандидата в чате (User Candidate Override: allow_candidate_override), пакет из 10 специализированных пресетов с ролями кандидатов (role_persona), локальный гейт синтаксической проверки (Syntax Pre-check Gate) с директивой автоисправления синтаксиса судьёй, режим взаимного рецензирования («Консилиум» / Peer Critique Round 2: peer_critique_enabled), фильтрация лидерборда по пресетам и выгрузка телеметрии в CSV/JSON.
 
 - 2026-09-13 — Приведение локализации плагина в строгое соответствие со стандартами dhs-plugin-release-workflow и dsh-plugin-authoring (Gitea Issue #61): добавление полного китайского словаря (zh) в lib/client.js наряду с каноническим английским (en), удаление захардкоженных русских строк в серверной части (lib/moa-parser.js, lib/moa-runner.js), интернационализация эвристик в lib/file-workspace.js и lib/moa-prompts.js (en + zh), создание issue в goodandready/dsh-russian-lang для русификации.
+
+## 2026-09-15: Pipeline Stability & Quality Polish (#63)
+- **Refinement Context**: `formatProjectContext(files)` serializes workspace files as fenced Markdown code blocks. `moa-runner.js` passes collected files into `isRefinementTask(prompt, files)`.
+- **Round 2 Persistence**: Candidate file refinements from Round 2 are persisted to `.moa/candidate-N/` via `writeCandidateWorkspace`.
+- **AbortSignal Lifecycle**: `signal` is propagated end-to-end to terminate parallel LLM calls immediately when user aborts or disconnects.
+- **Token Protection**: Peer critique prompts summarize oversized competitor code blocks (>3000 chars) to prevent context window exhaustion.
