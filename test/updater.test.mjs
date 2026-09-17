@@ -74,3 +74,19 @@ test('updater: isSafeWriteRequest blocks cross-site write requests', () => {
     headers: {},
   }), true)
 })
+
+test('updater: does NOT include --config.minimumReleaseAge=0 per ecosystem quarantine policy', async () => {
+  const fs = await import('node:fs/promises')
+  const updaterSrc = await fs.readFile(new URL('../lib/updater.js', import.meta.url), 'utf8')
+  assert.equal(updaterSrc.includes('--config.minimumReleaseAge=0'), false, 'Forbidden flag --config.minimumReleaseAge=0 found in updater.js')
+})
+
+test('updater: client.js includes one-click card integration (updateAvailable, latestVersion, api/dsh-moa/update)', async () => {
+  const fs = await import('node:fs/promises')
+  const clientSrc = await fs.readFile(new URL('../lib/client.js', import.meta.url), 'utf8')
+  assert.equal(clientSrc.includes('updateAvailable'), true, 'updateAvailable missing from client.js')
+  assert.equal(clientSrc.includes('latestVersion'), true, 'latestVersion missing from client.js')
+  assert.equal(clientSrc.includes('/api/dsh-moa/update'), true, '/api/dsh-moa/update endpoint missing from client.js')
+  assert.equal(clientSrc.includes("'updater.title'"), true, 'updater.title missing from client.js')
+  assert.equal(clientSrc.includes("'updater.btnUpdate'"), true, 'updater.btnUpdate missing from client.js')
+})
