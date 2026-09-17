@@ -282,6 +282,13 @@ npm test
 
 ---
 
+
+## 🛠️ Internal Tooling & Development
+
+For local verification and package integrity validation:
+- `npm test`: runs the full test suite (95 tests)
+- `./deploy.sh`: local infrastructure validation script (verifies package size, identity parity in package.json/cordis.patch.yml/client.js, and tests). Excluded from the published npm package.
+
 ## 📄 License
 
 MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
