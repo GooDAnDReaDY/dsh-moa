@@ -9,6 +9,7 @@ import {
   promoteCandidateWorkspace,
   cleanMoaWorkspaces,
   collectProjectContext,
+  formatProjectContext,
   isRefinementTask,
 } from '../lib/file-workspace.js'
 
@@ -132,6 +133,37 @@ test('writeCandidateWorkspace & promoteCandidateWorkspace: isolate and promote w
     // 4. Verify .moa directory is removed
     const moaExists = await fs.stat(path.join(tmpDir, '.moa')).then(() => true).catch(() => false)
     assert.equal(moaExists, false)
+  } finally {
+    await fs.rm(tmpDir, { recursive: true, force: true })
+  }
+})
+
+test('collectProjectContext & formatProjectContext: tracks and reports skippedFiles / skippedList (#74)', async () => {
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'moa-skipped-test-'))
+
+  try {
+    // 1. Regular file
+    await fs.writeFile(path.join(tmpDir, 'valid.js'), 'console.log("hello world");')
+
+    // 2. Oversized file (>100KB)
+    const bigContent = 'x'.repeat(105000)
+    await fs.writeFile(path.join(tmpDir, 'large-bundle.js'), bigContent)
+
+    // Collect context with small budget to trigger budget limit on additional file
+    await fs.writeFile(path.join(tmpDir, 'extra.js'), 'const a = 1;')
+
+    const ctx = await collectProjectContext(tmpDir, 50)
+    assert.ok(ctx.skippedFiles > 0, `Expected skippedFiles > 0, got ${ctx.skippedFiles}`)
+    assert.ok(Array.isArray(ctx.skippedList), 'skippedList must be an array')
+    assert.ok(ctx.skippedList.some((s) => s.includes('large-bundle.js')), 'oversized file must be in skippedList')
+
+    // Format context with skipped files and verify warning banner is rendered
+    const formatted = formatProjectContext(ctx.files, {
+      skippedFiles: ctx.skippedFiles,
+      skippedList: ctx.skippedList,
+    })
+    assert.ok(formatted.includes('⚠️ **Workspace Scan Notice:**'), 'warning banner must be present in formatted context')
+    assert.ok(formatted.includes('large-bundle.js'), 'skipped list detail must be in warning banner')
   } finally {
     await fs.rm(tmpDir, { recursive: true, force: true })
   }
