@@ -77,3 +77,8 @@
 - **Round 2 Persistence**: Candidate file refinements from Round 2 are persisted to `.moa/candidate-N/` via `writeCandidateWorkspace`.
 - **AbortSignal Lifecycle**: `signal` is propagated end-to-end to terminate parallel LLM calls immediately when user aborts or disconnects.
 - **Token Protection**: Peer critique prompts summarize oversized competitor code blocks (>3000 chars) to prevent context window exhaustion.
+
+- 2026-09-17 — Зафиксировано решение по многоязычным эвристикам разбора ввода (Gitea Issue #73):
+  1. Списки ключевых слов (русские, английские, китайские) в `lib/moa-prompts.js` (`isBroadPromptRequiringQuestions`, `vagueNouns`, `codeKeywords`), `lib/file-workspace.js` (`isRefinementTask`, `freshPhrases`, `modKeywords`) и `lib/moa-parser.js` (`parseWinnerIndex`) являются **входными данными и эвристиками парсера пользовательского ввода**, а не текстом пользовательского интерфейса.
+  2. Данное решение строго ограничено парсингом входящих пользовательских формулировок намерений. Русские строки категорически запрещены в: тексте UI-интерфейса, системных сообщениях об ошибках, ключах настроек и значениях по умолчанию (канонический язык продукта — `en` с обязательной локалью `zh`, русификацию UI предоставляет отдельный плагин `dsh-russian-lang`).
+  3. Недопустимо удалять или кастрировать ключевые слова парсера по формальному признаку наличия кириллицы, так как это ломает распознавание намерений русскоязычных пользователей при работе с моделью.
