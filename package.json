@@ -14,7 +14,6 @@
     "lib/",
     "cordis.patch.yml",
     "README.md",
-    "docs/",
     "LICENSE"
   ],
   "scripts": {
