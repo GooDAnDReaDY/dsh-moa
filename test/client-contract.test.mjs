@@ -114,9 +114,12 @@ test('client module loads and registers slot and trigger without syntax errors',
 
   loadedModule.apply(mockCtx)
   assert.ok(localesRegistered['dsh-moa'], 'Locale registered for dsh-moa')
-  assert.equal(slotsRegistered.length, 1, 'settings.plugin.item slot registered')
+  // Two seats by design: the Plugins page row seat the current core renders, and the
+  // legacy settings.plugin.item card kept as a fallback for older cores.
+  assert.equal(slotsRegistered.length, 2, 'row seat and legacy settings slot registered')
   const names = slotsRegistered.map((s) => s.meta.name)
-  assert.ok(names.includes('settings.plugin.item'))
+  assert.deepEqual(names, ['plugins.row.config', 'settings.plugin.item'], 'row seat goes first')
+  assert.equal(slotsRegistered[0].meta.key, '@goodandready/dsh-moa#dsh-moa')
 
   // Test full render of MoACard in expanded/ready state
   const CardComp = slotsRegistered[0].comp
