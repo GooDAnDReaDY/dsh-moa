@@ -114,15 +114,18 @@ test('client module loads and registers slot and trigger without syntax errors',
 
   loadedModule.apply(mockCtx)
   assert.ok(localesRegistered['dsh-moa'], 'Locale registered for dsh-moa')
-  // Two seats by design: the Plugins page row seat the current core renders, and the
-  // legacy settings.plugin.item card kept as a fallback for older cores.
-  assert.equal(slotsRegistered.length, 2, 'row seat and legacy settings slot registered')
+  // Three seats by design: the plugin-list seat the current core renders as the
+  // plugin's own page (plugins.item), the row seat and the legacy
+  // settings.plugin.item card kept as fallbacks.
+  assert.equal(slotsRegistered.length, 3, 'list seat, row seat and legacy settings slot registered')
   const names = slotsRegistered.map((s) => s.meta.name)
-  assert.deepEqual(names, ['plugins.row.config', 'settings.plugin.item'], 'row seat goes first')
-  assert.equal(slotsRegistered[0].meta.key, '@goodandready/dsh-moa#dsh-moa')
+  assert.deepEqual(names, ['plugins.item', 'plugins.row.config', 'settings.plugin.item'], 'list seat goes first')
+  assert.equal(slotsRegistered[0].meta.id, 'dsh-moa')
+  assert.equal(slotsRegistered[0].meta.label(), 'Mixture of Agents (MoA)', 'the label is a static string')
+  assert.equal(slotsRegistered[1].meta.key, '@goodandready/dsh-moa#dsh-moa')
 
   // Test full render of MoACard in expanded/ready state
-  const CardComp = slotsRegistered[0].comp
+  const CardComp = slotsRegistered[1].comp
   const stateMap = {
     0: 'ready', // status
     1: [{ name: 'default', reference_models: [{ provider: 'opencode-go', model: 'deepseek-v4-flash' }], aggregator: { provider: 'codex', model: 'gpt-5.6-sol' }, aggregator_temperature: 0.4, reference_temperature: 0.6, judge_criteria: 'strict tests' }],

@@ -2,6 +2,17 @@
 
 Notable changes to `@goodandready/dsh-moa`.
 
+## 0.2.19
+
+### Fixed
+- **Settings reachable again on the plugin's own page**: the current DSH core
+  (0.1.6-alpha.2) renders a plugin's configuration page only for entries registered
+  in the plugin-list seat `plugins.item`. The view-aware card is now registered there
+  too (`id: 'dsh-moa'`, order 35, static label) — registered on its own rather than
+  through the keyed helper, because that seat needs an `id` instead of a `key`; the
+  row seat and the legacy card stay as fallbacks.
+- The client contract test now expects the three seats in order.
+
 ## 0.2.18
 
 ### Fixed
