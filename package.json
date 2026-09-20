@@ -17,7 +17,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "build:client": "node scripts/build-client.mjs"
   },
   "keywords": [
     "dsh",
