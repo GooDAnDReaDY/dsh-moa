@@ -109,7 +109,7 @@
             provider: 'opencode-go',
             model: 'deepseek-v4-flash',
           }
-          refs.push({ provider: fallback.provider, model: fallback.model })
+          refs.push({ provider: fallback.provider, model: fallback.model, role_persona: 'general' })
           return { ...p, reference_models: refs }
         })
       }
@@ -128,8 +128,8 @@
           enabled: true,
           ask_clarifying_questions: true,
           reference_models: currentPreset?.reference_models?.length ? structuredClone(currentPreset.reference_models) : [
-            { provider: 'opencode-go', model: 'deepseek-v4-flash' },
-            { provider: 'codex', model: 'gpt-5.6-sol' },
+            { provider: 'opencode-go', model: 'deepseek-v4-flash', role_persona: 'general' },
+            { provider: 'codex', model: 'gpt-5.6-sol', role_persona: 'general' },
           ],
           aggregator: currentPreset?.aggregator?.provider ? structuredClone(currentPreset.aggregator) : {
             provider: 'codex',
