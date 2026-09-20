@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-moa",
-  "version": "0.2.19",
+  "version": "0.2.20",
   "description": "Mixture of Agents (MoA) plugin for DeepSeek Harness with /moa slash command",
   "type": "module",
   "main": "lib/index.js",
@@ -14,6 +14,8 @@
     "lib/",
     "cordis.patch.yml",
     "README.md",
+    "README.ru.md",
+    "README.zh.md",
     "LICENSE"
   ],
   "scripts": {
