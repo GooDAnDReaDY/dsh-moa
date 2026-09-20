@@ -81,6 +81,20 @@
 .moa-chev{transition:transform .2s ease;color:var(--dsw-alias-label-secondary)}
 .moa-chev-open{transform:rotate(180deg)}
 .moa-body{padding:0 18px 20px;border-top:1px solid var(--dsw-alias-border-l2)}
+/* Candidate Diff Viewer */
+.moa-diff-container{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.moa-diff-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.moa-diff-select{height:32px;padding:0 8px;border-radius:6px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);font-size:12px;outline:none}
+.moa-diff-box{background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);border-radius:8px;padding:8px 0;font-family:monospace, ui-monospace, Menlo, Consolas, monospace;font-size:12px;line-height:1.5;max-height:400px;overflow-y:auto;overflow-x:auto}
+.moa-diff-line{display:flex;padding:1px 10px;white-space:pre}
+.moa-diff-line-same{color:var(--dsw-alias-label-secondary)}
+.moa-diff-line-add{background:color-mix(in srgb, var(--dsw-alias-state-success-primary) 14%, transparent);color:var(--dsw-alias-state-success-primary)}
+.moa-diff-line-del{background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 14%, transparent);color:var(--dsw-alias-state-error-primary)}
+.moa-diff-prefix{width:20px;user-select:none;flex-shrink:0;font-weight:bold}
+.moa-diff-content{flex:1}
+.moa-diff-stat-add{color:var(--dsw-alias-state-success-primary);font-weight:600}
+.moa-diff-stat-del{color:var(--dsw-alias-state-error-primary);font-weight:600}
+
 `
 
     let stylesInjected = false

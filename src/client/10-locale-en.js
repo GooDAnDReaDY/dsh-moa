@@ -98,6 +98,17 @@
       'updater.available': 'Update available: v{version}',
       'updater.upToDate': 'Up to date',
       'updater.checkFailed': 'Registry check failed',
+      'diff.title': 'Candidate Diff Viewer',
+      'diff.desc': 'Visually inspect differences between candidate solutions and judge synthesis in the project workspace.',
+      'diff.select_from': 'Base:',
+      'diff.select_to': 'Compare with:',
+      'diff.select_file': 'File:',
+      'diff.no_files': 'No files found in candidate workspaces (.moa). Run a task with /moa to generate candidate code.',
+      'diff.refresh': 'Refresh Diff',
+      'diff.loading': 'Loading differences...',
+      'diff.curator': 'Curator Synthesis',
+      'diff.candidate': 'Candidate {num}',
+      'diff.empty': 'Selected files are identical (zero diff).',
       'updater.success': 'Successfully updated to v{version}. Restart DSH to apply.',
     }
 

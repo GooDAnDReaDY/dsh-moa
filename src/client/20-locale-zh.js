@@ -98,6 +98,17 @@
       'updater.available': '发现新版本：v{version}',
       'updater.upToDate': '已是最新版本',
       'updater.checkFailed': '检查版本失败',
+      'diff.title': '候选方案差异查看器 (Diff Viewer)',
+      'diff.desc': '在项目工作区中可视化检查候选方案与裁判合成方案之间的文件差异。',
+      'diff.select_from': '基准方案：',
+      'diff.select_to': '对比目标：',
+      'diff.select_file': '文件：',
+      'diff.no_files': '在候选工作区 (.moa) 中未发现文件。请先运行 /moa 生成候选代码。',
+      'diff.refresh': '刷新差异',
+      'diff.loading': '正在加载差异...',
+      'diff.curator': '裁判合成 (Curator Synthesis)',
+      'diff.candidate': '候选方案 {num}',
+      'diff.empty': '选中的文件完全一致（无差异）。',
       'updater.success': '成功更新至 v{version}，请重启 DSH 使其生效。',
     }
 
