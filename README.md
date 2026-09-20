@@ -136,6 +136,12 @@ Configure your models in `Settings → Plugins → Mixture of Agents`:
 * Configure named presets (`default`, `fast`, `deep-reasoning`), judge criteria and temperatures.
 * Enable or disable MoA and see the real host status chip; the telemetry grid shows total runs and average run cost.
 
+### 7. Candidate Diff Viewer
+Inspect line-by-line differences between candidate proposals and the curator's synthesized deliverable directly in the UI. Features file selection, delta line highlights (added, removed, same), and unified diff rendering via a zero-dependency in-memory LCS algorithm.
+
+### 8. Pre-Promotion Git Checkpoints (`dsh-time-machine`)
+Before promoting any winning candidate files over the workspace root, `dsh-moa` invokes the local `dsh-time-machine` service to create a shadow Git checkpoint (`moa-pre-promotion: candidate-N`). If `dsh-time-machine` is absent or unreachable, file promotion proceeds seamlessly via best-effort fallback.
+
 ### 6. Live Canvas 1-Click Preview (optional)
 If `@goodandready/dsh-live-canvas` is installed in the same profile, `dsh-moa` pushes the promoted HTML file to the Live Canvas REST contract (`POST /dsh-live-canvas/api/preview`, served by the same harness webServer) and appends a one-click preview link (`/dsh-live-canvas/sandbox/<id>`) to the answer. Without the plugin the step is skipped silently — no errors in the log, no dead links.
 
@@ -269,6 +275,9 @@ dsh-moa:
 | `/dsh-moa/leaderboard` | `GET` | Computes model win-rate leaderboard and average execution costs |
 | `/dsh-moa/runs/<id>` | `GET` | Returns a single recorded run by id |
 | `/dsh-moa/run` | `POST` | Runs the full MoA pipeline over HTTP (400 when `enabled: false`) |
+| `/dsh-moa/diff` | `GET` | Computes line-by-line diff between candidate runs or curator synthesis |
+| `/dsh-moa/promote` | `POST` | Manually promotes candidate workspace files to project root |
+| `/api/dsh-moa/update` | `POST` | One-click plugin updater from npm with safe-write verification |
 
 ---
 
