@@ -2,6 +2,16 @@
 
 Notable changes to `@goodandready/dsh-moa`.
 
+## 0.2.21
+
+### Performance & Security
+- **In-Memory Leaderboard Aggregation Cache & Chunked History**: Added mtime-invalidated `_historyCache` and `readTailLinesSync` to parse only recent runs in 64 KB chunks backwards from EOF, eliminating event loop blocking and full-file memory allocations on 10MB JSONL logs (#91).
+- **LCS Diff Prefix/Suffix Trimming**: Optimized `computeLineDiff` with common prefix/suffix trimming before LCS matrix construction, reducing DP allocation by >99% for localized edits on large files (>2000 lines) and eliminating the full-file replacement fallback (#92).
+- **Sandboxed Workspace Path Traversal Sanitization**: Hardened file workspace operations (`writeCandidateWorkspace`, `promoteCandidateWorkspace`, `readCandidateFiles`, `/dsh-moa/diff`) against directory traversal attacks via `isSafeRelativePath` and `assertPathContained` (#93).
+- **Immediate Socket Termination on Candidate Timeout**: Added `abortControllers[i].abort()` directly within candidate timeout handlers in `runReferencesParallel` to prevent leaked sockets and wasted token generation (#94).
+- **Reactive Preset Leaderboard Filtering in Web UI**: Integrated reactive `useEffect` on `leaderboardPresetFilter` in settings hook, ensuring the leaderboard table updates immediately when switching presets (#95).
+- **Concurrent Provider Resolution & Caching**: Parallelized `/dsh-moa/models` queries across providers using `Promise.allSettled` with individual 2s timeouts and 60s in-memory caching (#96).
+
 ## 0.2.20
 
 ### Added
