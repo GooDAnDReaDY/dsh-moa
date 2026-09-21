@@ -184,6 +184,20 @@
         reload()
       }, [reload])
 
+      React.useEffect(() => {
+        const lbUrl = leaderboardPresetFilter !== 'all'
+          ? `/dsh-moa/leaderboard?preset=${encodeURIComponent(leaderboardPresetFilter)}`
+          : '/dsh-moa/leaderboard'
+        fetch(lbUrl, { cache: 'no-store' })
+          .then((r) => r.json())
+          .then((data) => {
+            if (data && data.ok && Array.isArray(data.models)) {
+              setLeaderboard(data.models.slice(0, 10))
+            }
+          })
+          .catch(() => {})
+      }, [leaderboardPresetFilter])
+
       const handleSave = () => {
         setSaveStatus(t('actions.saving'))
 
