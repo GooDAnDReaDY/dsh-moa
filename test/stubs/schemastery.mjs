@@ -1,11 +1,6 @@
 /**
  * Minimal schemastery-compatible stub for harness-free tests.
- *
- * Implements only the surface dsh-moa uses (object/string/number/boolean/
- * array/dict with .default chaining and call-time validation with default
- * filling) so lib/index.js can be imported without the DSH runtime.
  */
-
 function validate(schema, value) {
   if (typeof schema === 'function') schema = schema.__schema
   if (value === undefined || value === null) {
@@ -49,10 +44,21 @@ function validate(schema, value) {
 }
 
 function node(schema) {
+  schema.meta = schema.meta || {}
   const fn = (value) => validate(schema, value)
   fn.__schema = schema
+  fn.meta = schema.meta
+  fn.fields = schema.fields
+  fn.dict = schema.fields
+  fn.inner = schema.inner
   fn.default = (d) => {
     schema.default = d
+    schema.meta.default = d
+    return fn
+  }
+  fn.volatile = () => {
+    schema.volatile = true
+    schema.meta.volatile = true
     return fn
   }
   fn.required = () => fn

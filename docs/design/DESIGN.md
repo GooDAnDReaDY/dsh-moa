@@ -7,7 +7,7 @@
 
 ## User Surfaces
 - Web/UI: Выпадающее меню composer при вводе `/moa` с подсказкой и описанием; отображение стриминга MoA-хода в чате в реальном времени с индикаторами кандидатов; карточка настроек плагина в DSH Settings Card (слот `settings.plugin.item`, ключ `dsh-moa`).
-- DSH UI / settings / slots: слот `settings.plugin.item` ядра DSH. Сворачиваемая карточка настроек пресетов, советников, агрегатора, опросника и параметров генерации, оформленная в едином стиле с `dsh-clinebot`.
+- DSH UI / settings / slots: слот `settings.plugin.item` ядра DSH. Сворачиваемая карточка настроек пресетов, советников, агрегатора, опросника и параметров генерации, оформленная в едином стиле с `dsh-clinebot`. В DSH 0.1.7 схема `Config` объявляет редактируемые поля volatile (`.volatile()`), автогенерация дублирующей формы подавляется через policy hook `settings.configure({ auto: false })`, а бизнес-логика и REST API сохранения (`POST /dsh-moa/presets`) полностью автономны и не зависят от наличия сервиса Settings.
 - API: HTTP endpoints хоста: `GET /dsh-moa/status`, `GET /dsh-moa/presets`, `POST /dsh-moa/presets` (payload валидируется схемой; принимает `enabled`), `GET /dsh-moa/models`, `GET /dsh-moa/history`, `GET /dsh-moa/leaderboard`, `GET /dsh-moa/runs/<id>`, `POST /dsh-moa/run` (400 при `enabled: false`).
 - CLI / Slash Commands: Команда `/moa <prompt>` и `/moa [preset] <prompt>` в строке ввода DSH.
 - Документация: `docs/design/DESIGN.md`, `README.md`, `README.ru.md`.
@@ -120,3 +120,9 @@
   4. **Немедленный аборт зависших запросов по таймауту (Issue #94)**: В `runReferencesParallel` при срабатывании таймера таймаута вызывается `abortControllers[i].abort()`, исключая утечки сокетов и расходование API-токенов в фоне.
   5. **Реактивный фильтр пресетов в телеметрии (Issue #95)**: В `src/client/120-settings-hook.js` добавлен `useEffect`, отслеживающий изменение `leaderboardPresetFilter` и динамически обновляющий таблицу лидеров.
   6. **Параллельный опрос провайдеров и TTL-кэш доступных моделей (Issue #96)**: В `/dsh-moa/models` опрос сконфигурированных провайдеров выполняется параллельно через `Promise.allSettled()` с тайм-аутом 2000 мс и кэшированием результатов в памяти (TTL 60 с).
+- 2026-09-22 — Миграция на DSH 0.1.7 Config и SettingsForms (Gitea Issue #98):
+  1. **Удаление legacy API settings.register**: Полностью удалены вызовы устаревшего `sctx.settings.register` и маскирующий блок try/catch, исключая warning/error в системном журнале DSH 0.1.7.
+  2. **Спецификация volatileForm (@deepseek-ai/dsh-settings)**: Схема `Config` и все её редактируемые поля (`enabled`, `default_preset`, `prices`, `presets`) объявлены volatile через метод `.volatile()` Schemastery, что обеспечивает бесшовную интеграцию с профильной конфигурацией DSH без перемонтирования.
+  3. **Optional policy hook**: При наличии сервиса `settings` регистрируется hook `settings.configure({ auto: false }, ctx.fiber)` для подавления дублирующей автосгенерированной формы настроек при наличии собственного интерактивного UI плагина в `settings.plugin.item`.
+  4. **Автономия бизнес-логики от сервиса Settings**: Сервис `settings` исключён из обязательного списка `inject`; при его отсутствии плагин сохраняет полную работоспособность, обновляя конфигурацию в памяти и через REST-эндпоинт `POST /dsh-moa/presets`.
+  5. **Автоматическое тестирование**: Добавлен модульный тестовый набор `test/dsh-017-settings.test.mjs`, проверяющий корректность метаданных схемы Config, регистрацию policy hook, отсутствие устаревших вызовов и работу REST-сохранения.
