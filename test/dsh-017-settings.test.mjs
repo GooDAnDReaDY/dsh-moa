@@ -7,7 +7,7 @@ import path from 'node:path'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 register(pathToFileURL(path.join(__dirname, 'schemastery-stub-hooks.mjs')))
 
-const { Config, NS, apply } = await import('../lib/index.js')
+const { Config, NS, apply, plainConfig } = await import('../lib/index.js')
 
 test('DSH 0.1.7 Config: all editable fields declare volatile metadata without enclosing volatile', () => {
   assert.equal(Config.meta?.volatile, undefined, 'Config root object must not be volatile to avoid enclosing volatile error')
@@ -190,4 +190,23 @@ test('DSH 0.1.7 persistence: POST /dsh-moa/presets validates and calls settings.
   assert.equal(replacedWith?.ns, NS)
   assert.equal(replacedWith?.payload?.default_preset, 'custom')
   assert.equal(replacedWith?.payload?.presets?.length, 1)
+})
+
+test('DSH 0.1.7 plainConfig: unwraps nested volatile getters into plain serializable values', () => {
+  const volatileObj = {
+    enabled: { get: () => true },
+    nested: {
+      default_preset: { get: () => 'fast' },
+      list: [{ get: () => 'item' }],
+    },
+  }
+  const plain = plainConfig(volatileObj)
+  assert.deepEqual(plain, {
+    enabled: true,
+    nested: {
+      default_preset: 'fast',
+      list: ['item'],
+    },
+  })
+  assert.doesNotThrow(() => JSON.stringify(plain))
 })
