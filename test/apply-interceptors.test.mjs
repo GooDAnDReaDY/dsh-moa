@@ -36,7 +36,7 @@ function buildCtx(config) {
   const handlers = {}
   const routes = []
   const effects = []
-  const settingsScope = {
+  const configForms = {
     get: () => config,
     replace: async () => {},
   }
@@ -57,7 +57,7 @@ function buildCtx(config) {
       return () => {}
     },
     inject: (deps, cb) => {
-      cb({ settings: { register: () => settingsScope }, effect: ctx.effect })
+      cb({ settings: { register: () => configForms }, effect: ctx.effect })
     },
   }
   return { ctx, handlers, routes, effects }
