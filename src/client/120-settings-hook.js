@@ -6,8 +6,8 @@
 
       const scope = React.useMemo(() => {
         if (!effectiveCtx) return undefined
-        const s = effectiveCtx.get ? effectiveCtx.get('settingsScope') : effectiveCtx.settingsScope
-        return s && typeof s.bind === 'function' ? s.bind({ namespace: NS }) : undefined
+        const s = effectiveCtx.get ? effectiveCtx.get('configForms') : effectiveCtx.configForms
+        return s && typeof s.get === 'function' ? s.get(NS) : undefined
       }, [effectiveCtx])
 
       const snapshot = React.useSyncExternalStore

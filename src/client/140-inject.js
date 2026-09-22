@@ -1,5 +1,5 @@
 
-    exports.inject = ['slots', 'locale', 'inputTriggers', 'settingsScope']
+    exports.inject = ['slots', 'locale', 'inputTriggers', 'configForms']
     exports.apply = function apply(ctx) {
       rootCtx = ctx
 

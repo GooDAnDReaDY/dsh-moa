@@ -2,6 +2,11 @@
 
 Notable changes to `@goodandready/dsh-moa`.
 
+## 0.2.23
+
+### Fixed
+- Settings no longer wait on the removed settingsScope service. The client uses configForms (#105).
+
 ## 0.2.22
 
 ### Fixed

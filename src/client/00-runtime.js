@@ -6,7 +6,7 @@
 // - Segmented preset selectors and count pills
 // - Refined temperature sliders and searchable model picker
 // - Telemetry summary grid fed by /dsh-moa/history
-// - Robust error boundary and settingsScope reactivity
+// - Robust error boundary and configForms reactivity
 //
 // English is the canonical source language; the ru translation is provided
 // by the DSH translation plugin at runtime (no bundled ru duplicate).
