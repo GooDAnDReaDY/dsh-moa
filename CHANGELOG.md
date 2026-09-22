@@ -2,6 +2,17 @@
 
 Notable changes to `@goodandready/dsh-moa`.
 
+## 0.2.22
+
+### Fixed
+- **DSH 0.1.7 Settings Architecture Migration**:
+  - Completely removed deprecated `sctx.settings.register` API call and masking try/catch block, eliminating boot warnings on `@deepseek-ai/dsh@0.1.7-alpha.1` (#98).
+  - Config schema and all editable fields (`enabled`, `default_preset`, `prices`, `presets`) declared `.volatile()` conforming to DSH 0.1.7 `@deepseek-ai/dsh-settings` `volatileForm` specification (#98).
+  - Added optional policy hook `settings.configure({ auto: false }, ctx.fiber)` to suppress duplicate auto-generated settings forms in favour of custom interactive plugin cards in `settings.plugin.item` (#98).
+  - Decoupled plugin business logic from `settings` service dependency so the plugin runs autonomously in any DSH environment (#98).
+  - Added schema validation, in-memory live updates, and DSH settings persistence via `saveConfig` in `POST /dsh-moa/presets` (#98).
+  - Added automated test suite `test/dsh-017-settings.test.mjs` verifying schema volatility, absence of legacy register calls, independent startup without settings service, and REST persistence (#98).
+
 ## 0.2.21
 
 ### Performance & Security
