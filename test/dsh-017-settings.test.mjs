@@ -115,7 +115,9 @@ test('DSH 0.1.7 persistence: POST /dsh-moa/presets validates and calls settings.
 
   const routes = {}
   const ctx = {
-    settings: mockSettings,
+    get settings() {
+      throw new Error('cannot get property "settings" without inject')
+    },
     webServer: {
       port: 3000,
       register: (route) => {
