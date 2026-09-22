@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-moa",
-  "version": "0.2.22",
+  "version": "0.2.23",
   "description": "Mixture of Agents (MoA) plugin for DeepSeek Harness with /moa slash command",
   "type": "module",
   "main": "lib/index.js",
@@ -48,7 +48,8 @@
       "inject": [
         "@deepseek-ai/dsh-client-locale",
         "@deepseek-ai/dsh-client-ui-settings",
-        "@deepseek-ai/dsh-client-ui-input-trigger"
+        "@deepseek-ai/dsh-client-ui-input-trigger",
+        "@deepseek-ai/dsh-client-ui-slots"
       ]
     }
   },
