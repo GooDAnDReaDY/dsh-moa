@@ -9,8 +9,8 @@ register(pathToFileURL(path.join(__dirname, 'schemastery-stub-hooks.mjs')))
 
 const { Config, NS, apply } = await import('../lib/index.js')
 
-test('DSH 0.1.7 Config: schema and all editable fields declare volatile metadata', () => {
-  assert.equal(Config.meta?.volatile, true, 'Config schema itself must be volatile')
+test('DSH 0.1.7 Config: all editable fields declare volatile metadata without enclosing volatile', () => {
+  assert.equal(Config.meta?.volatile, undefined, 'Config root object must not be volatile to avoid enclosing volatile error')
   assert.equal(Config.fields?.enabled?.meta?.volatile, true, 'enabled field must be volatile')
   assert.equal(Config.fields?.default_preset?.meta?.volatile, true, 'default_preset field must be volatile')
   assert.equal(Config.fields?.prices?.meta?.volatile, true, 'prices field must be volatile')
