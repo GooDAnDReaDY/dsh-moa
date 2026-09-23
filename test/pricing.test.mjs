@@ -10,6 +10,7 @@ import {
   estimateTokenCost,
   DIRECT_VENDOR_RATES,
   FALLBACK_RATES,
+  resetMemoryCatalog,
 } from '../lib/pricing.js'
 
 test('pricing: direct vendor rates match official DeepSeek pricing', () => {
@@ -61,6 +62,7 @@ test('pricing: catalog cache loading and model matching', () => {
     assert.equal(unknownRate.input, FALLBACK_RATES.input)
     assert.equal(unknownRate.output, FALLBACK_RATES.output)
   } finally {
+    resetMemoryCatalog()
     try { unlinkSync(testCachePath) } catch {}
   }
 })
@@ -76,4 +78,49 @@ test('pricing: estimateTokenCost computes exact input, output and cached costs',
   const result = estimateTokenCost(slot, usage)
   assert.equal(result.totalTokens, 1_500_000)
   assert.ok(Math.abs(result.costUsd - 0.2548) < 1e-4)
+})
+
+test('pricing: issue #100 - resolveModelRates avoids wrong-model substring matching', () => {
+  const testCachePath = join(tmpdir(), `dsh-moa-test-cache-issue100-${Date.now()}.json`)
+  const mockCatalog = {
+    updatedAt: Date.now(),
+    models: {
+      'anthropic/claude-3-haiku': { input: 0.25, output: 1.25 },
+      'anthropic/claude-3-sonnet': { input: 3.0, output: 15.0 },
+      'anthropic/claude-3-opus': { input: 15.0, output: 75.0 },
+      'provider-x/model-a': { input: 0.5, output: 1.0 },
+      'provider-x/model-a-extended': { input: 2.0, output: 4.0 },
+      'provider-y/model-a': { input: 9.0, output: 18.0 },
+    }
+  }
+  writeFileSync(testCachePath, JSON.stringify(mockCatalog))
+
+  try {
+    // 1. Exact model ID matches take priority
+    const exactHaiku = resolveModelRates({ provider: 'anthropic', model: 'claude-3-haiku' }, {}, testCachePath)
+    assert.equal(exactHaiku.input, 0.25)
+    assert.equal(exactHaiku.output, 1.25)
+
+    const exactSonnet = resolveModelRates({ provider: 'anthropic', model: 'claude-3-sonnet' }, {}, testCachePath)
+    assert.equal(exactSonnet.input, 3.0)
+    assert.equal(exactSonnet.output, 15.0)
+
+    // 2. Ambiguous common substring across different models with different pricing does not assign a wrong model's rate
+    const genericRate = resolveModelRates({ provider: 'anthropic', model: 'claude-3' }, {}, testCachePath)
+    assert.equal(genericRate.input, FALLBACK_RATES.input)
+    assert.equal(genericRate.output, FALLBACK_RATES.output)
+
+    // 3. Specialized variant resolves to the longest matching model of the same provider
+    const variantExtended = resolveModelRates({ provider: 'provider-x', model: 'model-a-extended-2024' }, {}, testCachePath)
+    assert.equal(variantExtended.input, 2.0)
+    assert.equal(variantExtended.output, 4.0)
+
+    // 4. Provider scoping takes precedence over other providers
+    const provYRate = resolveModelRates({ provider: 'provider-y', model: 'model-a' }, {}, testCachePath)
+    assert.equal(provYRate.input, 9.0)
+    assert.equal(provYRate.output, 18.0)
+  } finally {
+    resetMemoryCatalog()
+    try { unlinkSync(testCachePath) } catch {}
+  }
 })
