@@ -2,7 +2,7 @@
 
 Notable changes to `@goodandready/dsh-moa`.
 
-## 0.2.24
+## 0.2.25
 
 ### Fixed
 - **Provider-Scoped and Specific Model Rate Resolution**:
