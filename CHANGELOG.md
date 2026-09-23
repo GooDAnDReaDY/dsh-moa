@@ -2,6 +2,16 @@
 
 Notable changes to `@goodandready/dsh-moa`.
 
+## 0.2.24
+
+### Fixed
+- **Provider-Scoped and Specific Model Rate Resolution**:
+  - Refactored `resolveModelRates` in `lib/pricing.js` to eliminate arbitrary substring collision where generic model queries returned rates from unrelated models of the same family (#100).
+  - Prioritized exact `fullKey` and exact `model` matches case-insensitively, followed by provider-scoped suffix matches (#100).
+  - Implemented candidate scoring prioritizing the requested provider and selecting the longest matching ID for model revisions and variants (#100).
+  - Added safe fallback rate when ambiguous queries match multiple distinct models with differing tariffs (#100).
+  - Added regression test suite in `test/pricing.test.mjs` verifying exact match priority, revision scoring, and collision prevention (#100).
+
 ## 0.2.23
 
 ### Fixed
