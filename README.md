@@ -142,6 +142,36 @@ Inspect line-by-line differences between candidate proposals and the curator's s
 ### 8. Pre-Promotion Git Checkpoints (`dsh-time-machine`)
 Before promoting any winning candidate files over the workspace root, `dsh-moa` invokes the local `dsh-time-machine` service to create a shadow Git checkpoint (`moa-pre-promotion: candidate-N`). If `dsh-time-machine` is absent or unreachable, file promotion proceeds seamlessly via best-effort fallback.
 
+### 9. Automated Test Execution Gate
+When `test_gate_enabled: true` and `test_command` (e.g. `npm test` or `pytest`) are configured, candidate code is executed in an ephemeral sandbox overlay. The judge receives concrete test outcomes, durations, and output logs to ground decisions in objective verification.
+
+### 10. Multi-Judge Panel & Consensus Voting
+When `multi_judge_enabled: true`, candidate solutions are independently evaluated by a panel of judge models. Winner selection supports `majority`, `highest_score`, or `unanimous` consensus strategies.
+
+### 11. Composite Hybrid Synthesis (AST / Block Merge)
+When `composite_merge_enabled: true`, the aggregator assembles a modular hybrid: combining the strongest core logic from one model, robust error handling from another, and complete types/tests from a third.
+
+### 12. Smart Dynamic Preset Router & JEV Classifier
+When invoking `/moa` without explicit preset flags, the router classifies prompt intent using keyword heuristics or a zero-shot JEV model (`smart_routing_model`) to automatically select the optimal preset.
+
+### 13. Real-Time Live Cost Counter & Streaming Ticker
+As each candidate completes, live token counts and USD costs are streamed directly into the chat based on catalog pricing and vendor rates.
+
+### 14. Cost Budget Guardrails (Trim & Abort Modes)
+`budget_guard_enabled` and `max_budget_usd` guard against accidental spend. Mode `trim` automatically reduces the candidate pool to fit the budget, while `abort` cancels execution before token consumption.
+
+### 15. Temperature Gradient Exploration & Per-Candidate Temperature
+Supports individual candidate temperatures (`slot.temperature`) and `temperature_gradient_enabled` to distribute temperatures (0.2 → 0.9) across candidates for maximum architectural diversity.
+
+### 16. Multi-Turn Conversation Memory & Context Pruning
+Seamlessly retains synthesized baseline code from prior turns while pruning intermediate noise to keep token overhead low.
+
+### 17. Automated Benchmark & Post-Mortem PR Reports
+`report_generation_enabled` generates comprehensive Markdown & JSON reports detailing candidate metrics, agreement scores, test gate results, and cost breakdowns via `GET /dsh-moa/runs/:id/report`.
+
+### 18. Graceful Degradation & Local Fallback Resilience
+When `local_fallback_enabled: true`, candidates that fail due to network outages or rate limits (429/500) automatically recover using configured local models (Ollama / MiniPC).
+
 ### 6. Live Canvas 1-Click Preview (optional)
 If `@goodandready/dsh-live-canvas` is installed in the same profile, `dsh-moa` pushes the promoted HTML file to the Live Canvas REST contract (`POST /dsh-live-canvas/api/preview`, served by the same harness webServer) and appends a one-click preview link (`/dsh-live-canvas/sandbox/<id>`) to the answer. Without the plugin the step is skipped silently — no errors in the log, no dead links.
 
