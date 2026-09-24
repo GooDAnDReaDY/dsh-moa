@@ -77,6 +77,17 @@
                   updateCurrentPreset((p) => ({ ...p, reference_timeout_sec: isNaN(val) ? 60 : val }))
                 },
               })
+            ),
+            React.createElement(
+              'label',
+              { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500, marginTop: 4 } },
+              React.createElement('input', {
+                type: 'checkbox',
+                checked: Boolean(currentPreset.temperature_gradient_enabled),
+                onChange: (e) => updateCurrentPreset((p) => ({ ...p, temperature_gradient_enabled: e.target.checked })),
+                style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+              }),
+              'Temperature Gradient Exploration (0.2 → 0.9 across candidates)'
             )
           ),
           React.createElement(
@@ -98,6 +109,26 @@
                     t,
                   })
                 ),
+                React.createElement('input', {
+                  type: 'number',
+                  step: '0.1',
+                  min: '0',
+                  max: '2',
+                  placeholder: 'Temp',
+                  title: 'Candidate Temperature (leave empty for default/gradient)',
+                  className: 'moa-input',
+                  style: { width: 50, height: 32, fontSize: 12, padding: '0 4px', textAlign: 'center' },
+                  value: (typeof ref.temperature === 'number' && ref.temperature >= 0) ? ref.temperature : '',
+                  onChange: (e) => {
+                    const raw = e.target.value
+                    const parsedVal = raw === '' ? -1 : parseFloat(raw)
+                    updateCurrentPreset((p) => {
+                      const refs = [...(p.reference_models || [])]
+                      refs[idx] = { ...refs[idx], temperature: isNaN(parsedVal) ? -1 : parsedVal }
+                      return { ...p, reference_models: refs }
+                    })
+                  },
+                }),
                 React.createElement(
                   'select',
                   {
