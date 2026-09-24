@@ -166,6 +166,52 @@
                 { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
                 t('aggregator.override_hint')
               ),
+              React.createElement(
+                'label',
+                { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500, marginTop: 8 } },
+                React.createElement('input', {
+                  type: 'checkbox',
+                  checked: Boolean(currentPreset.test_gate_enabled),
+                  onChange: (e) => updateCurrentPreset((p) => ({ ...p, test_gate_enabled: e.target.checked })),
+                  style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                }),
+                t('aggregator.test_gate_label')
+              ),
+              React.createElement(
+                'div',
+                { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                t('aggregator.test_gate_hint')
+              ),
+              Boolean(currentPreset.test_gate_enabled) &&
+                React.createElement(
+                  'div',
+                  { style: { marginLeft: 22, marginTop: 6, display: 'flex', flexDirection: 'column', gap: 6 } },
+                  React.createElement('input', {
+                    type: 'text',
+                    className: 'moa-input',
+                    style: { fontSize: 12, height: 28 },
+                    placeholder: t('aggregator.test_cmd_placeholder'),
+                    value: currentPreset.test_command || '',
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, test_command: e.target.value })),
+                  }),
+                  React.createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+                    React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('aggregator.test_timeout_label')),
+                    React.createElement('input', {
+                      type: 'number',
+                      className: 'moa-input',
+                      style: { width: 70, height: 26, fontSize: 12 },
+                      min: 5,
+                      max: 120,
+                      value: currentPreset.test_gate_timeout_sec ?? 15,
+                      onChange: (e) => {
+                        const val = parseInt(e.target.value, 10)
+                        updateCurrentPreset((p) => ({ ...p, test_gate_timeout_sec: isNaN(val) ? 15 : val }))
+                      },
+                    })
+                  )
+                ),
               /* Fallback Judges Chain */
               React.createElement(
                 'div',
