@@ -301,6 +301,41 @@ test('Issue #74: collectProjectContext records error details when file read fail
   }
 })
 
+test('Issue #123: GET /dsh-moa/history clamps limit (1..100) and offset (>=0) safely', async () => {
+  const { routes } = setupTestEnvironment()
+  const historyHandler = routes['/dsh-moa/history'].handler
 
+  // Test 1: invalid params limit=abc, offset=-10 should default safely
+  const { req: r1, res: res1, send: s1, getResult: g1 } = createMockReqRes({
+    method: 'GET',
+    url: '/dsh-moa/history?limit=abc&offset=-10',
+  })
+  s1()
+  await historyHandler(r1, res1)
+  const result1 = await g1()
+  assert.equal(result1.status, 200)
+  assert.equal(result1.json?.ok, true)
+  assert.ok(Array.isArray(result1.json?.runs))
 
+  // Test 2: oversized limit=999 should be clamped to 100
+  const { req: r2, res: res2, send: s2, getResult: g2 } = createMockReqRes({
+    method: 'GET',
+    url: '/dsh-moa/history?limit=999&offset=5',
+  })
+  s2()
+  await historyHandler(r2, res2)
+  const result2 = await g2()
+  assert.equal(result2.status, 200)
+  assert.equal(result2.json?.ok, true)
 
+  // Test 3: non-GET rejected with 405
+  const { req: r3, res: res3, send: s3, getResult: g3 } = createMockReqRes({
+    method: 'POST',
+    url: '/dsh-moa/history',
+  })
+  s3()
+  await historyHandler(r3, res3)
+  const result3 = await g3()
+  assert.equal(result3.status, 405)
+  assert.equal(result3.json?.ok, false)
+})
