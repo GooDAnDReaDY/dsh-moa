@@ -217,4 +217,66 @@ test('Issue #117: promoteCandidateWorkspace propagates error on failure instead 
   }
 })
 
+test('Issue #66: POST write endpoints reject cross-origin requests with 403 Forbidden', async () => {
+  const { routes } = setupTestEnvironment()
+
+  // 1. /dsh-moa/route-preset
+  const routePresetHandler = routes['/dsh-moa/route-preset']?.handler
+  const { req: r1, res: res1, send: s1, getResult: g1 } = createMockReqRes({
+    method: 'POST',
+    url: '/dsh-moa/route-preset',
+    headers: { 'sec-fetch-site': 'cross-site' },
+    body: JSON.stringify({ prompt: 'test' }),
+  })
+  s1()
+  await routePresetHandler(r1, res1)
+  const resRoutePreset = await g1()
+  assert.equal(resRoutePreset.status, 403)
+  assert.equal(resRoutePreset.json?.ok, false)
+
+  // 2. /dsh-moa/run
+  const runHandler = routes['/dsh-moa/run']?.handler
+  const { req: r2, res: res2, send: s2, getResult: g2 } = createMockReqRes({
+    method: 'POST',
+    url: '/dsh-moa/run',
+    headers: { 'sec-fetch-site': 'cross-site' },
+    body: JSON.stringify({ prompt: 'test' }),
+  })
+  s2()
+  await runHandler(r2, res2)
+  const resRun = await g2()
+  assert.equal(resRun.status, 403)
+  assert.equal(resRun.json?.ok, false)
+})
+
+test('Issue #66: POST /dsh-moa/run rate limiter rejects rapid subsequent calls with 429', async () => {
+  const { routes } = setupTestEnvironment()
+  const runHandler = routes['/dsh-moa/run']?.handler
+
+  // First call (will fail on empty prompt or proceed, but passes rate check)
+  const { req: r1, res: res1, send: s1, getResult: g1 } = createMockReqRes({
+    method: 'POST',
+    url: '/dsh-moa/run',
+    body: JSON.stringify({ prompt: '' }), // triggers 400 Empty prompt AFTER rate check
+  })
+  s1()
+  await runHandler(r1, res1)
+  const first = await g1()
+  assert.equal(first.status, 400) // passed rate limiter, rejected on empty prompt
+
+  // Immediate second call triggers 429
+  const { req: r2, res: res2, send: s2, getResult: g2 } = createMockReqRes({
+    method: 'POST',
+    url: '/dsh-moa/run',
+    body: JSON.stringify({ prompt: 'test' }),
+  })
+  s2()
+  await runHandler(r2, res2)
+  const second = await g2()
+  assert.equal(second.status, 429)
+  assert.equal(second.json?.ok, false)
+  assert.match(second.json?.error, /rate limit/i)
+})
+
+
 
