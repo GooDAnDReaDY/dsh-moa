@@ -278,5 +278,29 @@ test('Issue #66: POST /dsh-moa/run rate limiter rejects rapid subsequent calls w
   assert.match(second.json?.error, /rate limit/i)
 })
 
+test('Issue #74: collectProjectContext records error details when file read fails', async () => {
+  const { collectProjectContext } = await import('../lib/file-workspace.js')
+  const os = await import('node:os')
+  const fs = await import('node:fs/promises')
+  const path = await import('node:path')
+
+  const tmpBase = await fs.mkdtemp(path.join(os.tmpdir(), 'moa-collect-err-'))
+  try {
+    // Create an unreadable code file
+    const fakeFile = path.join(tmpBase, 'error.js')
+    await fs.writeFile(fakeFile, 'console.log(1)', { mode: 0o000 })
+    
+    const result = await collectProjectContext(tmpBase)
+    assert.equal(result.skippedFiles, 1)
+    assert.ok(result.skippedList.length > 0)
+    assert.match(result.skippedList[0], /read error:.*EACCES/i)
+  } finally {
+    // Restore permission before deleting
+    try { await fs.chmod(path.join(tmpBase, 'error.js'), 0o644) } catch {}
+    await fs.rm(tmpBase, { recursive: true, force: true }).catch(() => {})
+  }
+})
+
+
 
 
