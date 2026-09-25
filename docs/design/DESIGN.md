@@ -133,3 +133,9 @@
   4. **Телеметрия**: Результаты прогона тестов фиксируются в истории запусков `candidatesForHistory` (`lib/history.js`).
   5. **UI и схема настроек**: Добавлены поля `test_gate_enabled`, `test_command` и `test_gate_timeout_sec` в схему пресета `PresetSchema` (`lib/index.js`) и карточку судьи в Web UI (`src/client/80-card-aggregator.js`).
   6. **Стандарты качества**: Все модули укладываются в лимит <= 600 строк, добавлены 7 юнит-тестов (`test/moa-test-gate.test.mjs`), все 131 тест пройдены без ошибок.
+
+- 2026-09-25 — Политика безопасности HTTP-маршрутов и защита от CSRF (Gitea Issue #66):
+  1. **Защита всех мутирующих эндпоинтов**: Все пишущие маршруты (`POST|PUT /dsh-moa/presets`, `POST /dsh-moa/promote`, `POST /dsh-moa/run`, `POST /dsh-moa/route-preset`) проверяются через `isSafeWriteRequest` (валидация `sec-fetch-site` и соответствие `origin` / `host`, блокировка cross-site запросов с кодом HTTP 403).
+  2. **Ограничение частоты запросов для `/run`**: Для эндпоинта `POST /dsh-moa/run` внедрён rate limiter с минимальным интервалом 1000 мс и возвратом HTTP 429 `Rate limit exceeded` при спам-запросах.
+  3. **Строгая валидация методов**: Эндпоинты `/dsh-moa/status` и `/dsh-moa/models` принимают только `GET` и возвращают HTTP 405 на неразрешённые методы.
+
