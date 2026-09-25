@@ -117,3 +117,50 @@ test('Issue #115: POST /dsh-moa/route-preset respects disabled setting', async (
   assert.equal(result2.status, 200)
   assert.equal(result2.json?.ok, true)
 })
+
+test('Issue #116: /dsh-moa/status rejects non-GET methods with 405 Method Not Allowed', async () => {
+  const { routes } = setupTestEnvironment()
+  const handler = routes['/dsh-moa/status']?.handler
+  assert.ok(handler, 'status handler must be registered')
+
+  for (const method of ['POST', 'PUT', 'DELETE', 'PATCH']) {
+    const { req, res, send, getResult } = createMockReqRes({ method, url: '/dsh-moa/status' })
+    send()
+    await handler(req, res)
+    const result = await getResult()
+    assert.equal(result.status, 405, `${method} /dsh-moa/status must return 405`)
+    assert.equal(result.json?.ok, false)
+  }
+
+  // GET works
+  const { req, res, send, getResult } = createMockReqRes({ method: 'GET', url: '/dsh-moa/status' })
+  send()
+  await handler(req, res)
+  const result = await getResult()
+  assert.equal(result.status, 200)
+  assert.equal(result.json?.ok, true)
+})
+
+test('Issue #116: /dsh-moa/models rejects non-GET methods with 405 Method Not Allowed', async () => {
+  const { routes } = setupTestEnvironment()
+  const handler = routes['/dsh-moa/models']?.handler
+  assert.ok(handler, 'models handler must be registered')
+
+  for (const method of ['POST', 'PUT', 'DELETE', 'PATCH']) {
+    const { req, res, send, getResult } = createMockReqRes({ method, url: '/dsh-moa/models' })
+    send()
+    await handler(req, res)
+    const result = await getResult()
+    assert.equal(result.status, 405, `${method} /dsh-moa/models must return 405`)
+    assert.equal(result.json?.ok, false)
+  }
+
+  // GET works
+  const { req, res, send, getResult } = createMockReqRes({ method: 'GET', url: '/dsh-moa/models' })
+  send()
+  await handler(req, res)
+  const result = await getResult()
+  assert.equal(result.status, 200)
+  assert.equal(result.json?.ok, true)
+})
+
