@@ -164,3 +164,57 @@ test('Issue #116: /dsh-moa/models rejects non-GET methods with 405 Method Not Al
   assert.equal(result.json?.ok, true)
 })
 
+test('Issue #117: promoteCandidateWorkspace propagates error on failure instead of returning empty list', async () => {
+  const { promoteCandidateWorkspace } = await import('../lib/file-workspace.js')
+  // Passing invalid base directory or causing fs operation failure
+  const invalidDir = '/nonexistent_dir_' + Date.now() + '/sub'
+  // When target doesn't exist, promoteCandidateWorkspace returns [] if empty,
+  // but if getFilesRecursively fails unexpectedly or copy fails, it throws.
+  // Test route handler: when promote throws, route returns 500
+  const { routes } = setupTestEnvironment()
+  const handler = routes['/dsh-moa/promote']?.handler
+  assert.ok(handler, 'promote handler must be registered')
+
+  // We test with an unwritable destination directory to trigger an error
+  const os = await import('node:os')
+  const fs = await import('node:fs/promises')
+  const path = await import('node:path')
+
+  const tmpBase = await fs.mkdtemp(path.join(os.tmpdir(), 'moa-promote-fail-'))
+  try {
+    // Create candidate-1 with a file
+    const candDir = path.join(tmpBase, '.moa', 'candidate-1')
+    await fs.mkdir(candDir, { recursive: true })
+    await fs.writeFile(path.join(candDir, 'file.txt'), 'hello', 'utf8')
+
+    // Make base destination read-only file conflicting with target dir or directory
+    const destFile = path.join(tmpBase, 'file.txt')
+    await fs.mkdir(destFile) // dest is a directory while src is a file -> copyFile will throw EISDIR
+    
+    // Calling promote directly should throw EISDIR
+    await assert.rejects(
+      async () => {
+        await promoteCandidateWorkspace(tmpBase, 1, { keepMoa: true })
+      },
+      /EISDIR|error/i
+    )
+
+    // Route /dsh-moa/promote should respond with 500
+    const { req, res, send, getResult } = createMockReqRes({
+      method: 'POST',
+      url: '/dsh-moa/promote',
+      body: JSON.stringify({ cwd: tmpBase, candidateIndex: 1 }),
+    })
+    send()
+    await handler(req, res)
+    const result = await getResult()
+
+    assert.equal(result.status, 500)
+    assert.equal(result.json?.ok, false)
+    assert.ok(result.json?.error)
+  } finally {
+    await fs.rm(tmpBase, { recursive: true, force: true }).catch(() => {})
+  }
+})
+
+
