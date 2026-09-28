@@ -2,6 +2,25 @@
 
 Notable changes to `@goodandready/dsh-moa`.
 
+## 0.2.30
+
+### Fixed
+- **Test History Isolation & Production Clean-Up**:
+  - Isolated test suite execution from production `~/.dsh` directory via `DSH_HOME`, `DSH_HISTORY_DIR`, and test environment auto-detection (#132).
+  - Cleaned existing production `moa-history.jsonl` of 1007 test runs with backup at `~/.dsh/moa-history.jsonl.bak-audit-clean-20260928` (#132).
+  - Added protective regression test verifying real user history is never modified during test runs (#132).
+- **Provider Sanitization & Default Model Fallback**:
+  - Eliminated hardcoded proprietary models (`opencode-go`, `gpt-5.6-sol`, `grok`, `jev`) from schemas, presets, client and READMEs (#133).
+  - Implemented dynamic agent default model fallback for unconfigured model slots (#133).
+  - Removed `hermes-agent` keyword from `package.json` (#133).
+- **Time-Machine Checkpoint Port Resolution & Safety Guard**:
+  - Resolved time-machine checkpoint endpoint dynamically via `ctx.webServer.port` and direct `timeMachineEngine` Cordis service (#131).
+  - Eliminated `x-dsh-trusted: 1` header from HTTP checkpoint requests (#131).
+  - Blocked candidate file promotion without a verified snapshot unless `force: true` is explicitly passed (#131).
+- **Self-Updater Lock Recovery & Concurrency Guard**:
+  - Prevented dangling `package.json.lock` by cleaning up dead PID locks on updater timeout (#135).
+  - Added PID liveness check returning HTTP 409 Conflict when another plugin installation is in progress (#135).
+
 ## 0.2.25
 
 ### Fixed
