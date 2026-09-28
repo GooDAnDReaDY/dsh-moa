@@ -438,7 +438,7 @@
                       onClick: () => {
                         updateCurrentPreset((p) => ({
                           ...p,
-                          aggregator_fallbacks: [...(p.aggregator_fallbacks || []), { provider: 'opencode-go', model: 'deepseek-v4-flash' }],
+                          aggregator_fallbacks: [...(p.aggregator_fallbacks || []), { provider: (availableModels[0] && availableModels[0].provider) || '', model: (availableModels[0] && availableModels[0].model) || '' }],
                         }))
                       },
                     },

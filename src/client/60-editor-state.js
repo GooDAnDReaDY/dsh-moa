@@ -32,7 +32,7 @@
       const currentPreset = presets.find((p) => p.name === selectedPresetName) || presets[0] || {
         name: 'default',
         reference_models: [],
-        aggregator: { provider: 'codex', model: 'gpt-5.6-sol' },
+        aggregator: { provider: (availableModels[0] && availableModels[0].provider) || '', model: (availableModels[0] && availableModels[0].model) || '' },
         aggregator_temperature: 0.4,
         reference_temperature: 0.6,
         judge_criteria: '',
@@ -84,8 +84,8 @@
           } else {
             while (refs.length < targetCount) {
               const fallback = availableModels[refs.length % (availableModels.length || 1)] || {
-                provider: 'opencode-go',
-                model: 'deepseek-v4-flash',
+                provider: '',
+                model: '',
               }
               refs.push({ provider: fallback.provider, model: fallback.model })
             }
@@ -106,8 +106,8 @@
         updateCurrentPreset((p) => {
           const refs = [...(p.reference_models || [])]
           const fallback = availableModels[refs.length % (availableModels.length || 1)] || {
-            provider: 'opencode-go',
-            model: 'deepseek-v4-flash',
+            provider: '',
+            model: '',
           }
           refs.push({ provider: fallback.provider, model: fallback.model, role_persona: 'general' })
           return { ...p, reference_models: refs }
@@ -127,13 +127,18 @@
           name,
           enabled: true,
           ask_clarifying_questions: true,
-          reference_models: currentPreset?.reference_models?.length ? structuredClone(currentPreset.reference_models) : [
-            { provider: 'opencode-go', model: 'deepseek-v4-flash', role_persona: 'general' },
-            { provider: 'codex', model: 'gpt-5.6-sol', role_persona: 'general' },
-          ],
+          reference_models: currentPreset?.reference_models?.length ? structuredClone(currentPreset.reference_models) : (
+            availableModels.length >= 2 ? [
+              { provider: availableModels[0].provider, model: availableModels[0].model, role_persona: 'general' },
+              { provider: availableModels[1].provider, model: availableModels[1].model, role_persona: 'general' },
+            ] : [
+              { provider: '', model: '', role_persona: 'general' },
+              { provider: '', model: '', role_persona: 'general' },
+            ]
+          ),
           aggregator: currentPreset?.aggregator?.provider ? structuredClone(currentPreset.aggregator) : {
-            provider: 'codex',
-            model: 'gpt-5.6-sol',
+            provider: (availableModels[0] && availableModels[0].provider) || '',
+            model: (availableModels[0] && availableModels[0].model) || '',
           },
           reference_temperature: 0.6,
           aggregator_temperature: 0.4,
