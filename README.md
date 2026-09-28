@@ -151,8 +151,8 @@ When `multi_judge_enabled: true`, candidate solutions are independently evaluate
 ### 11. Composite Hybrid Synthesis (AST / Block Merge)
 When `composite_merge_enabled: true`, the aggregator assembles a modular hybrid: combining the strongest core logic from one model, robust error handling from another, and complete types/tests from a third.
 
-### 12. Smart Dynamic Preset Router & JEV Classifier
-When invoking `/moa` without explicit preset flags, the router classifies prompt intent using keyword heuristics or a zero-shot JEV model (`smart_routing_model`) to automatically select the optimal preset.
+### 12. Smart Dynamic Preset Router & LLM Classifier
+When invoking `/moa` without explicit preset flags, the router classifies prompt intent using keyword heuristics or a zero-shot router model (`smart_routing_model`) to automatically select the optimal preset.
 
 ### 13. Real-Time Live Cost Counter & Streaming Ticker
 As each candidate completes, live token counts and USD costs are streamed directly into the chat based on catalog pricing and vendor rates.
@@ -195,16 +195,16 @@ v0.2.13 introduces 10 ready-to-use presets engineered for real-world software wo
 
 | Preset Name | Purpose | Default Aggregator | Peer Critique | Blind Eval |
 | :--- | :--- | :--- | :---: | :---: |
-| `default` | Balanced multi-model generation | `codex:gpt-5.6-sol` | Optional | Off |
-| `code-review` | Thorough peer review & vulnerability detection | `codex:gpt-5.6-sol` | On | On |
-| `fast-audit` | Ultra-fast single-model audit (Fast Mode) | `codex:gpt-5.6-sol` | Off | Off |
-| `deep-architect` | Distributed systems & complex architectures | `codex:gpt-5.6-sol` | On | Off |
-| `bug-hunter` | Root cause discovery & adversarial edge cases | `codex:gpt-5.6-sol` | On | Off |
-| `refactor-cleanup` | Dead-code pruning & standard-library simplicity | `codex:gpt-5.6-sol` | Off | Off |
-| `frontend-ui` | High-fidelity responsive web interfaces | `codex:gpt-5.6-sol` | Off | Off |
-| `security-audit` | Zero-trust threat analysis & sanitization | `codex:gpt-5.6-sol` | On | On |
-| `math-logic` | Deterministic algorithmic proofs & math logic | `codex:gpt-5.6-sol` | On | Off |
-| `creative-brainstorm`| Divergent lateral thinking & ideation | `codex:gpt-5.6-sol` | Off | Off |
+| `default` | Balanced multi-model generation | `<provider>:<model>` | Optional | Off |
+| `code-review` | Thorough peer review & vulnerability detection | `<provider>:<model>` | On | On |
+| `fast-audit` | Ultra-fast single-model audit (Fast Mode) | `<provider>:<model>` | Off | Off |
+| `deep-architect` | Distributed systems & complex architectures | `<provider>:<model>` | On | Off |
+| `bug-hunter` | Root cause discovery & adversarial edge cases | `<provider>:<model>` | On | Off |
+| `refactor-cleanup` | Dead-code pruning & standard-library simplicity | `<provider>:<model>` | Off | Off |
+| `frontend-ui` | High-fidelity responsive web interfaces | `<provider>:<model>` | Off | Off |
+| `security-audit` | Zero-trust threat analysis & sanitization | `<provider>:<model>` | On | On |
+| `math-logic` | Deterministic algorithmic proofs & math logic | `<provider>:<model>` | On | Off |
+| `creative-brainstorm`| Divergent lateral thinking & ideation | `<provider>:<model>` | Off | Off |
 
 ### Candidate Personas (`role_persona`)
 Assign archetypal engineering mentalities to individual candidate slots to ensure genuine perspective divergence:

@@ -130,7 +130,7 @@ test('audit fix #93: path traversal validation in workspace operations', async (
     assert.deepStrictEqual(read, [])
 
     // 5. promoteCandidateWorkspace is safe
-    const promoted = await promoteCandidateWorkspace(tmpDir, 1)
+    const promoted = await promoteCandidateWorkspace(tmpDir, 1, { force: true })
     assert.deepStrictEqual(promoted, ['valid.js'])
   } finally {
     await fs.rm(tmpDir, { recursive: true, force: true })

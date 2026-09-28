@@ -117,7 +117,7 @@ test('writeCandidateWorkspace & promoteCandidateWorkspace: isolate and promote w
     assert.equal(c2Html, '<h1>Candidate 2 Winner</h1>')
 
     // 2. Promote candidate 2
-    const promoted = await promoteCandidateWorkspace(tmpDir, 2)
+    const promoted = await promoteCandidateWorkspace(tmpDir, 2, { force: true })
     assert.equal(promoted.length, 3)
     assert.ok(promoted.includes('index.html'))
     assert.ok(promoted.includes('src/app.js'))
