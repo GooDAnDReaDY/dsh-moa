@@ -27,8 +27,7 @@
     "dsh-plugin",
     "moa",
     "mixture-of-agents",
-    "slash-command",
-    "hermes-agent"
+    "slash-command"
   ],
   "repository": {
     "type": "git",
