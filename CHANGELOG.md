@@ -2,6 +2,25 @@
 
 Notable changes to `@goodandready/dsh-moa`.
 
+## 0.2.32
+
+### Fixed
+- **UI & Web Client Stability**:
+  - Fixed runtime `ReferenceError: allModels is not defined` when rendering Fallback Judges in CardAggregator (#137).
+  - Corrected `SearchableModelPicker` contract and prop forwarding (`provider`, `model`, `onChange`, `availableModels`, `t`) in fallback judge selector (#137).
+  - Fully eliminated proprietary model names (`opencode-go`, `gpt-5.6-sol`, `deepseek-v4-flash`, `codex`) across all `src/client/` fragments and regenerated `lib/client.js` (#138).
+- **Core Lifecycle & Session Safety**:
+  - Wrapped `agent/pre-step` and `agent/request` listeners in `ctx.effect` to ensure clean unregistration on plugin reload (#139).
+  - Added session timer cleanup in `ctx.on('dispose')` to avoid memory and interval leaks (#139).
+  - Avoided duplicate `.dsh/.dsh` directory nesting when `DSH_HOME` already ends with `.dsh` in `lib/pricing.js` and `lib/history.js` (#140).
+  - Cleaned unused imports (`os`, `runMoAPipeline`, `isSafeWriteRequest` in `lib/index.js`; `join`, `homedir` in `lib/moa-runner.js`) (#142, #130).
+- **Context, Streaming & Pricing Accuracy**:
+  - Made `maxHistoryTokens` budget active in `pruneMultiTurnMessages` within `lib/moa-context.js` (#129).
+  - Accurately aggregated `totalInputTokens` and `totalOutputTokens` in `summarizeMoAUsage` and forwarded to `streamMoATurn` (#141).
+  - Removed dead exports and unused `getHistoryFilePath`, `DEFAULT_HISTORY_DIR`, `DEFAULT_HISTORY_FILE` in `lib/history.js` (#128).
+- **Test Infrastructure**:
+  - Isolated test client builds to temporary destinations in `scripts/build-client.mjs`, avoiding test-time file overwrite races (#127).
+
 ## 0.2.30
 
 ### Fixed
