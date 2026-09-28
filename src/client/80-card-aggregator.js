@@ -398,15 +398,16 @@
                       'div',
                       { style: { flex: 1 } },
                       React.createElement(SearchableModelPicker, {
-                        value: fb,
-                        onChange: (val) => {
+                        provider: (fb && fb.provider) || '',
+                        model: (fb && fb.model) || '',
+                        onChange: (prov, mod) => {
                           updateCurrentPreset((p) => {
                             const list = [...(p.aggregator_fallbacks || [])]
-                            list[fbIdx] = val
+                            list[fbIdx] = { provider: prov, model: mod }
                             return { ...p, aggregator_fallbacks: list }
                           })
                         },
-                        allModels,
+                        availableModels,
                         t,
                       })
                     ),

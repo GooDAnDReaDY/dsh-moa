@@ -128,9 +128,9 @@ test('client module loads and registers slot and trigger without syntax errors',
   const CardComp = slotsRegistered[1].comp
   const stateMap = {
     0: 'ready', // status
-    1: [{ name: 'default', reference_models: [{ provider: 'opencode-go', model: 'deepseek-v4-flash' }], aggregator: { provider: 'codex', model: 'gpt-5.6-sol' }, aggregator_temperature: 0.4, reference_temperature: 0.6, judge_criteria: 'strict tests' }],
+    1: [{ name: 'default', reference_models: [{ provider: 'deepseek', model: 'deepseek-chat' }], aggregator: { provider: 'deepseek', model: 'deepseek-coder' }, aggregator_fallbacks: [{ provider: 'anthropic', model: 'claude-3-5-sonnet' }], aggregator_temperature: 0.4, reference_temperature: 0.6, judge_criteria: 'strict tests' }],
     2: 'default', // defaultPreset
-    3: [{ provider: 'opencode-go', model: 'deepseek-v4-flash', label: 'deepseek-v4-flash' }],
+    3: [{ provider: 'deepseek', model: 'deepseek-chat', label: 'deepseek-chat' }],
     4: '', // saveStatus
     5: true, // enabled
     6: 'online', // hostStatus
@@ -176,4 +176,10 @@ test('no hardcoded machine paths or credentials in tracked source files', () => 
       )
     }
   }
+})
+
+test('client bundle contains no references to allModels', () => {
+  const clientPath = path.join(root, 'lib/client.js')
+  const clientSrc = fs.readFileSync(clientPath, 'utf8')
+  assert.equal(clientSrc.includes('allModels'), false, 'lib/client.js contains no reference to allModels')
 })
