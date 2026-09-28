@@ -212,6 +212,17 @@ test('Feature 8: Multi-Turn Conversation Memory & Context Pruning', async (t) =>
   assert.equal(pruned.length, 4)
   assert.equal(pruned[0].role, 'system')
   assert.equal(pruned[pruned.length - 1].content, 'Turn 2 user request')
+
+  // Verify maxHistoryTokens constrains oversized prior turns
+  const longMessages = [
+    { role: 'user', content: 'x'.repeat(4000) },
+    { role: 'assistant', content: 'y'.repeat(4000) },
+    { role: 'user', content: 'Final question' },
+  ]
+  const tightlyPruned = pruneMultiTurnMessages(longMessages, 200)
+  assert.equal(tightlyPruned.length, 3)
+  assert.ok(tightlyPruned[0].content.includes('context pruned for token efficiency'))
+  assert.ok(tightlyPruned[0].content.length < 1500)
 })
 
 test('Feature 9: Automated Benchmark & Post-Mortem PR Reports', async (t) => {
