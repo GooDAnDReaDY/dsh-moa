@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { writeFileSync, unlinkSync } from 'node:fs'
 import {
+  getDefaultCacheFile,
   fetchCatalog,
   loadCachedCatalog,
   resolveModelRates,
@@ -122,5 +123,26 @@ test('pricing: issue #100 - resolveModelRates avoids wrong-model substring match
   } finally {
     resetMemoryCatalog()
     try { unlinkSync(testCachePath) } catch {}
+  }
+})
+
+test('pricing: getDefaultCacheFile resolves cleanly without duplicate .dsh when DSH_HOME ends with .dsh', () => {
+  const origDshHome = process.env.DSH_HOME
+  const origCatalog = process.env.DSH_CATALOG_FILE
+  const origStorage = process.env.DSH_STORAGE_DIR
+  delete process.env.DSH_CATALOG_FILE
+  delete process.env.DSH_STORAGE_DIR
+  try {
+    process.env.DSH_HOME = '/custom/home/.dsh'
+    const cachePath = getDefaultCacheFile()
+    assert.equal(cachePath, '/custom/home/.dsh/storages/dsh-moa-catalog.json')
+
+    process.env.DSH_HOME = '/custom/home'
+    const cachePathUser = getDefaultCacheFile()
+    assert.equal(cachePathUser, '/custom/home/.dsh/storages/dsh-moa-catalog.json')
+  } finally {
+    if (origDshHome !== undefined) process.env.DSH_HOME = origDshHome; else delete process.env.DSH_HOME
+    if (origCatalog !== undefined) process.env.DSH_CATALOG_FILE = origCatalog; else delete process.env.DSH_CATALOG_FILE
+    if (origStorage !== undefined) process.env.DSH_STORAGE_DIR = origStorage; else delete process.env.DSH_STORAGE_DIR
   }
 })
