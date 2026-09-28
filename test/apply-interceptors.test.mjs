@@ -64,12 +64,17 @@ function buildCtx(config) {
 }
 
 test('apply(): registers turn interceptors and routes without touching them', () => {
-  const { ctx, handlers, routes } = buildCtx(BASE_CONFIG)
+  const { ctx, handlers, routes, effects } = buildCtx(BASE_CONFIG)
   apply(ctx, BASE_CONFIG)
 
   assert.equal(typeof handlers['agent/pre-step'], 'function')
   assert.equal(typeof handlers['agent/request'], 'function')
   assert.equal(typeof handlers['llm/stream'], 'function')
+  assert.ok(effects.includes('dsh-moa: agent pre-step interceptor'), 'pre-step registered via ctx.effect')
+  assert.ok(effects.includes('dsh-moa: agent request interceptor'), 'request registered via ctx.effect')
+  assert.ok(effects.includes('dsh-moa: session turns cleanup'), 'session turns cleanup registered via ctx.effect')
+  assert.ok(effects.includes('dsh-moa: llm stream interceptor'), 'llm stream registered via ctx.effect')
+
   const paths = routes.map((r) => r.path)
   assert.ok(paths.includes('/dsh-moa/status'))
   assert.ok(paths.includes('/dsh-moa/runs/'), 'run-by-id prefix route registered')
