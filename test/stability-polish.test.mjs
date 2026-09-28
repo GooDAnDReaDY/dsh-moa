@@ -60,6 +60,8 @@ test('summarizeMoAUsage: calculates combined token usage and cost for pipeline',
   const summary = summarizeMoAUsage(refOutputs, aggUsage)
 
   assert.equal(summary.totalTokens, 350)
+  assert.equal(summary.totalInputTokens, 40)
+  assert.equal(summary.totalOutputTokens, 10)
   assert.equal(summary.totalCostUsd, 0.0035)
   assert.equal(summary.candidates.length, 2)
   assert.equal(summary.aggregator.totalTokens, 50)

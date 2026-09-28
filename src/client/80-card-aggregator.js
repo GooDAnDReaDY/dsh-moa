@@ -398,15 +398,16 @@
                       'div',
                       { style: { flex: 1 } },
                       React.createElement(SearchableModelPicker, {
-                        value: fb,
-                        onChange: (val) => {
+                        provider: (fb && fb.provider) || '',
+                        model: (fb && fb.model) || '',
+                        onChange: (prov, mod) => {
                           updateCurrentPreset((p) => {
                             const list = [...(p.aggregator_fallbacks || [])]
-                            list[fbIdx] = val
+                            list[fbIdx] = { provider: prov, model: mod }
                             return { ...p, aggregator_fallbacks: list }
                           })
                         },
-                        allModels,
+                        availableModels,
                         t,
                       })
                     ),
@@ -438,7 +439,7 @@
                       onClick: () => {
                         updateCurrentPreset((p) => ({
                           ...p,
-                          aggregator_fallbacks: [...(p.aggregator_fallbacks || []), { provider: 'opencode-go', model: 'deepseek-v4-flash' }],
+                          aggregator_fallbacks: [...(p.aggregator_fallbacks || []), { provider: (availableModels[0] && availableModels[0].provider) || '', model: (availableModels[0] && availableModels[0].model) || '' }],
                         }))
                       },
                     },

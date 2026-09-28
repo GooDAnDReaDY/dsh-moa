@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
-import {
+import { getDefaultHistoryDir,
   recordMoaRun,
   getMoaHistory,
   getMoaLeaderboard,
@@ -82,5 +82,23 @@ test('history: records run, reads paginated history, and calculates leaderboard'
     assert.equal(m2Stats.runs, 1)
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true })
+  }
+})
+
+test('history: getDefaultHistoryDir resolves cleanly when DSH_HOME ends with .dsh', () => {
+  const origDshHome = process.env.DSH_HOME
+  const origDshHistory = process.env.DSH_HISTORY_DIR
+  delete process.env.DSH_HISTORY_DIR
+  try {
+    process.env.DSH_HOME = '/custom/home/.dsh'
+    const hDir = getDefaultHistoryDir()
+    assert.equal(hDir, '/custom/home/.dsh')
+
+    process.env.DSH_HOME = '/custom/home'
+    const hDirUser = getDefaultHistoryDir()
+    assert.equal(hDirUser, '/custom/home/.dsh')
+  } finally {
+    if (origDshHome !== undefined) process.env.DSH_HOME = origDshHome; else delete process.env.DSH_HOME
+    if (origDshHistory !== undefined) process.env.DSH_HISTORY_DIR = origDshHistory; else delete process.env.DSH_HISTORY_DIR
   }
 })

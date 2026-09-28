@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
+import os from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
 
@@ -24,16 +25,20 @@ test('src/client fragments exist and comply with <= 600 line limit', () => {
   }
 })
 
-test('scripts/build-client.mjs correctly compiles lib/client.js', () => {
+test('scripts/build-client.mjs correctly compiles client bundle to target without racing', () => {
   const scriptPath = path.join(root, 'scripts', 'build-client.mjs')
   assert.ok(fs.existsSync(scriptPath), 'scripts/build-client.mjs exists')
 
-  execFileSync(process.execPath, [scriptPath], { cwd: root })
+  const tmpOut = path.join(os.tmpdir(), `dsh-moa-client-test-${Date.now()}-${Math.random().toString(36).slice(2)}.js`)
+  try {
+    execFileSync(process.execPath, [scriptPath, '--out', tmpOut], { cwd: root })
 
-  const clientPath = path.join(root, 'lib', 'client.js')
-  assert.ok(fs.existsSync(clientPath), 'lib/client.js exists after build')
-  const content = fs.readFileSync(clientPath, 'utf8')
-  assert.ok(content.includes('@goodandready/dsh-moa'), 'lib/client.js contains module id')
-  assert.ok(content.includes('SearchableModelPicker'), 'lib/client.js contains SearchableModelPicker')
-  assert.ok(content.includes('MoAEditor'), 'lib/client.js contains MoAEditor')
+    assert.ok(fs.existsSync(tmpOut), 'compiled client bundle exists at custom destination')
+    const content = fs.readFileSync(tmpOut, 'utf8')
+    assert.ok(content.includes('@goodandready/dsh-moa'), 'bundle contains module id')
+    assert.ok(content.includes('SearchableModelPicker'), 'bundle contains SearchableModelPicker')
+    assert.ok(content.includes('MoAEditor'), 'bundle contains MoAEditor')
+  } finally {
+    try { fs.unlinkSync(tmpOut) } catch { /* ignore */ }
+  }
 })
