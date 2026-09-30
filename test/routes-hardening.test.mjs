@@ -339,3 +339,71 @@ test('Issue #123: GET /dsh-moa/history clamps limit (1..100) and offset (>=0) sa
   assert.equal(result3.status, 405)
   assert.equal(result3.json?.ok, false)
 })
+
+test('Issue #147: POST /dsh-moa/presets preserves existing prices and smart routing settings', async () => {
+  let savedConfig = null
+  const initialPrices = {
+    'custom-provider/custom-model': { input: 1.5, output: 3.0 },
+  }
+  const initialSmartModel = { provider: 'openrouter', model: 'anthropic/claude-3-haiku' }
+
+  let currentConfig = {
+    enabled: true,
+    default_preset: 'default',
+    presets: [{ name: 'default', reference_models: [], aggregator: { provider: 'codex', model: 'gpt-5.6' } }],
+    prices: initialPrices,
+    smart_routing_enabled: true,
+    smart_routing_model: initialSmartModel,
+  }
+
+  const routes = {}
+  const ctx = {
+    webServer: {
+      port: 3000,
+      register: (route) => {
+        routes[route.path] = route
+        return () => {}
+      },
+    },
+    effect: (fn) => fn(),
+    logger: { warn: () => {}, debug: () => {} },
+  }
+
+  registerMoaRoutes(ctx, {
+    live: () => currentConfig,
+    callLlm: async () => 'test-llm-response',
+    liveCanvas: null,
+    saveConfig: async (cfg) => {
+      savedConfig = cfg
+      currentConfig = cfg
+    },
+    Config: (c) => c,
+    plainConfig: (c) => c,
+  })
+
+  const handler = routes['/dsh-moa/presets']?.handler
+  assert.ok(handler, 'presets handler must be registered')
+
+  // Send POST /dsh-moa/presets with only updated presets list
+  const { req, res, send, getResult } = createMockReqRes({
+    method: 'POST',
+    url: '/dsh-moa/presets',
+    body: JSON.stringify({
+      enabled: true,
+      default_preset: 'fast',
+      presets: [{ name: 'fast', reference_models: [], aggregator: { provider: 'p', model: 'm' } }],
+    }),
+  })
+  send()
+  await handler(req, res)
+  const result = await getResult()
+
+  assert.equal(result.status, 200)
+  assert.equal(result.json?.ok, true)
+  assert.equal(result.json?.defaultPreset, 'fast')
+
+  // Verify that prices and smart routing were preserved in savedConfig
+  assert.deepEqual(savedConfig.prices, initialPrices, 'prices must not be wiped')
+  assert.equal(savedConfig.smart_routing_enabled, true, 'smart_routing_enabled must not be reset')
+  assert.deepEqual(savedConfig.smart_routing_model, initialSmartModel, 'smart_routing_model must not be wiped')
+})
