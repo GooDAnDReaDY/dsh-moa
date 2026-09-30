@@ -17,7 +17,7 @@ import {
 } from '../lib/moa-runner.js'
 
 test('estimateTokenCost: computes accurate token costs for known and fallback models', () => {
-  const dsSlot = { provider: 'opencode-go', model: 'deepseek-v4-flash' }
+  const dsSlot = { provider: 'deepseek', model: 'deepseek-chat' }
   const dsUsage = { inputTokens: 10000, outputTokens: 5000 }
   const dsCost = estimateTokenCost(dsSlot, dsUsage)
   assert.equal(dsCost.inputTokens, 10000)
@@ -370,6 +370,32 @@ test('streamMoATurn: streams progress delta and completes with synthesis', async
     const finishChunk = chunks.find(c => c.type === 'finish')
     assert.ok(finishChunk)
     assert.equal(finishChunk.reason.kind, 'stop')
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true })
+  }
+})
+
+test('streamMoATurn: cleans up candidate workspaces when stream iterator is cancelled early', async () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'moa-stream-cancel-'))
+  try {
+    const moaDir = path.join(tmpDir, '.moa')
+    fs.mkdirSync(moaDir, { recursive: true })
+    fs.writeFileSync(path.join(moaDir, 'test.txt'), 'hello')
+
+    const turnContext = {
+      targetPreset: { name: 'fast', reference_models: [{ provider: 'p', model: 'm' }] },
+      userPrompt: 'cancel test',
+      messages: [],
+      callLlm: async () => new Promise((resolve) => setTimeout(() => resolve('done'), 1000)),
+      cwd: tmpDir,
+    }
+
+    const generator = streamMoATurn(turnContext, {})
+    const first = await generator.next()
+    assert.equal(first.value.type, 'block-start')
+    await generator.return()
+
+    assert.equal(fs.existsSync(moaDir), false, '.moa directory should be cleaned up on early return')
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true })
   }
