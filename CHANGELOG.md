@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.2.35
+
+### Fixed
+- **Settings Persistence** (#147): Preserved existing `prices`, `smart_routing_enabled`, and `smart_routing_model` when saving updated presets via `POST /dsh-moa/presets`.
+- **Stream Generator Resilience** (#149): Ensured candidate workspaces (`.moa/`) are cleanly removed even if the streaming async generator is cancelled or terminated early, using an internal AbortController with duck-typed signal support.
+- **Pricing Catalog Cleanup** (#150, #151): Removed unused static `CACHE_FILE` export and purged non-standard proprietary model entries (`deepseek-v4-flash`, `deepseek-v4-pro`) from `DIRECT_VENDOR_RATES`.
+- **Worktree Hygiene** (#152): Removed stale `.worktrees/fix/settings-contract` left behind after PR #145.
+
+### Refactored
+- **Core Facade Decoupling** (#148): Extracted Schemastery schemas and `plainConfig` into `lib/moa-schema.js` and LLM dispatcher into `lib/moa-llm.js`, reducing `lib/index.js` from 452 lines to 253 lines (well under the 300-line standard).
+
+## 0.2.34
+
+### Fixed
+- **Settings Contract** (#145): Standardized settings schema contract and resolved profile settings box leaks.
+
 ## 0.2.33
 
 ### Fixed
