@@ -127,13 +127,15 @@ test('runMoAPipeline: blind_evaluation passes anonymized candidates to aggregato
   assert.ok(judgePromptText.includes(LANGUAGE_MIRRORING_DIRECTIVE))
 })
 
-test('index.js defines blind_evaluation, reference_timeout_sec and aggregator_timeout_sec', () => {
-  const indexPath = path.resolve('lib/index.js')
-  const indexCode = fs.readFileSync(indexPath, 'utf8')
+test('moa-schema.js defines blind_evaluation, reference_timeout_sec and aggregator_timeout_sec', () => {
+  const schemaPath = fs.existsSync(path.resolve('lib/moa-schema.js'))
+    ? path.resolve('lib/moa-schema.js')
+    : path.resolve('lib/index.js')
+  const schemaCode = fs.readFileSync(schemaPath, 'utf8')
 
-  assert.ok(indexCode.includes('blind_evaluation: z.boolean().default(false)'))
-  assert.ok(indexCode.includes('reference_timeout_sec: z.number().default(60)'))
-  assert.ok(indexCode.includes('aggregator_timeout_sec: z.number().default(180)'))
+  assert.ok(schemaCode.includes('blind_evaluation: z.boolean().default(false)'))
+  assert.ok(schemaCode.includes('reference_timeout_sec: z.number().default(60)'))
+  assert.ok(schemaCode.includes('aggregator_timeout_sec: z.number().default(180)'))
 })
 
 test('client.js includes blind evaluation, timeouts, and leaderboard UI keys', () => {
