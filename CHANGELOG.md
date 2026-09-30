@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.35
+## 0.2.36
 
 ### Fixed
 - **Settings Persistence** (#147): Preserved existing `prices`, `smart_routing_enabled`, and `smart_routing_model` when saving updated presets via `POST /dsh-moa/presets`.
