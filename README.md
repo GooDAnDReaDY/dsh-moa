@@ -170,7 +170,7 @@ Seamlessly retains synthesized baseline code from prior turns while pruning inte
 `report_generation_enabled` generates comprehensive Markdown & JSON reports detailing candidate metrics, agreement scores, test gate results, and cost breakdowns via `GET /dsh-moa/runs/:id/report`.
 
 ### 18. Graceful Degradation & Local Fallback Resilience
-When `local_fallback_enabled: true`, candidates that fail due to network outages or rate limits (429/500) automatically recover using configured local models (Ollama / MiniPC).
+When `local_fallback_enabled: true`, candidates that fail due to network outages, timeouts, or rate limits (429/500) automatically recover using configured local models (Ollama / MiniPC). Each fallback model operates with an independent execution budget and an isolated controller linked to the parent turn signal, preventing cloud timeouts from starving fallback models. Additionally, terminal errors and aborted streams are strictly classified, ensuring reliable error propagation and failover.
 
 ### 6. Live Canvas 1-Click Preview (optional)
 If `@goodandready/dsh-live-canvas` is installed in the same profile, `dsh-moa` pushes the promoted HTML file to the Live Canvas REST contract (`POST /dsh-live-canvas/api/preview`, served by the same harness webServer) and appends a one-click preview link (`/dsh-live-canvas/sandbox/<id>`) to the answer. Without the plugin the step is skipped silently — no errors in the log, no dead links.
