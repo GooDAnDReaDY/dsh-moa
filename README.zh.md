@@ -142,6 +142,9 @@ graph TD
 ### 8. 提升前 Git 快照检查点 (`dsh-time-machine`)
 在将胜出候选者的文件提升并覆盖至项目根目录前，`dsh-moa` 自动调用本地 `dsh-time-machine` 建立影子 Git 检查点 (`moa-pre-promotion: candidate-N`)。如未安装则静默回退，不阻断提升流程。
 
+### 18. 平滑降级与本地容灾恢复 (Local Fallback Resilience)
+当 `local_fallback_enabled: true` 时，因网络中断、超时或速率限制（429/500）而失败的候选模型会自动使用配置的本地模型（Ollama / MiniPC）恢复。每个后备模型都拥有独立的超时执行配额与关联主 turn signal 的隔离取消控制器，防止云端超时耗尽本地恢复时间。同时严格检测终止错误与流中断，确保安全容灾且杜绝已取消 turn 的延迟文件提升。
+
 ### 6. Live Canvas 一键预览（可选）
 若同一 profile 中安装了 `@goodandready/dsh-live-canvas`，`dsh-moa` 会将提升后的 HTML 文件推送到 Live Canvas 的 REST 契约（`POST /dsh-live-canvas/api/preview`，由同一 harness webServer 提供服务），并在回答中附上一键预览链接（`/dsh-live-canvas/sandbox/<id>`）。未安装该插件时此步骤静默跳过——日志无报错，也不会出现死链接。
 

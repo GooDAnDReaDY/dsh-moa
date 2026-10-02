@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.37
+
+### Fixed
+- **DSH 0.2.0-rc.2 Prepared-Call Contract Parity** (#155): Assembled full `LlmCallConfig` (`provider`, `model`, `temperature`, `maxTokens`, `stop`, `reasoningEffort`) prior to `prepareCall` and forwarded `prep.config` to `prep.stream`, satisfying strict `callConfigEquals` validation in DSH 0.2.0-rc.2 while maintaining legacy positional fallback.
+- **AbortSignal Stream Interruption & Promotion Guard** (#156): Connected external `signal` to LLM streaming via `combineSignals` (`AbortSignal.any`) and added strict cancellation checks across all phase boundaries in `moa-runner.js`, preventing late workspace writes and file promotions on cancelled turns.
+- **Terminal Error & Stream Failure Classification** (#157): Replaced silent acceptance of empty text upon model error with explicit detection of `finish(error)`, `finish(aborted)`, `type: 'error'`, and `EMPTY_RESPONSE`, throwing typed exceptions with original failure codes to trigger retry/fallback policies.
+- **Dedicated Timeout & Isolated Controller for Local Fallbacks** (#163): Provided independent timeout budget and fresh `AbortController` linked to the turn signal for each local fallback candidate, resolving an issue where cloud timeouts starved local models of execution time.
+
+### Added
+- **Strict Integration Contract Tests** (#187): Added `test/llm-contracts.test.mjs` verifying runtime contracts for prepared calls, in-flight abort propagation, late promotion blockage, stream error chunk classification, and isolated local fallback execution.
+
 ## 0.2.36
 
 ### Fixed
