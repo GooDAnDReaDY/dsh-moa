@@ -140,7 +140,7 @@ Configure your models in `Settings → Plugins → Mixture of Agents`:
 Inspect line-by-line differences between candidate proposals and the curator's synthesized deliverable directly in the UI. Features file selection, delta line highlights (added, removed, same), and unified diff rendering via a zero-dependency in-memory LCS algorithm.
 
 ### 8. Pre-Promotion Git Checkpoints (`dsh-time-machine`)
-Before promoting any winning candidate files over the workspace root, `dsh-moa` invokes the local `dsh-time-machine` service to create a shadow Git checkpoint (`moa-pre-promotion: candidate-N`). If `dsh-time-machine` is absent or unreachable, file promotion proceeds seamlessly via best-effort fallback.
+Before promoting any winning candidate files over the workspace root, `dsh-moa` invokes the local `dsh-time-machine` service to create a shadow Git checkpoint (`moa-pre-promotion: candidate-N`). If `dsh-time-machine` is absent or unreachable, file promotion is blocked (fail-closed) to protect uncheckpointed workspace files against unintended overwrites (override with `force: true` only when automated checkpoints are explicitly unneeded).
 
 ### 9. Automated Test Execution Gate
 When `test_gate_enabled: true` and `test_command` (e.g. `npm test` or `pytest`) are configured, candidate code is executed in an ephemeral sandbox overlay. The judge receives concrete test outcomes, durations, and output logs to ground decisions in objective verification.
