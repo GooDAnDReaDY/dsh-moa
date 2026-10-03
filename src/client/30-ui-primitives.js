@@ -41,3 +41,52 @@
       Chevron = FallbackChevron
     }
 
+
+    function renderSlotEditorList({ items, badgePrefix, onUpdate, onAdd, onRemove, addLabel, emptyWarning, availableModels, t }) {
+      return React.createElement(
+        'div',
+        { style: { display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 } },
+        (Array.isArray(items) ? items : []).map((item, idx) =>
+          React.createElement(
+            'div',
+            { key: idx, style: { display: 'flex', alignItems: 'center', gap: 8 } },
+            React.createElement('span', { className: 'moa-cand-badge' }, `${badgePrefix} #${idx + 1}`),
+            React.createElement(
+              'div',
+              { style: { flex: 1 } },
+              React.createElement(SearchableModelPicker, {
+                provider: (item && item.provider) || '',
+                model: (item && item.model) || '',
+                onChange: (prov, mod) => onUpdate(idx, prov, mod),
+                availableModels,
+                t,
+              })
+            ),
+            React.createElement(
+              'button',
+              {
+                type: 'button',
+                className: 'moa-btn moa-btn-danger moa-btn-sub',
+                onClick: () => onRemove(idx),
+              },
+              '✕'
+            )
+          )
+        ),
+        React.createElement(
+          'button',
+          {
+            type: 'button',
+            className: 'moa-btn moa-btn-sub',
+            style: { marginTop: 4, alignSelf: 'flex-start' },
+            onClick: onAdd,
+          },
+          addLabel
+        ),
+        emptyWarning ? React.createElement(
+          'div',
+          { style: { fontSize: 11, color: 'var(--dsw-alias-state-warning-primary, #e6a23c)', marginTop: 2 } },
+          emptyWarning
+        ) : null
+      )
+    }

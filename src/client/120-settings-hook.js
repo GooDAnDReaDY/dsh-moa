@@ -1,3 +1,6 @@
+    const UNAVAILABLE_SNAPSHOT = Object.freeze({ status: 'unavailable' })
+    const LOADING_SNAPSHOT = Object.freeze({ status: 'loading' })
+
     function useMoASettings(props) {
       const effectiveCtx = (props && props.ctx) || rootCtx
       // English is canonical; prefer the core-provided translator for the
@@ -10,12 +13,12 @@
         return s && typeof s.get === 'function' ? s.get(NS) : undefined
       }, [effectiveCtx])
 
+      const getSnapshot = React.useCallback(() => (scope ? scope.getSnapshot() : UNAVAILABLE_SNAPSHOT), [scope])
+      const getServerSnapshot = React.useCallback(() => LOADING_SNAPSHOT, [])
+      const subscribe = React.useCallback((cb) => (scope ? scope.subscribe(cb) : () => {}), [scope])
+
       const snapshot = React.useSyncExternalStore
-        ? React.useSyncExternalStore(
-            React.useMemo(() => (cb) => (scope ? scope.subscribe(cb) : () => {}), [scope]),
-            React.useCallback(() => (scope ? scope.getSnapshot() : { status: 'unavailable' }), [scope]),
-            React.useCallback(() => ({ status: 'loading' }), [])
-          )
+        ? React.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
         : null
 
       const [status, setStatus] = React.useState('loading')
@@ -29,6 +32,7 @@
         currentVersion: '0.2.16',
         latestVersion: undefined,
         updateAvailable: false,
+        canAutoUpdate: true,
         notice: null,
         error: null,
       })
@@ -45,10 +49,11 @@
               currentVersion: data.currentVersion,
               latestVersion: data.latestVersion,
               updateAvailable: Boolean(data.updateAvailable),
+              canAutoUpdate: data.canAutoUpdate !== undefined ? Boolean(data.canAutoUpdate) : prev.canAutoUpdate,
               error: data.latestCheckFailed ? (t('updater.checkFailed') || 'Registry check failed') : null,
             }))
           } else {
-            setUpdateState((prev) => ({ ...prev, checking: false, error: data.error || 'Check failed' }))
+            setUpdateState((prev) => ({ ...prev, checking: false, error: data?.error || 'Check failed' }))
           }
         } catch (err) {
           setUpdateState((prev) => ({ ...prev, checking: false, error: String(err?.message || err) }))
@@ -63,19 +68,20 @@
             headers: { 'Content-Type': 'application/json', 'x-dsh-plugin-update': '1' },
           })
           const data = await res.json()
-          if (data && data.updated) {
+          if (data && (data.updated || data.updatedVersion || data.restartRequired || data.ok)) {
+            const nextVer = data.updatedVersion || data.latestVersion || data.currentVersion
             setUpdateState((prev) => ({
               ...prev,
               updating: false,
               updateAvailable: false,
-              currentVersion: data.updatedVersion || data.latestVersion,
-              notice: (t('updater.success') || 'Successfully updated to v{version}. Restart DSH to apply.').replace('{version}', data.updatedVersion || data.latestVersion),
+              currentVersion: nextVer,
+              notice: (t('updater.success') || 'Successfully updated to v{version}. Restart DSH to apply.').replace('{version}', nextVer),
             }))
           } else {
             setUpdateState((prev) => ({
               ...prev,
               updating: false,
-              error: data.error || data.message || 'Update failed',
+              error: data?.error || data?.message || 'Update failed',
             }))
           }
         } catch (err) {
@@ -235,7 +241,7 @@
               if (res.defaultPreset) setDefaultPreset(res.defaultPreset)
               setTimeout(() => setSaveStatus(''), 3000)
             } else {
-              setSaveStatus('Error saving: ' + (res?.error || 'failed'))
+              setSaveStatus((t('status.error_saving') || 'Error saving: ') + (res?.error || 'failed'))
             }
           })
           .catch((err) => {

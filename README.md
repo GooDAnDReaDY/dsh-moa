@@ -116,6 +116,13 @@ The flag form is equivalent:
 /moa --preset=deep-reasoning solve this math problem step by step
 ```
 
+Or promote a candidate solution directly (by candidate index or runId + candidate index):
+
+```text
+/moa promote 2
+/moa promote <runId> 2
+```
+
 ### 2. Adaptive Questionnaire Gate
 When prompts are open-ended or lack architectural specifications (e.g. *"build a calculator app"*), advisor models detect ambiguities and formulate focused clarifying questions (e.g., UI style, persistence backend, framework choice) before generating code.
 

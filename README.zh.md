@@ -116,6 +116,13 @@ graph TD
 /moa --preset=deep-reasoning 逐步求解这道数学题
 ```
 
+或直接提升候选者方案（支持指定 runId 与候选序号）：
+
+```text
+/moa promote 2
+/moa promote <runId> 2
+```
+
 ### 2. 自适应澄清问卷
 当需求过于抽象（例如 *"制作一个计算器"*）时，系统会在生成代码前主动询问 UI 风格、数据持久化方式或框架偏好。
 
@@ -128,6 +135,7 @@ graph TD
 * 各提案模型在 `.moa/candidate-1/`、`.moa/candidate-2/` 等独立目录生成工程代码。
 * 裁判模型对比各版本实现，通过 `WINNER_CANDIDATE_INDEX: N` 指定最优方案。
 * 胜出方案自动提升至项目根目录，临时沙箱随后自动清理。
+* 支持随时通过命令 `/moa promote [runId] <candidateIndex>` 或 UI 界面一键手动提升指定候选者的方案。
 
 ### 5. 原生设置卡片与预设管理
 在 `设置 → 插件 → Mixture of Agents` 中可视化配置模型：
@@ -234,6 +242,9 @@ dsh-moa:
 | `/dsh-moa/leaderboard` | `GET` | 计算模型胜率排行榜与平均执行成本 |
 | `/dsh-moa/runs/<id>` | `GET` | 按 id 返回单条运行记录 |
 | `/dsh-moa/run` | `POST` | 通过 HTTP 运行完整 MoA 管线（`enabled: false` 时返回 400） |
+| `/dsh-moa/diff` | `GET` | 计算候选运行结果或综合输出的行级别差异（支持按 runId 解析工作区） |
+| `/dsh-moa/promote` | `POST` | 手动将候选工作区文件提升到项目根目录（带时间机器快照） |
+| `/api/dsh-moa/update` | `POST` | 从 npm 一键更新插件，带安全写入源校验 |
 
 ---
 

@@ -113,6 +113,64 @@
       'diff.curator': '裁判合成 (Curator Synthesis)',
       'diff.candidate': '候选方案 {num}',
       'diff.empty': '选中的文件完全一致（无差异）。',
+      // Multi-Judge
+      'aggregator.multi_judge_title': '多裁判委员会与共识投票',
+      'aggregator.multi_judge_desc': '部署多个裁判模型对候选方案打分并通过共识投票评定获胜者。',
+      'aggregator.voting_strategy_label': '投票策略：',
+      'aggregator.voting_majority': '多数决',
+      'aggregator.voting_highest_score': '最高分',
+      'aggregator.voting_unanimous': '全票通过',
+      'aggregator.judge_models_title': '裁判模型列表',
+      'aggregator.judge_models_desc': '指定 2 个或更多裁判模型以实现委员会共识。',
+      'aggregator.add_judge_btn': '+ 添加裁判模型',
+      'aggregator.judge_badge': '裁判 #{num}',
+      'aggregator.judge_models_empty': '共识投票至少需要配置 2 个裁判模型。',
+
+      // Composite
+      'aggregator.composite_title': '混合复合综合 (AST / 代码块合并)',
+      'aggregator.composite_desc': '从多个候选方案中提取模块化代码块、类型定义与算法并综合为统一方案。',
+
+      // Budget
+      'aggregator.budget_title': '成本预算护栏与自动分流',
+      'aggregator.budget_desc': '限制单次最高花费；自动削减候选模型或中止以防止超额消耗。',
+      'aggregator.budget_max_usd': '最高金额 ($):',
+      'aggregator.budget_action': '处置方式：',
+      'aggregator.budget_action_trim': '削减候选',
+      'aggregator.budget_action_abort': '中止运行',
+
+      // Reports
+      'aggregator.report_title': '自动化基准与复盘报告',
+      'aggregator.report_desc': '生成可下载的 Markdown 与 JSON 报告，详细记录候选方案耗时、一致性、测试门禁与成本分布。',
+
+      // Local Fallback
+      'aggregator.local_fallback_title': '优雅降级与本地备用模型',
+      'aggregator.local_fallback_desc': '在线候选模型 API 故障时自动降级到本地 Ollama / MiniPC 模型。',
+      'aggregator.local_models_title': '本地备用模型列表',
+      'aggregator.local_models_desc': '云端候选 API 异常时调用的本地离线模型。',
+      'aggregator.add_local_btn': '+ 添加本地模型',
+      'aggregator.local_badge': '本地 #{num}',
+      'aggregator.local_models_empty': '请至少配置一个本地备用模型（例如 Ollama）。',
+
+      // Smart Routing Model
+      'config.smart_routing_title': '智能提示词分流',
+      'config.smart_routing_desc': '分析任务复杂度并自动匹配最佳预设。',
+      'config.smart_routing_model': '分流决策模型：',
+
+      // Multi-Turn Context
+      'aggregator.multi_turn_title': '多轮对话上下文与差异剪枝',
+      'aggregator.multi_turn_desc': '跨轮次保留对话上下文并剪枝重复代码块。',
+
+      // UI States & Errors
+      'status.loading': '正在加载 MoA 设置…',
+      'status.unavailable': 'MoA 服务暂不可用',
+      'status.retry': '重试',
+      'status.error_saving': '保存失败：',
+      'error_boundary.title': '⚠️ MoA 界面错误：',
+      'error_boundary.retry': '重试',
+
+      // Diff Viewer
+      'diff.select_run': '运行记录：',
+      'diff.latest_run': '最新 / 当前工作区',
       'updater.success': '成功更新至 v{version}，请重启 DSH 使其生效。',
     }
 

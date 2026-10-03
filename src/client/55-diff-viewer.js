@@ -9,8 +9,25 @@
       const [loading, setLoading] = React.useState(false)
       const [error, setError] = React.useState(null)
       const [hasFetched, setHasFetched] = React.useState(false)
+      const [historyRuns, setHistoryRuns] = React.useState([])
+      const [selectedRunId, setSelectedRunId] = React.useState('')
 
-      const candidateCount = Math.max(currentRefs.length || 0, 2)
+      React.useEffect(() => {
+        fetch('/dsh-moa/history?limit=30', { cache: 'no-store' })
+          .then((r) => r.json())
+          .then((data) => {
+            if (data && data.ok && Array.isArray(data.runs)) {
+              setHistoryRuns(data.runs)
+            }
+          })
+          .catch(() => {})
+      }, [])
+
+      const selectedRun = historyRuns.find((r) => r.id === selectedRunId)
+      const candidateCount = selectedRun && Array.isArray(selectedRun.candidates) && selectedRun.candidates.length > 0
+        ? selectedRun.candidates.length
+        : Math.max(currentRefs.length || 0, 2)
+
       const candidateOptions = []
       for (let i = 1; i <= candidateCount; i++) {
         candidateOptions.push({
@@ -23,6 +40,7 @@
         setLoading(true)
         setError(null)
         const params = new URLSearchParams()
+        if (selectedRunId) params.set('runId', selectedRunId)
         if (fromCandidate) params.set('from', fromCandidate)
         if (toCandidate) params.set('to', toCandidate)
         if (targetFile) params.set('file', targetFile)
@@ -53,11 +71,11 @@
             setHasFetched(true)
             setError(err.message || String(err))
           })
-      }, [fromCandidate, toCandidate, selectedFile])
+      }, [fromCandidate, toCandidate, selectedFile, selectedRunId])
 
       React.useEffect(() => {
         loadDiff()
-      }, [fromCandidate, toCandidate])
+      }, [fromCandidate, toCandidate, selectedRunId])
 
       const handleFileChange = (e) => {
         const nextFile = e.target.value
@@ -81,6 +99,25 @@
           React.createElement(
             'div',
             { className: 'moa-diff-controls' },
+            /* Run selector dropdown (#179) */
+            React.createElement(
+              'label',
+              { style: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } },
+              t('diff.select_run') || 'Run:',
+              React.createElement(
+                'select',
+                {
+                  className: 'moa-diff-select',
+                  value: selectedRunId,
+                  onChange: (e) => setSelectedRunId(e.target.value),
+                },
+                React.createElement('option', { value: '' }, t('diff.latest_run') || 'Latest / Active Workspace'),
+                historyRuns.map((r) => {
+                  const label = `${r.preset || 'default'} [${(r.id || '').slice(0, 8)}] ${(r.prompt || '').slice(0, 24)}...`
+                  return React.createElement('option', { key: r.id, value: r.id }, label)
+                })
+              )
+            ),
             React.createElement(
               'label',
               { style: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } },

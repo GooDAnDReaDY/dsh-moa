@@ -212,7 +212,7 @@
                     })
                   )
                 ),
-              /* Multi-Judge Panel & Consensus Voting */
+              /* Multi-Judge Panel & Consensus Voting (#175, #176) */
               React.createElement(
                 'div',
                 { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
@@ -225,29 +225,62 @@
                     onChange: (e) => updateCurrentPreset((p) => ({ ...p, multi_judge_enabled: e.target.checked })),
                     style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
                   }),
-                  'Multi-Judge Panel & Consensus Voting'
+                  t('aggregator.multi_judge_title') || 'Multi-Judge Panel & Consensus Voting'
                 ),
                 React.createElement(
                   'div',
                   { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
-                  'Deploy multiple judge models to score candidates and determine winner via consensus voting.'
+                  t('aggregator.multi_judge_desc') || 'Deploy multiple judge models to score candidates and determine winner via consensus voting.'
                 ),
                 currentPreset.multi_judge_enabled && React.createElement(
                   'div',
-                  { style: { marginLeft: 22, display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 } },
-                  React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, 'Voting Strategy:'),
+                  { style: { marginLeft: 22, display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 } },
                   React.createElement(
-                    'select',
-                    {
-                      className: 'moa-select',
-                      style: { width: 140, height: 28, fontSize: 12, padding: '0 6px' },
-                      value: currentPreset.judge_voting_strategy || 'majority',
-                      onChange: (e) => updateCurrentPreset((p) => ({ ...p, judge_voting_strategy: e.target.value })),
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+                    React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('aggregator.voting_strategy_label') || 'Voting Strategy:'),
+                    React.createElement(
+                      'select',
+                      {
+                        className: 'moa-select',
+                        style: { width: 140, height: 28, fontSize: 12, padding: '0 6px' },
+                        value: currentPreset.judge_voting_strategy || 'majority',
+                        onChange: (e) => updateCurrentPreset((p) => ({ ...p, judge_voting_strategy: e.target.value })),
+                      },
+                      React.createElement('option', { value: 'majority' }, t('aggregator.voting_majority') || 'Majority Vote'),
+                      React.createElement('option', { value: 'highest_score' }, t('aggregator.voting_highest_score') || 'Highest Score'),
+                      React.createElement('option', { value: 'unanimous' }, t('aggregator.voting_unanimous') || 'Unanimous')
+                    )
+                  ),
+                  renderSlotEditorList({
+                    items: currentPreset.judge_models,
+                    badgePrefix: 'Judge',
+                    onUpdate: (idx, prov, mod) => {
+                      updateCurrentPreset((p) => {
+                        const list = [...(p.judge_models || [])]
+                        list[idx] = { provider: prov, model: mod }
+                        return { ...p, judge_models: list }
+                      })
                     },
-                    React.createElement('option', { value: 'majority' }, 'Majority Vote'),
-                    React.createElement('option', { value: 'highest_score' }, 'Highest Score'),
-                    React.createElement('option', { value: 'unanimous' }, 'Unanimous')
-                  )
+                    onRemove: (idx) => {
+                      updateCurrentPreset((p) => ({
+                        ...p,
+                        judge_models: (p.judge_models || []).filter((_, i) => i !== idx),
+                      }))
+                    },
+                    onAdd: () => {
+                      updateCurrentPreset((p) => ({
+                        ...p,
+                        judge_models: [...(p.judge_models || []), { provider: (availableModels[0] && availableModels[0].provider) || '', model: (availableModels[0] && availableModels[0].model) || '' }],
+                      }))
+                    },
+                    addLabel: t('aggregator.add_judge_btn') || '+ Add Judge Model',
+                    emptyWarning: (!currentPreset.judge_models || currentPreset.judge_models.length < 2)
+                      ? (t('aggregator.judge_models_empty') || 'At least 2 judge models are required for consensus voting.')
+                      : null,
+                    availableModels,
+                    t,
+                  })
                 )
               ),
 
@@ -264,12 +297,12 @@
                     onChange: (e) => updateCurrentPreset((p) => ({ ...p, composite_merge_enabled: e.target.checked })),
                     style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
                   }),
-                  'Composite Hybrid Synthesis (AST / Block Merge)'
+                  t('aggregator.composite_title') || 'Composite Hybrid Synthesis (AST / Block Merge)'
                 ),
                 React.createElement(
                   'div',
                   { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
-                  'Synthesize modular code blocks, types, and algorithms from multiple candidates into a unified composite.'
+                  t('aggregator.composite_desc') || 'Synthesize modular code blocks, types, and algorithms from multiple candidates into a unified composite.'
                 )
               ),
 
@@ -286,12 +319,12 @@
                     onChange: (e) => updateCurrentPreset((p) => ({ ...p, budget_guard_enabled: e.target.checked })),
                     style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
                   }),
-                  'Cost Budget Guardrails & Auto-Fallback'
+                  t('aggregator.budget_title') || 'Cost Budget Guardrails & Auto-Fallback'
                 ),
                 React.createElement(
                   'div',
                   { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
-                  'Cap maximum run cost; auto-trim candidate pool or abort to prevent accidental token spend.'
+                  t('aggregator.budget_desc') || 'Cap maximum run cost; auto-trim candidate pool or abort to prevent accidental token spend.'
                 ),
                 currentPreset.budget_guard_enabled && React.createElement(
                   'div',
@@ -299,7 +332,7 @@
                   React.createElement(
                     'div',
                     { style: { display: 'flex', alignItems: 'center', gap: 6 } },
-                    React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, 'Max USD ($):'),
+                    React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('aggregator.budget_max_usd') || 'Max USD ($):'),
                     React.createElement('input', {
                       type: 'number',
                       step: '0.01',
@@ -315,7 +348,7 @@
                   React.createElement(
                     'div',
                     { style: { display: 'flex', alignItems: 'center', gap: 6 } },
-                    React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, 'Action:'),
+                    React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('aggregator.budget_action') || 'Action:'),
                     React.createElement(
                       'select',
                       {
@@ -324,8 +357,8 @@
                         value: currentPreset.budget_action || 'trim',
                         onChange: (e) => updateCurrentPreset((p) => ({ ...p, budget_action: e.target.value })),
                       },
-                      React.createElement('option', { value: 'trim' }, 'Trim Pool'),
-                      React.createElement('option', { value: 'abort' }, 'Abort')
+                      React.createElement('option', { value: 'trim' }, t('aggregator.budget_action_trim') || 'Trim Pool'),
+                      React.createElement('option', { value: 'abort' }, t('aggregator.budget_action_abort') || 'Abort')
                     )
                   )
                 )
@@ -344,16 +377,16 @@
                     onChange: (e) => updateCurrentPreset((p) => ({ ...p, report_generation_enabled: e.target.checked })),
                     style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
                   }),
-                  'Automated Benchmark & Post-Mortem Report'
+                  t('aggregator.report_title') || 'Automated Benchmark & Post-Mortem Report'
                 ),
                 React.createElement(
                   'div',
                   { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
-                  'Generate downloadable Markdown & JSON reports detailing candidate latency, agreement, test gate, and cost breakdown.'
+                  t('aggregator.report_desc') || 'Generate downloadable Markdown & JSON reports detailing candidate latency, agreement, test gate, and cost breakdown.'
                 )
               ),
 
-              /* Graceful Degradation & Local Fallback */
+              /* Graceful Degradation & Local Fallback (#175, #176) */
               React.createElement(
                 'div',
                 { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
@@ -366,12 +399,110 @@
                     onChange: (e) => updateCurrentPreset((p) => ({ ...p, local_fallback_enabled: e.target.checked })),
                     style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
                   }),
-                  'Graceful Degradation & Local Fallback'
+                  t('aggregator.local_fallback_title') || 'Graceful Degradation & Local Fallback'
                 ),
                 React.createElement(
                   'div',
                   { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
-                  'Automatically fall back to local Ollama / MiniPC models when online candidate APIs fail.'
+                  t('aggregator.local_fallback_desc') || 'Automatically fall back to local Ollama / MiniPC models when online candidate APIs fail.'
+                ),
+                currentPreset.local_fallback_enabled && React.createElement(
+                  'div',
+                  { style: { marginLeft: 22, marginTop: 4 } },
+                  renderSlotEditorList({
+                    items: currentPreset.local_fallback_models,
+                    badgePrefix: 'Local',
+                    onUpdate: (idx, prov, mod) => {
+                      updateCurrentPreset((p) => {
+                        const list = [...(p.local_fallback_models || [])]
+                        list[idx] = { provider: prov, model: mod }
+                        return { ...p, local_fallback_models: list }
+                      })
+                    },
+                    onRemove: (idx) => {
+                      updateCurrentPreset((p) => ({
+                        ...p,
+                        local_fallback_models: (p.local_fallback_models || []).filter((_, i) => i !== idx),
+                      }))
+                    },
+                    onAdd: () => {
+                      updateCurrentPreset((p) => ({
+                        ...p,
+                        local_fallback_models: [...(p.local_fallback_models || []), { provider: 'ollama', model: '' }],
+                      }))
+                    },
+                    addLabel: t('aggregator.add_local_btn') || '+ Add Local Model',
+                    emptyWarning: (!currentPreset.local_fallback_models || currentPreset.local_fallback_models.length === 0)
+                      ? (t('aggregator.local_models_empty') || 'Configure at least one local fallback model (e.g. Ollama).')
+                      : null,
+                    availableModels,
+                    t,
+                  })
+                )
+              ),
+
+              /* Smart Prompt Routing (#176) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.smart_routing_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, smart_routing_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('config.smart_routing_title') || 'Smart Prompt Routing'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('config.smart_routing_desc') || 'Analyze task complexity and automatically select the optimal preset.'
+                ),
+                currentPreset.smart_routing_enabled && React.createElement(
+                  'div',
+                  { style: { marginLeft: 22, marginTop: 4, display: 'flex', alignItems: 'center', gap: 8 } },
+                  React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('config.smart_routing_model') || 'Routing Model:'),
+                  React.createElement(
+                    'div',
+                    { style: { flex: 1, maxWidth: 320 } },
+                    React.createElement(SearchableModelPicker, {
+                      provider: currentPreset.smart_routing_model?.provider || '',
+                      model: currentPreset.smart_routing_model?.model || '',
+                      onChange: (prov, mod) => {
+                        updateCurrentPreset((p) => ({
+                          ...p,
+                          smart_routing_model: { provider: prov, model: mod },
+                        }))
+                      },
+                      availableModels,
+                      t,
+                    })
+                  )
+                )
+              ),
+
+              /* Multi-Turn Context & Diff Pruning (#176) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: currentPreset.multi_turn_enabled !== false,
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, multi_turn_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.multi_turn_title') || 'Multi-Turn Context & Diff Pruning'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.multi_turn_desc') || 'Retain conversation context across turns while pruning duplicate code blocks.'
                 )
               ),
 
@@ -389,63 +520,33 @@
                   { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginTop: -4 } },
                   t('aggregator.fallbacks_desc')
                 ),
-                (Array.isArray(currentPreset.aggregator_fallbacks) ? currentPreset.aggregator_fallbacks : []).map((fb, fbIdx) =>
-                  React.createElement(
-                    'div',
-                    { key: fbIdx, style: { display: 'flex', alignItems: 'center', gap: 8 } },
-                    React.createElement('span', { className: 'moa-cand-badge' }, `Fallback #${fbIdx + 1}`),
-                    React.createElement(
-                      'div',
-                      { style: { flex: 1 } },
-                      React.createElement(SearchableModelPicker, {
-                        provider: (fb && fb.provider) || '',
-                        model: (fb && fb.model) || '',
-                        onChange: (prov, mod) => {
-                          updateCurrentPreset((p) => {
-                            const list = [...(p.aggregator_fallbacks || [])]
-                            list[fbIdx] = { provider: prov, model: mod }
-                            return { ...p, aggregator_fallbacks: list }
-                          })
-                        },
-                        availableModels,
-                        t,
-                      })
-                    ),
-                    React.createElement(
-                      'button',
-                      {
-                        type: 'button',
-                        className: 'moa-btn moa-btn-danger moa-btn-sub',
-                        onClick: () => {
-                          updateCurrentPreset((p) => ({
-                            ...p,
-                            aggregator_fallbacks: (p.aggregator_fallbacks || []).filter((_, i) => i !== fbIdx),
-                          }))
-                        },
-                      },
-                      '✕'
-                    )
-                  )
-                ),
-                React.createElement(
-                  'div',
-                  null,
-                  React.createElement(
-                    'button',
-                    {
-                      type: 'button',
-                      className: 'moa-btn moa-btn-sub',
-                      style: { marginTop: 4 },
-                      onClick: () => {
-                        updateCurrentPreset((p) => ({
-                          ...p,
-                          aggregator_fallbacks: [...(p.aggregator_fallbacks || []), { provider: (availableModels[0] && availableModels[0].provider) || '', model: (availableModels[0] && availableModels[0].model) || '' }],
-                        }))
-                      },
-                    },
-                    t('aggregator.add_fallback_btn')
-                  )
-                )
+                renderSlotEditorList({
+                  items: currentPreset.aggregator_fallbacks,
+                  badgePrefix: 'Fallback',
+                  onUpdate: (idx, prov, mod) => {
+                    updateCurrentPreset((p) => {
+                      const list = [...(p.aggregator_fallbacks || [])]
+                      list[idx] = { provider: prov, model: mod }
+                      return { ...p, aggregator_fallbacks: list }
+                    })
+                  },
+                  onRemove: (idx) => {
+                    updateCurrentPreset((p) => ({
+                      ...p,
+                      aggregator_fallbacks: (p.aggregator_fallbacks || []).filter((_, i) => i !== idx),
+                    }))
+                  },
+                  onAdd: () => {
+                    updateCurrentPreset((p) => ({
+                      ...p,
+                      aggregator_fallbacks: [...(p.aggregator_fallbacks || []), { provider: (availableModels[0] && availableModels[0].provider) || '', model: (availableModels[0] && availableModels[0].model) || '' }],
+                    }))
+                  },
+                  addLabel: t('aggregator.add_fallback_btn'),
+                  emptyWarning: null,
+                  availableModels,
+                  t,
+                })
               )
             )
           )

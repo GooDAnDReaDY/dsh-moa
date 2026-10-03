@@ -113,6 +113,64 @@
       'diff.curator': 'Curator Synthesis',
       'diff.candidate': 'Candidate {num}',
       'diff.empty': 'Selected files are identical (zero diff).',
+      // Multi-Judge
+      'aggregator.multi_judge_title': 'Multi-Judge Panel & Consensus Voting',
+      'aggregator.multi_judge_desc': 'Deploy multiple judge models to score candidates and determine winner via consensus voting.',
+      'aggregator.voting_strategy_label': 'Voting Strategy:',
+      'aggregator.voting_majority': 'Majority Vote',
+      'aggregator.voting_highest_score': 'Highest Score',
+      'aggregator.voting_unanimous': 'Unanimous',
+      'aggregator.judge_models_title': 'Judge Panel Models',
+      'aggregator.judge_models_desc': 'Specify 2 or more judge models for panel consensus.',
+      'aggregator.add_judge_btn': '+ Add Judge Model',
+      'aggregator.judge_badge': 'Judge #{num}',
+      'aggregator.judge_models_empty': 'At least 2 judge models are required for consensus voting.',
+
+      // Composite
+      'aggregator.composite_title': 'Composite Hybrid Synthesis (AST / Block Merge)',
+      'aggregator.composite_desc': 'Synthesize modular code blocks, types, and algorithms from multiple candidates into a unified composite.',
+
+      // Budget
+      'aggregator.budget_title': 'Cost Budget Guardrails & Auto-Fallback',
+      'aggregator.budget_desc': 'Cap maximum run cost; auto-trim candidate pool or abort to prevent accidental token spend.',
+      'aggregator.budget_max_usd': 'Max USD ($):',
+      'aggregator.budget_action': 'Action:',
+      'aggregator.budget_action_trim': 'Trim Pool',
+      'aggregator.budget_action_abort': 'Abort',
+
+      // Reports
+      'aggregator.report_title': 'Automated Benchmark & Post-Mortem Report',
+      'aggregator.report_desc': 'Generate downloadable Markdown & JSON reports detailing candidate latency, agreement, test gate, and cost breakdown.',
+
+      // Local Fallback
+      'aggregator.local_fallback_title': 'Graceful Degradation & Local Fallback',
+      'aggregator.local_fallback_desc': 'Automatically fall back to local Ollama / MiniPC models when online candidate APIs fail.',
+      'aggregator.local_models_title': 'Local Fallback Models',
+      'aggregator.local_models_desc': 'Local offline models used when cloud candidate APIs fail.',
+      'aggregator.add_local_btn': '+ Add Local Model',
+      'aggregator.local_badge': 'Local #{num}',
+      'aggregator.local_models_empty': 'Configure at least one local fallback model (e.g. Ollama).',
+
+      // Smart Routing Model
+      'config.smart_routing_title': 'Smart Prompt Routing',
+      'config.smart_routing_desc': 'Analyze task complexity and automatically select the optimal preset.',
+      'config.smart_routing_model': 'Routing Model:',
+
+      // Multi-Turn Context
+      'aggregator.multi_turn_title': 'Multi-Turn Context & Diff Pruning',
+      'aggregator.multi_turn_desc': 'Retain conversation context across turns while pruning duplicate code blocks.',
+
+      // UI States & Errors
+      'status.loading': 'Loading MoA settings…',
+      'status.unavailable': 'MoA service temporarily unavailable',
+      'status.retry': 'Retry',
+      'status.error_saving': 'Error saving: ',
+      'error_boundary.title': '⚠️ MoA UI Error:',
+      'error_boundary.retry': 'Retry',
+
+      // Diff Viewer
+      'diff.select_run': 'Run:',
+      'diff.latest_run': 'Latest / Active Workspace',
       'updater.success': 'Successfully updated to v{version}. Restart DSH to apply.',
     }
 
