@@ -140,7 +140,7 @@ graph TD
 直接在界面中可视化对比顾问方案之间以及顾问与裁判综合方案之间的逐行差异。支持文件筛选、增删改高亮，基于纯 JavaScript LCS 差异算法，零第三方依赖。
 
 ### 8. 提升前 Git 快照检查点 (`dsh-time-machine`)
-在将胜出候选者的文件提升并覆盖至项目根目录前，`dsh-moa` 自动调用本地 `dsh-time-machine` 建立影子 Git 检查点 (`moa-pre-promotion: candidate-N`)。如未安装则静默回退，不阻断提升流程。
+在将胜出候选者的文件提升并覆盖至项目根目录前，`dsh-moa` 自动调用本地 `dsh-time-machine` 建立影子 Git 检查点 (`moa-pre-promotion: candidate-N`)。如 `dsh-time-machine` 未安装或无法访问，文件提升将被阻断以防止未备份的项目文件被意外覆盖（仅在明确不需要检查点时可通过 `force: true` 覆盖）。
 
 ### 18. 平滑降级与本地容灾恢复 (Local Fallback Resilience)
 当 `local_fallback_enabled: true` 时，因网络中断、超时或速率限制（429/500）而失败的候选模型会自动使用配置的本地模型（Ollama / MiniPC）恢复。每个后备模型都拥有独立的超时执行配额与关联主 turn signal 的隔离取消控制器，防止云端超时耗尽本地恢复时间。同时严格检测终止错误与流中断，确保安全容灾且杜绝已取消 turn 的延迟文件提升。

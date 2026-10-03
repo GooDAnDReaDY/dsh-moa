@@ -88,26 +88,37 @@ test('parseMoACommand: parses bare /moa, default prompt and preset selection', (
 
   // Bare command
   assert.deepEqual(parseMoACommand('/moa', presets), {
-    presetName: 'default',
+    presetName: undefined,
     prompt: '',
+    isExplicit: false,
   })
 
   // Standard prompt with default preset
   assert.deepEqual(parseMoACommand('/moa write a python fibonacci', presets), {
-    presetName: 'default',
+    presetName: undefined,
     prompt: 'write a python fibonacci',
+    isExplicit: false,
+  })
+
+  // Standard prompt with explicit defaultPreset argument
+  assert.deepEqual(parseMoACommand('/moa write a python fibonacci', presets, 'fast'), {
+    presetName: 'fast',
+    prompt: 'write a python fibonacci',
+    isExplicit: false,
   })
 
   // Named preset prefix
   assert.deepEqual(parseMoACommand('/moa code-review check this function', presets), {
     presetName: 'code-review',
     prompt: 'check this function',
+    isExplicit: true,
   })
 
   // Flag syntax
   assert.deepEqual(parseMoACommand('/moa --preset=deep-reasoning solve math problem', presets), {
     presetName: 'deep-reasoning',
     prompt: 'solve math problem',
+    isExplicit: true,
   })
 
   // Non-moa string returns null
