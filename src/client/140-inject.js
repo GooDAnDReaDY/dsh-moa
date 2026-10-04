@@ -40,7 +40,7 @@
                 locale: NS,
                 inject: () => ({ ctx }),
               },
-              (props) => React.createElement(MoAErrorBoundary, null, React.createElement(MoACard, props))
+              (props) => React.createElement(MoAErrorBoundary, props, React.createElement(MoACard, props))
             )
           } catch (err) {
             console.warn('[dsh-moa] Failed to register ' + slotName + ':', err)
@@ -63,7 +63,7 @@
                 locale: NS,
                 inject: () => ({ ctx }),
               },
-              (props) => React.createElement(MoAErrorBoundary, null, React.createElement(MoACard, props))
+              (props) => React.createElement(MoAErrorBoundary, props, React.createElement(MoACard, props))
             )
           } catch (err) {
             console.warn('[dsh-moa] Failed to register plugins.item:', err)

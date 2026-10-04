@@ -87,7 +87,7 @@
                 onChange: (e) => updateCurrentPreset((p) => ({ ...p, temperature_gradient_enabled: e.target.checked })),
                 style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
               }),
-              'Temperature Gradient Exploration (0.2 → 0.9 across candidates)'
+              t('proposers.temperature_gradient') || 'Temperature Gradient Exploration (0.2 → 0.9 across candidates)'
             )
           ),
           React.createElement(
@@ -115,7 +115,7 @@
                   min: '0',
                   max: '2',
                   placeholder: 'Temp',
-                  title: 'Candidate Temperature (leave empty for default/gradient)',
+                  title: t('proposers.candidate_temp_tooltip') || 'Candidate Temperature (leave empty for default/gradient)',
                   className: 'moa-input',
                   style: { width: 50, height: 32, fontSize: 12, padding: '0 4px', textAlign: 'center' },
                   value: (typeof ref.temperature === 'number' && ref.temperature >= 0) ? ref.temperature : '',

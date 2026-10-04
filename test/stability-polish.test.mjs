@@ -128,7 +128,9 @@ test('runMoAPipeline: Round 2 peer critique updates candidate workspace on disk'
 
     assert.equal(res.winningIndex, 1)
     // Verify candidate-1 workspace on disk contains Round 2 refined content
-    const cand1File = path.join(tmpDir, '.moa', 'candidate-1', 'index.html')
+    const cand1File = (res.runId && fs.existsSync(path.join(tmpDir, '.moa', res.runId, 'candidate-1', 'index.html')))
+      ? path.join(tmpDir, '.moa', res.runId, 'candidate-1', 'index.html')
+      : path.join(tmpDir, '.moa', 'candidate-1', 'index.html')
     assert.ok(fs.existsSync(cand1File), 'candidate-1 file exists in .moa')
     const fileContent = fs.readFileSync(cand1File, 'utf8')
     assert.ok(fileContent.includes('Refined V2'), 'candidate-1 on disk has Round 2 refined code')
