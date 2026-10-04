@@ -245,7 +245,7 @@
             }
           })
           .catch((err) => {
-            setSaveStatus(`Error: ${err.message || err}`)
+            setSaveStatus((t('status.error_saving') || 'Error saving: ') + (err?.message || String(err)))
           })
       }
 

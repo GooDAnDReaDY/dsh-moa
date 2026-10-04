@@ -40,7 +40,7 @@ test('pricing: custom user prices take highest priority', () => {
 })
 
 test('pricing: catalog cache loading and model matching', () => {
-  const testCachePath = join(tmpdir(), `dsh-moa-test-cache-${Date.now()}.json`)
+  const testCachePath = join(tmpdir(), `dsh-moa-test-cache-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}.json`)
   const mockCatalog = {
     updatedAt: Date.now(),
     models: {

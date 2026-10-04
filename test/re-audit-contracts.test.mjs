@@ -12,7 +12,9 @@ import { executeMultiJudgePanel } from '../lib/moa-multi-judge.js'
 import { buildSynthesisPrompt } from '../lib/moa-prompts.js'
 import {
   writeCandidateWorkspace,
+  readCandidateFiles,
 } from '../lib/file-workspace.js'
+import { runCandidateTestGate } from '../lib/moa-test-gate.js'
 import {
   getMoaHistory,
   invalidateHistoryCache,
@@ -97,10 +99,13 @@ test('#159: symlink containment in .moa root boundary', async () => {
     }
 
     if (fsSync.existsSync(moaLink)) {
-      const written = await writeCandidateWorkspace(tmpDir, 1, [{ relativePath: 'marker.txt', content: 'test' }], { runId: 'test-run' })
-      assert.ok(written.length > 0)
+      await assert.rejects(
+        async () => writeCandidateWorkspace(tmpDir, 1, [{ relativePath: 'marker.txt', content: 'test' }], { runId: 'test-run' }),
+        /Path traversal violation/
+      )
       // Verify nothing escaped into outsideDir
       assert.equal(fsSync.existsSync(path.join(outsideDir, 'test-run', 'candidate-1', 'marker.txt')), false)
+      assert.equal(fsSync.lstatSync(moaLink).isSymbolicLink(), true)
     }
   } finally {
     fsSync.rmSync(tmpDir, { recursive: true, force: true })
@@ -381,4 +386,124 @@ test('#198: candidate deadline timer is cleared and unrefed', async () => {
   assert.equal(abortedAtReturn, false)
   await sleep(40)
   assert.equal(signal.aborted, false, 'timer must be cleared so signal is not aborted after candidate completes')
+})
+
+
+test('#201: fast mode checkpoint failure propagates error and does not return ok: true synthesis', async () => {
+  const tmpDir = fsSync.mkdtempSync(path.join(os.tmpdir(), 'moa-201-'))
+  try {
+    const targetFile = path.join(tmpDir, 'app.js')
+    await fs.writeFile(targetFile, 'ORIGINAL')
+    const preset = {
+      name: 'fast-test',
+      reference_models: [{ provider: 'mock', model: 'one' }],
+      ask_clarifying_questions: false,
+    }
+
+    const res = await runMoAPipeline({
+      userPrompt: 'modify code',
+      cwd: tmpDir,
+      preset,
+      force: false,
+      checkpointFn: async () => {
+        throw new Error('SYNTHETIC_CHECKPOINT_FAILURE')
+      },
+      callLlm: async () => ({ text: '```js file="app.js"\nREPLACEMENT\n```' }),
+    })
+
+    assert.equal(res.kind, 'failure')
+    assert.ok(res.error)
+    assert.match(res.error.message, /checkpoint/i)
+    assert.equal(res.promotedFiles.length, 0)
+    assert.equal(await fs.readFile(targetFile, 'utf8'), 'ORIGINAL')
+  } finally {
+    fsSync.rmSync(tmpDir, { recursive: true, force: true })
+  }
+})
+
+test('#202: pure candidate folder resolution does not mutate or unlink external .moa symlink on read', async () => {
+  const tmpDir = fsSync.mkdtempSync(path.join(os.tmpdir(), 'moa-202-'))
+  const outsideDir = fsSync.mkdtempSync(path.join(os.tmpdir(), 'moa-202-outside-'))
+  try {
+    const moaLink = path.join(tmpDir, '.moa')
+    fsSync.symlinkSync(outsideDir, moaLink, 'dir')
+
+    assert.equal(fsSync.lstatSync(moaLink).isSymbolicLink(), true)
+    const files = await readCandidateFiles(tmpDir, 1)
+    assert.deepEqual(files, [])
+    // Pure resolver must NOT destroy or unlink the symlink on read
+    assert.equal(fsSync.lstatSync(moaLink).isSymbolicLink(), true)
+  } finally {
+    fsSync.rmSync(tmpDir, { recursive: true, force: true })
+    fsSync.rmSync(outsideDir, { recursive: true, force: true })
+  }
+})
+
+test('#158: refinement workspace context upfront budget guardrail stops oversized run', async () => {
+  const tmpDir = fsSync.mkdtempSync(path.join(os.tmpdir(), 'moa-158-ctx-'))
+  try {
+    await fs.writeFile(path.join(tmpDir, 'app.js'), 'x'.repeat(15000))
+    const preset = {
+      name: 'budget-test',
+      reference_models: [{ provider: 'mock', model: 'one' }, { provider: 'mock', model: 'two' }],
+      aggregator: { provider: 'mock', model: 'judge' },
+      budget_guard_enabled: true,
+      max_budget_usd: 0.001,
+      budget_action: 'abort',
+      max_tokens: 64,
+    }
+    const prices = { '*': { input: 1, output: 1 } }
+    let llmCalls = 0
+
+    const res = await runMoAPipeline({
+      userPrompt: 'modify code',
+      cwd: tmpDir,
+      preset,
+      prices,
+      callLlm: async () => {
+        llmCalls++
+        return { text: 'proposal', usage: { inputTokens: 10, outputTokens: 10 } }
+      },
+    })
+
+    assert.equal(res.kind, 'failure')
+    assert.match(res.content, /Budget Guardrail Abort/i)
+    assert.equal(llmCalls, 0, 'No LLM calls should be dispatched when upfront budget guard triggers')
+  } finally {
+    fsSync.rmSync(tmpDir, { recursive: true, force: true })
+  }
+})
+
+test('#161: test gate sandboxing blocks child execution and outside path execution', async () => {
+  const tmpDir = fsSync.mkdtempSync(path.join(os.tmpdir(), 'moa-161-gate-'))
+  const outsideFile = path.join(os.tmpdir(), `moa-outside-${Date.now()}.txt`)
+  await fs.writeFile(outsideFile, 'OUTSIDE_MARKER')
+  try {
+    // 1. Child process execution attempt
+    await writeCandidateWorkspace(tmpDir, 1, [{
+      relativePath: 'probe.cjs',
+      content: 'require("child_process").execFileSync("/usr/bin/cat", ["' + outsideFile + '"]);',
+    }])
+    const resChild = await runCandidateTestGate({
+      cwd: tmpDir,
+      candidateIndex: 1,
+      testCommand: 'node probe.cjs',
+    })
+    assert.equal(resChild.passed, false)
+    assert.equal(resChild.exitCode, 1)
+    assert.match(resChild.output, /ERR_ACCESS_DENIED|Access to this API has been restricted/i)
+
+    // 2. Command referencing outside path
+    const resOutside = await runCandidateTestGate({
+      cwd: tmpDir,
+      candidateIndex: 1,
+      testCommand: '/usr/bin/cat ' + outsideFile,
+    })
+    assert.equal(resOutside.passed, false)
+    assert.equal(resOutside.exitCode, 1)
+    assert.match(resOutside.output, /Access denied/i)
+  } finally {
+    fsSync.rmSync(tmpDir, { recursive: true, force: true })
+    fsSync.rmSync(outsideFile, { force: true })
+  }
 })
