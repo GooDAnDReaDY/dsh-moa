@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.45
+
+### Fixed
+- **Multi-Phase Upfront and In-Flight Budget Guardrails** (#158): Upfront cost estimation now factors in base system prompt overhead, Round 2 peer critique input tokens, and downstream judge synthesis tokens, preventing runs configured with a tight budget (e.g., $0.001) from overrun. Added phase-by-phase runtime guardrails before Round 2 and before Judge synthesis to abort or trim execution when in-flight consumption approaches budget limits.
+- **Test Gate Process Tree Containment & Script Path Scanning** (#161): Replaced path-only command checks with recursive script content path scanning across test commands and package.json scripts, rejecting scripts attempting to access paths outside candidate workspaces. Added an ephemeral Node.js fence module (`NODE_OPTIONS="--require .moa-fence-*.cjs"`) that intercepts child process invocations (`spawn`, `execFile`, `execFileSync`) to enforce sandbox boundaries across the process tree.
+- **Standard `npm test` Support inside Test Gate** (#206): Enabled `--allow-child-process` with restricted executable roots and isolated `.moa-home`, allowing package managers like npm (`@npmcli/promise-spawn`) to execute local test runners (e.g. `node check.cjs`) without failing with `ERR_ACCESS_DENIED`.
+- **Fast Mode Checkpoint Failure Telemetry & History Preservation** (#207): Preserved accumulated candidate token usage, dollar cost, and reference metadata upon promotion/checkpoint failures in fast mode, and persisted failed run records with error details to history rather than resetting usage to zero.
+- **Contract & Regression Test Suite Hardening** (#187): Removed swallowed exceptions in test client hooks (`useEffect`) and created `test/re-audit-pack-45.test.mjs` verifying exact auditor reproductions for budget limits, sandbox host escape blocking, standard npm test containment, and fast mode failure usage accounting.
+
 ## 0.2.44
 
 ### Fixed

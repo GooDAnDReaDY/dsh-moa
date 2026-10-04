@@ -40,7 +40,7 @@ test('client module loads and registers slot and trigger without syntax errors',
       return { type, props, children }
     },
     useState: (val) => [typeof val === 'function' ? val() : val, () => {}],
-    useEffect: (fn) => { try { fn() } catch (_) {} },
+    useEffect: (fn) => { const cleanup = fn(); if (typeof cleanup === 'function') cleanup(); },
     useCallback: (fn) => fn,
     useMemo: (fn) => fn(),
     useRef: (val) => ({ current: val }),
