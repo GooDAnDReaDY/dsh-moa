@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.44
+
+### Fixed
+- **Fast Mode Checkpoint Failure Propagation** (#201): Fast mode with a single candidate now strictly propagates workspace promotion failures instead of swallowing them, returning a failed pipeline result and HTTP 500 when promotion errors occur.
+- **Read-Only GET Diff & Workspace Safety** (#202): Removed filesystem mutation (`unlinkSync`) from candidate path resolution (`resolveCandidateFolder`), preventing unexpected deletion of external `.moa` symlinks during read operations and diff queries.
+- **Project Context Budget Guardrails** (#158): Shifted project context collection ahead of upfront budget validation, ensuring large workspace contexts and refined prompts are factored into cost estimation before initiating LLM calls.
+- **Test Gate Sandboxing Hardening** (#161): Removed `--allow-child-process` and excluded sensitive user paths (such as `~/.npmrc`) from test gate execution, while adding directory confinement checks to block unauthorized host file execution.
+- **Settings Locale Parity** (#175): Replaced raw untranslated error messages in settings persistence with localized keys (`status.error_saving`), ensuring full English and Chinese locale parity.
+- **Node 22 Event Loop & Parallel Test Resilience** (#187): Eliminated premature test cancellation under Node 22 (`cancelledByParent`) by keeping candidate timers referenced and actively managed, and isolated temporary pricing cache paths to prevent parallel test runner races.
+
 ## 0.2.37
 
 ### Fixed

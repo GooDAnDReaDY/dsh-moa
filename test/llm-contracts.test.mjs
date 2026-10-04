@@ -4,7 +4,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-import { createLlmCaller } from '../lib/moa-llm.js'
+import { createLlmCaller, callConfigEquals } from '../lib/moa-llm.js'
 import { runMoAPipeline } from '../lib/moa-runner.js'
 import { runReferencesParallel } from '../lib/moa-candidates.js'
 
@@ -12,16 +12,6 @@ test('contracts #155: createLlmCaller supports strict DSH 0.2.0-rc.2 prepared-ca
   let receivedCallConfig = null
   let receivedStreamOptions = null
   let streamDispatched = false
-
-  function callConfigEquals(a, b) {
-    if (!a || !b) return false
-    if (a.provider !== b.provider) return false
-    if (a.model !== b.model) return false
-    if (a.temperature !== b.temperature) return false
-    if (a.maxTokens !== b.maxTokens) return false
-    if (a.reasoningEffort !== b.reasoningEffort) return false
-    return true
-  }
 
   const mockCtx = {
     llm: {
