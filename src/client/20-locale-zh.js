@@ -72,6 +72,8 @@
       'proposers.add_btn': '+ 添加候选模型',
       'proposers.temp_label': '候选模型采样温度 (Temperature)',
       'proposers.temp_hint': '推荐：0.6 – 0.8，鼓励创造性、发散性的独立探索。',
+      'proposers.temperature_gradient': '温度梯度探索（候选模型采样温度从 0.2 到 0.9 递增）',
+      'proposers.candidate_temp_tooltip': '候选模型采样温度（留空使用默认/梯度）',
       'stats.title': '📈 MoA 数据分析与遥测',
       'stats.desc': '会话遥测、历史运行追踪及模型胜率统计。',
       'stats.total_runs': '总运行次数',

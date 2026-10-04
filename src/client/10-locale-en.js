@@ -72,6 +72,8 @@
       'proposers.add_btn': '+ Add Candidate Model',
       'proposers.temp_label': 'Candidates Temperature',
       'proposers.temp_hint': 'Recommended: 0.6 – 0.8 for creative, independent solution exploration.',
+      'proposers.temperature_gradient': 'Temperature Gradient Exploration (0.2 → 0.9 across candidates)',
+      'proposers.candidate_temp_tooltip': 'Candidate Temperature (leave empty for default/gradient)',
       'stats.title': '📈 MoA Analytics & Telemetry',
       'stats.desc': 'Session telemetry, historical runs, and model win-rate tracking.',
       'stats.total_runs': 'Total Runs',

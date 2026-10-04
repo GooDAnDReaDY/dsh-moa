@@ -37,12 +37,12 @@
             'div',
             { className: 'moa-body' },
             state.status === 'loading'
-              ? React.createElement('div', { style: { padding: '16px 0', color: 'var(--dsw-alias-label-secondary)', fontSize: 13 } }, 'Loading MoA settings…')
+              ? React.createElement('div', { style: { padding: '16px 0', color: 'var(--dsw-alias-label-secondary)', fontSize: 13 } }, state.t('status.loading') || 'Loading MoA settings…')
               : state.status === 'unavailable'
                 ? React.createElement(
                     'div',
                     { style: { padding: '16px 0', display: 'flex', flexDirection: 'column', gap: 10 } },
-                    React.createElement('div', { className: 'moa-alert-err' }, 'MoA service temporarily unavailable'),
+                    React.createElement('div', { className: 'moa-alert-err' }, state.t('status.unavailable') || 'MoA service temporarily unavailable'),
                     React.createElement(
                       'button',
                       {
@@ -51,7 +51,7 @@
                         style: { width: 'fit-content' },
                         onClick: state.reload,
                       },
-                      state.t('actions.retry')
+                      state.t('status.retry') || state.t('actions.retry')
                     )
                   )
                 : React.createElement(MoAEditor, state)

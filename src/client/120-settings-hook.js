@@ -286,13 +286,14 @@
       }
       render() {
         if (this.state.hasError) {
+          const t = typeof this.props?.t === 'function' ? this.props.t : (typeof makeT === 'function' ? makeT(en, null) : ((k) => k))
           return React.createElement(
             'div',
             {
               className: 'moa-alert-err',
               style: { margin: '12px 0', padding: '14px', borderRadius: '8px' },
             },
-            React.createElement('div', { style: { fontWeight: 600, marginBottom: '6px' } }, '⚠️ MoA UI Error:'),
+            React.createElement('div', { style: { fontWeight: 600, marginBottom: '6px' } }, t('error_boundary.title') || '⚠️ MoA UI Error:'),
             React.createElement('div', { style: { fontSize: '12px', wordBreak: 'break-all' } }, String(this.state.error?.message || this.state.error)),
             React.createElement(
               'button',
@@ -302,7 +303,7 @@
                 style: { marginTop: '10px', fontSize: '12px', padding: '4px 10px' },
                 onClick: () => this.setState({ hasError: false, error: null }),
               },
-              'Retry'
+              t('error_boundary.retry') || 'Retry'
             )
           )
         }
