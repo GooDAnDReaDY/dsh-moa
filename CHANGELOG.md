@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.2.45
+
+### Fixed
+- **Budget Action 'trim' Round 2 Reassignment Fix** (#224): Resolved a `TypeError: Assignment to constant variable` crash in `lib/moa-runner.js` when `budget_action: 'trim'` skips Round 2 peer critique. Round 2 is now cleanly skipped and pipeline execution proceeds to consensus synthesis within budget.
+- **Test Gate Path Tokenizer Sanitization** (#225): Sanitized absolute URL schemes (`http://`, `https://`) and standard module schemes (`node:`, `file:`, `npm:`) in `scanPathTokensForLeak`, preventing false-positive access violations on safe URLs and standard relative package scripts (e.g., `node test/suite.cjs`).
+- **Runtime Judge Synthesis Budget Enforcement** (#158): Prevented projected cost overruns in Judge Synthesis under `action: 'trim'`; if downstream judge execution cannot fit within the remaining budget, the pipeline safely terminates with a structured budget abort payload rather than exceeding `max_budget_usd`.
+- **Test Gate Process Tree & Nested Script Hardening** (#161): Intercepted nested shell script execution within candidate workspaces and hooked `child_process.spawnSync`, `execSync`, and `exec` inside the ephemeral test gate fence (`.moa-fence-*.cjs`) to prevent sandbox escapes.
+- **Space-Safe Path Placeholder Replacement** (#216): Enclosed expanded `{candidateDir}`, `{baseDir}`, and `{stageDir}` placeholders containing whitespace in quotes, preserving single-argument tokenization across test commands.
+- **Accurate Peer Critique Error Logging** (#214): Corrected error classification in Round 2 catch block to report provider and critique failures accurately rather than mislabeling them as cost estimation errors.
+- **SSRF Protection on Time Machine Endpoint** (#210): Enforced loopback host restrictions on `timeMachineUrl` across `/dsh-moa/run` and `createPrePromotionCheckpoint`, rejecting non-local target URLs.
+- **Authorized Workspace Verification on Candidate Diff & Promotion** (#211): Verified that supplied `cwd` matches recorded run `cwd` in `/dsh-moa/diff` and `/dsh-moa/promote`, returning 403 Forbidden on directory mismatches.
+- **JSON Payload Cleanup** (#217): Removed unsupported `checkpointFn` deserialization from `POST /dsh-moa/run`.
+- **Standard `npm test` Support inside Test Gate** (#206): Enabled `--allow-child-process` with restricted executable roots and isolated `.moa-home`, allowing package managers like npm (`@npmcli/promise-spawn`) to execute local test runners (e.g. `node check.cjs`) without failing with `ERR_ACCESS_DENIED`.
+- **Fast Mode Checkpoint Failure Telemetry & History Preservation** (#207): Preserved accumulated candidate token usage, dollar cost, and reference metadata upon promotion/checkpoint failures in fast mode, and persisted failed run records with error details to history rather than resetting usage to zero.
+- **Contract & Regression Test Suite Hardening** (#187): Removed swallowed exceptions in test client hooks (`useEffect`) and created `test/re-audit-pack-45.test.mjs` verifying exact auditor reproductions for budget limits, sandbox host escape blocking, standard npm test containment, and fast mode failure usage accounting.
+
 ## 0.2.44
 
 ### Fixed
