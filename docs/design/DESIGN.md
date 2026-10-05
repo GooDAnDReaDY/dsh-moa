@@ -204,23 +204,22 @@
   1. **Применение актуального кандидата при promote без runId (`lib/routes.js`, Issue #230)**:
      - При вызове `POST /dsh-moa/promote` без явного `runId` эндпоинт находит последний запуск в истории и передаёт `runId: recordedRun.id` в `promoteCandidateWorkspace`.
      - Устранено применение устаревших файлов из неверсионированного каталога `.moa/candidate-N`, оставшихся от предыдущих сессий.
-  2. **Корректная обработка безопасных HTTP-маршрутов в Test Gate (`lib/moa-test-gate.js`, Issue #225)**:
-     - Уточнено регулярное выражение `UNIX_ROOT_PREFIX`: префикс `/run/` ограничен системными каталогами (`/run/(?:user|systemd|lock|credentials|secrets|udev|initramfs|mount|shm|dbus|sshd|motd)`), а `/Users/` проверяет имена пользователей.
-     - Безопасные строковые литералы REST-маршрутов (`/run/job`, `/users/me`) больше не распознаются как утечка абсолютных путей хоста.
+  2. **Корректная обработка безопасных HTTP-маршрутов и данных в Test Gate (`lib/moa-test-gate.js`, Issue #225)**:
+     - Уточнено регулярное выражение `UNIX_ROOT_PREFIX`: префикс `/run/user` требует числового UID пользователя (`/run/(?:user/\d+|systemd|lock|credentials|secrets|udev|initramfs|mount|shm|dbus|sshd|motd)`), что исключает ложные срабатывания на литералах API/HTTP маршрутов (`routes={"/run/user": () => 200}`).
+     - Правило `COMPUTED_SHELL_EVASION` переориентировано на исполнение команд через пайп (`base64 -d ... | sh`), допуская безопасное декодирование данных (`result="$(printf T0s= | base64 -d)"`).
   3. **Защита от вычисляемых shell/Node payload в Test Gate (`lib/moa-test-gate.js`, Issue #161)**:
-     - Добавлено правило `COMPUTED_SHELL_EVASION` для перехвата `base64 -d`, `eval "$(..."`, `xxd -r`, piped shell команд в аргументах дочерних процессов.
-     - Ограждающий модуль `.moa-fence-*.cjs` перехватывает функции `child_process` и методы `node:fs` (`readFileSync`, `writeFileSync`, `appendFileSync`), блокируя запись и чтение за пределами песочницы.
-     - Добавлена поддержка NVM-окружений (`NVM_DIR`, версионированные каталоги Node) в список доверенных корней чтения рантайма.
-  4. **Полный учёт контекста промпта и judge_criteria в Budget Guard (`lib/moa-budget.js`, `lib/moa-runner.js`, Issue #158)**:
-     - Функция `calcSynthesisPromptTokens` учитывает длину `judge_criteria` и шаблонный оверхед синтеза при упреждающей и пофазной проверке бюджета.
-     - В `runMultiJudgePhase` добавлена проверка бюджета перед запуском панели судей и ограничение `maxTokens` до 2048.
-     - Дефолтный `maxTokens` в `createLlmCaller` снижен с 4096 до 2048.
+     - Внедрена функция `decodeEscapedStrings`: сканер путей и ограждающий модуль `fenceFile` декодируют восьмеричные (`\057...`), шестнадцатеричные (`\x2f...`) и base64 последовательности до валидации файловых операций.
+     - Любая попытка обращения к путям хоста за пределами песочницы (включая конструирование через `printf` в `sh` или дочерних процессах `child_process`) немедленно блокируется.
+  4. **Полный учёт контекста промпта, логов Test Gate и judge_criteria в Budget Guard (`lib/moa-budget.js`, `lib/moa-runner.js`, Issue #158)**:
+     - В `lib/moa-runner.js` вызов `buildSynthesisPrompt` перенесён до бюджетной проверки, и `synthPromptTokens = Math.max(50, Math.ceil(synthesisPrompt.length / 4))` вычисляется из фактически сформированного текста промпта.
+     - Функция `calcSynthesisPromptTokens` учитывает длину вывода тестов `testResult.output` кандидатов, директивы консенсуса и композитного объединения.
+     - При превышении лимита бюджета на этапе синтеза судья не вызывается, возвращается `createBudgetAbortPayload` (`kind: 'failure'`), и суммарный расход строго удерживается в пределах `max_budget_usd`.
   5. **Сохранение токенов мульти-судейской панели при бюджетном прерывании (`lib/moa-budget.js`, Issue #168)**:
      - В `createBudgetAbortPayload` включена агрегация токенов и стоимости панели судей `multiJudgeResult` в `usage.totalTokens` и `usage.multiJudge`.
-     - Устранено занижение статистики потребления токенов (274 vs 2211 токенов).
+     - При прерывании после выполнения реальной панели судей (4997 токенов) вся телеметрия сохраняется в отчёте.
   6. **Индикация сохранения настроек только в оперативной памяти (`src/client/120-settings-hook.js`, `src/client/10-locale-en.js`, `src/client/20-locale-zh.js`, Issue #213)**:
      - При ответе сервера с `persisted: false` хук `useMoASettings` выставляет статус `actions.saved_memory_only` ("Saved (in-memory only)" / "Сохранено (только в памяти)" / "已保存（仅内存）") вместо ложного сообщения об успешной персистентности на диск.
-  7. **Расширение регрессионного тестового покрытия (`test/re-audit-pack-47.test.mjs`, Issue #187)**:
-     - Написано 10 прямых тестов для проверки всех 7 аудиторских сценариев.
-     - Тестовый набор увеличен до 253 тестов со 100% прохождением на Node 22 и Node 24.
+  7. **Расширение регрессионного тестового покрытия (`test/audit-pack-232.test.mjs`, Issue #187)**:
+     - В тестовый набор добавлен файл `test/audit-pack-232.test.mjs`, покрывающий все 7 воспроизведений независимого аудита #232 и контракт `useSyncExternalStore`.
+     - Тестовый набор увеличен до 261 теста со 100% прохождением на Node 22 и Node 24, подтверждена устойчивость при параллельных прогонах.
 
