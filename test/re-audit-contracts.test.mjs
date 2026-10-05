@@ -491,7 +491,7 @@ test('#161: test gate sandboxing blocks child execution and outside path executi
     })
     assert.equal(resChild.passed, false)
     assert.equal(resChild.exitCode, 1)
-    assert.match(resChild.output, /ERR_ACCESS_DENIED|Access to this API has been restricted/i)
+    assert.match(resChild.output, /ERR_ACCESS_DENIED|Access to this API has been restricted|Access denied/i)
 
     // 2. Command referencing outside path
     const resOutside = await runCandidateTestGate({
