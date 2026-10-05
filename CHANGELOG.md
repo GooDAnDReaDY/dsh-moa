@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.48
+
+### Fixed
+- **Full-Context Synthesis Prompt in Budget Guard** (#158): Reordered pipeline synthesis phase in `lib/moa-runner.js` so that `synthesisPrompt` is materialized before evaluating downstream cost against remaining budget. `calcSynthesisPromptTokens` in `lib/moa-budget.js` incorporates actual test gate candidate output logs (~2035 chars per candidate) and multi-turn merge options. If projected judge execution cost exceeds `max_budget_usd` ($0.002), the pipeline immediately aborts with `createBudgetAbortPayload` without invoking the primary judge or fallback models.
+- **Computed Shell & Node.js Evasion Defense in Test Gate** (#161): Added `decodeEscapedStrings(str)` in `lib/moa-test-gate.js` to normalize octal (`\057`), hex (`\x2f`), and base64 strings prior to token leakage scanning and CJS preload injection. Hardened `COMPUTED_SHELL_EVASION` regex and `.moa-fence-*.cjs` monkeypatches across `child_process` and `fs` methods, preventing sandbox breakout through dynamic escape sequences in shell or Node.js.
+- **Refined Path Scanner to Eliminate False Positives on Route Literals and Base64 Data** (#225): Tightened `UNIX_ROOT_PREFIX` from broad `/run/user` to `run/(?:user/\d+|systemd|...)`, preventing false positive leak detections on legitimate HTTP route literals like `/run/user`. Restricted `COMPUTED_SHELL_EVASION` to piped shell command execution (`| sh`, `| bash`), allowing safe base64 data decoding (e.g. `result="$(printf T0s= | base64 -d)"`).
+- **Comprehensive Regression & Contract Test Suite** (#187): Added `test/audit-pack-232.test.mjs` verifying all 7 boundary probe scenarios from audit #232 alongside real `useSyncExternalStore` contract requirements (referential stability of snapshots, listener subscriptions, and updates). Test suite passes 261/261 tests on Node 22 and 24.
+
 ## 0.2.47
 
 ### Fixed
