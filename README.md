@@ -150,7 +150,7 @@ Inspect line-by-line differences between candidate proposals and the curator's s
 Before promoting any winning candidate files over the workspace root, `dsh-moa` invokes the local `dsh-time-machine` service to create a shadow Git checkpoint (`moa-pre-promotion: candidate-N`). If `dsh-time-machine` is absent or unreachable, file promotion is blocked (fail-closed) to protect uncheckpointed workspace files against unintended overwrites (override with `force: true` only when automated checkpoints are explicitly unneeded).
 
 ### 9. Automated Test Execution Gate
-When `test_gate_enabled: true` and `test_command` (e.g. `npm test` or `pytest`) are configured, candidate code is executed in an ephemeral sandbox overlay. The judge receives concrete test outcomes, durations, and output logs to ground decisions in objective verification.
+When `test_gate_enabled: true` and `test_command` (e.g. `npm test` or `pytest`) are configured, candidate code is executed in an ephemeral sandbox overlay. The test sandbox uses process containment fences and path validation to block unauthorized host file access and computed shell evasion (base64/eval/pipes), while allowing safe HTTP route literals. The judge receives concrete test outcomes, durations, and output logs to ground decisions in objective verification.
 
 ### 10. Multi-Judge Panel & Consensus Voting
 When `multi_judge_enabled: true`, candidate solutions are independently evaluated by a panel of judge models. Winner selection supports `majority`, `highest_score`, or `unanimous` consensus strategies.
@@ -165,7 +165,7 @@ When invoking `/moa` without explicit preset flags, the router classifies prompt
 As each candidate completes, live token counts and USD costs are streamed directly into the chat based on catalog pricing and vendor rates.
 
 ### 14. Cost Budget Guardrails (Trim & Abort Modes)
-`budget_guard_enabled` and `max_budget_usd` guard against accidental spend. Mode `trim` automatically reduces the candidate pool to fit the budget, while `abort` cancels execution before token consumption.
+`budget_guard_enabled` and `max_budget_usd` guard against accidental spend. Upfront and runtime phase guards account for candidate generation, multi-judge panel voting, and downstream synthesis prompt overhead including custom evaluation criteria (`judge_criteria`). Mode `trim` automatically reduces the candidate pool to fit the budget, while `abort` cancels execution before token consumption. In abort payloads, all panel and candidate token metrics are fully preserved.
 
 ### 15. Temperature Gradient Exploration & Per-Candidate Temperature
 Supports individual candidate temperatures (`slot.temperature`) and `temperature_gradient_enabled` to distribute temperatures (0.2 → 0.9) across candidates for maximum architectural diversity.

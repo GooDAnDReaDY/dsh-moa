@@ -90,6 +90,7 @@
       'actions.save': 'Save Configuration',
       'actions.saving': 'Saving…',
       'actions.saved': 'Configuration saved successfully!',
+      'actions.saved_memory_only': 'Saved to session memory only (not persisted to disk)',
       'actions.retry': 'Reload Configuration',
       'badge.disabled': 'MoA Disabled',
       'config.enabled_label': 'Enable MoA (slash command and turn routing)',

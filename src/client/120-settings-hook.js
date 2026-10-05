@@ -236,7 +236,11 @@
           .then((r) => r.json())
           .then((res) => {
             if (res && res.ok) {
-              setSaveStatus(t('actions.saved'))
+              if (res.persisted === false) {
+                setSaveStatus(t('actions.saved_memory_only'))
+              } else {
+                setSaveStatus(t('actions.saved'))
+              }
               if (Array.isArray(res.presets)) setPresets(res.presets)
               if (res.defaultPreset) setDefaultPreset(res.defaultPreset)
               setTimeout(() => setSaveStatus(''), 3000)
