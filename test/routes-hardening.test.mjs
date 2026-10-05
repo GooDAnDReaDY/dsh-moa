@@ -182,15 +182,21 @@ test('Issue #117: promoteCandidateWorkspace propagates error on failure instead 
 
   const tmpBase = await fs.mkdtemp(path.join(os.tmpdir(), 'moa-promote-fail-'))
   try {
-    // Create candidate-1 with a file
-    const candDir = path.join(tmpBase, '.moa', 'candidate-1')
-    await fs.mkdir(candDir, { recursive: true })
-    await fs.writeFile(path.join(candDir, 'file.txt'), 'hello', 'utf8')
+    const { recordMoaRun } = await import('../lib/history.js')
+    const run = recordMoaRun({ cwd: tmpBase, prompt: 'test', candidateCount: 1 })
 
-    // Make base destination read-only file conflicting with target dir or directory
+    // Create candidate-1 with a file both in legacy and runId scoped folders
+    const candDir = path.join(tmpBase, '.moa', 'candidate-1')
+    const candDirScoped = path.join(tmpBase, '.moa', run.id, 'candidate-1')
+    await fs.mkdir(candDir, { recursive: true })
+    await fs.mkdir(candDirScoped, { recursive: true })
+    await fs.writeFile(path.join(candDir, 'file.txt'), 'hello', 'utf8')
+    await fs.writeFile(path.join(candDirScoped, 'file.txt'), 'hello', 'utf8')
+
+    // Make base destination conflicting directory -> copyFile will throw EISDIR
     const destFile = path.join(tmpBase, 'file.txt')
-    await fs.mkdir(destFile) // dest is a directory while src is a file -> copyFile will throw EISDIR
-    
+    await fs.mkdir(destFile)
+
     // Calling promote directly should throw EISDIR
     await assert.rejects(
       async () => {
@@ -203,12 +209,11 @@ test('Issue #117: promoteCandidateWorkspace propagates error on failure instead 
     const { req, res, send, getResult } = createMockReqRes({
       method: 'POST',
       url: '/dsh-moa/promote',
-      body: JSON.stringify({ cwd: tmpBase, candidateIndex: 1 }),
+      body: JSON.stringify({ cwd: tmpBase, candidateIndex: 1, runId: run.id, force: true }),
     })
     send()
     await handler(req, res)
     const result = await getResult()
-
     assert.equal(result.status, 500)
     assert.equal(result.json?.ok, false)
     assert.ok(result.json?.error)
