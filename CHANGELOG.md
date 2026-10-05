@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.46
+
+### Fixed
+- **Large Diff V8 Call Stack Protection** (#227): Rewrote `computeLineDiff` large file linear fallback (>= 2000 lines) to pre-allocate result arrays and use `Array.prototype.concat` rather than spreading massive arrays into `push(...)`, eliminating `RangeError: Maximum call stack size exceeded` on 150k+ line files.
+- **SSRF Redirect Hardening on Checkpoint Endpoint** (#210): Added explicit `redirect: 'error'` to `createPrePromotionCheckpoint` fetch options, preventing HTTP 307/308 redirects from escaping the local loopback boundary.
+- **Fail-Closed Candidate Promotion & Workspace Authorization** (#208): In `POST /dsh-moa/promote`, enforced strict fail-closed checks on unrecorded `runId` (404), empty history (400), and caller-supplied `cwd` mismatches against recorded run `cwd` (403), ensuring promotion never writes to unauthorized workspaces.
+- **Fail-Closed Candidate Diff on Empty History** (#211): In `GET /dsh-moa/diff`, returned 404 when history is empty or `runId` is unknown, and rejected mismatched query `cwd` with 403, preventing caller-selected directory reads.
+- **Judge Fallback Chain Budget Guard Enforcement** (#158): Enforced phase budget check across each judge in `aggregator_fallbacks` before execution; when downstream judge execution cannot fit within remaining budget, expensive fallback models are skipped and the pipeline returns a structured budget abort payload within `max_budget_usd`.
+- **Test Gate Route Literal Path Tokenizer Refinement** (#225): Refined `scanPathTokensForLeak` to only treat system root directories (`/home`, `/root`, `/etc`, `/var`, `/tmp`, etc.) as absolute host paths, eliminating false-positive sandbox access denials on safe route string literals (e.g. `"/health"`, `"/api/v1"`).
+- **Test Gate Recursive Workspace & Fence Argument Inspection** (#161): Enabled recursive directory scanning (`readdirSync(..., { recursive: true })`) in candidate test staging to inspect nested scripts (e.g. `scripts/payload.sh`), and enhanced the `.moa-fence-*.cjs` security monkeypatch with `scanStringForPaths` to inspect command strings in `cp.spawn`, `cp.exec`, and `cp.spawnSync`.
+- **In-Memory Settings Synchronization & Persistence Diagnostics** (#213): Updated in-memory config object in place within `saveConfig` while preserving dynamic getters, and included `persisted: false/true` diagnostic in `POST /dsh-moa/presets` to accurately report whether settings were durably written to a settings service.
+- **Contract & Regression Test Suite Expansion** (#187): Added comprehensive `test/re-audit-pack-46.test.mjs` verifying all 9 audit defect scenarios; full test suite passing with 243/243 green tests across Node 22 and Node 24, including triple parallel runs.
+
 ## 0.2.45
 
 ### Fixed
