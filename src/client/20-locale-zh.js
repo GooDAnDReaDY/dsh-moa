@@ -90,6 +90,7 @@
       'actions.save': '保存配置',
       'actions.saving': '正在保存…',
       'actions.saved': '配置已成功保存！',
+      'actions.saved_memory_only': '已保存到会话内存（未持久化到磁盘）',
       'actions.retry': '重新加载配置',
       'badge.disabled': 'MoA 已禁用',
       'config.enabled_label': '启用 MoA（斜杠命令与轮次拦截路由）',

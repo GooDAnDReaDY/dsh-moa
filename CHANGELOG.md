@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.47
+
+### Fixed
+- **REST Promote Candidate Version Pinning** (#230): In `POST /dsh-moa/promote`, when `runId` is omitted, the route resolves the latest recorded run and passes `runId: recordedRun.id` to `promoteCandidateWorkspace`, ensuring candidate files from the actual latest execution are promoted rather than legacy files from unversioned directory `.moa/candidate-N`.
+- **Safe HTTP Route Literals in Test Gate Path Scanner** (#225): Refined `UNIX_ROOT_PREFIX` in `lib/moa-test-gate.js` and `.moa-fence-*.cjs` so system path checking specifically targets `/run/(?:user|systemd|lock|credentials|secrets|udev|initramfs|mount|shm|dbus|sshd|motd)` instead of all `/run/*` paths, and checks `/Users/(?:[a-zA-Z0-9_-]+)`, eliminating false-positive path leak denials on safe REST route literals like `"/run/job"` and `"/users/me"`.
+- **Computed Shell & Node Evasion Prevention in Test Gate** (#161): Added `COMPUTED_SHELL_EVASION` regex intercepting base64 decoding (`base64 -d`), dynamic eval execution (`eval "$(..."`), xxd hex reversal (`xxd -r`), and piped shell commands, while hooking `child_process` and `node:fs` synchronous and asynchronous methods in `.moa-fence-*.cjs` to prevent escaping the workspace sandbox. Also added NVM directory support to allowed read roots for multi-node environments.
+- **Full-Context Synthesis Budget Guard & Multi-Judge Capping** (#158): Upfront and phase-by-phase budget guards now accurately account for full context tokens including `judge_criteria` and synthesis template overhead (`calcSynthesisPromptTokens`). Multi-judge panels are capped at 2048 `maxTokens` per judge and budget-checked before fan-out (`runMultiJudgePhase`), preventing cost overflow beyond `max_budget_usd`.
+- **Multi-Judge Panel Usage Accounting in Budget Aborts** (#168): Updated `createBudgetAbortPayload` in `lib/moa-budget.js` to preserve and aggregate multi-judge panel token counts and costs (`usage.totalTokens`, `usage.multiJudge`), ensuring reported token metrics accurately reflect all consumed tokens.
+- **Memory-Only Settings Persistence Notification** (#213): Added distinct UI feedback `actions.saved_memory_only` ("Saved (in-memory only)" / "Сохранено (только в памяти)" / "已保存（仅内存）") in `useMoASettings` and client locales when server returns `persisted: false`, avoiding misleading "saved" confirmations when configuration is not durably persisted to disk.
+- **Comprehensive Audit-47 Regression & Contract Test Suite** (#187): Added `test/re-audit-pack-47.test.mjs` verifying all 7 audit scenarios with 253/253 passing tests across Node 22 and 24, including triple parallel runs.
+
 ## 0.2.46
 
 ### Fixed
