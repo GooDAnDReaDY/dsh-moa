@@ -258,16 +258,16 @@ test('Issue #66: POST /dsh-moa/run rate limiter rejects rapid subsequent calls w
   const { routes } = setupTestEnvironment()
   const runHandler = routes['/dsh-moa/run']?.handler
 
-  // First call (will fail on empty prompt or proceed, but passes rate check)
+  // First call (valid prompt sets _lastRunTimestamp, #218)
   const { req: r1, res: res1, send: s1, getResult: g1 } = createMockReqRes({
     method: 'POST',
     url: '/dsh-moa/run',
-    body: JSON.stringify({ prompt: '' }), // triggers 400 Empty prompt AFTER rate check
+    body: JSON.stringify({ prompt: 'valid prompt 1' }),
   })
   s1()
   await runHandler(r1, res1)
   const first = await g1()
-  assert.equal(first.status, 400) // passed rate limiter, rejected on empty prompt
+  assert.equal(first.status, 200)
 
   // Immediate second call triggers 429
   const { req: r2, res: res2, send: s2, getResult: g2 } = createMockReqRes({

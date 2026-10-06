@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.49
+
+### Fixed
+- **Strict Loopback Defense for State-Changing Write Endpoints** (#234): In `lib/updater.js`, hardened `isSafeWriteRequest` to unconditionally require a loopback remote address (`!isLoop => return false`). Non-loopback clients attempting to spoof `Origin == Host` (e.g. from local network) are strictly rejected with HTTP 403 on `/dsh-moa/run`, `/dsh-moa/promote`, `/presets`, and `/route-preset`.
+- **In-Memory Caching and Tail Reading in History Lookup** (#235): Optimized `getMoaRunById` in `lib/history.js` to reuse `_historyCache` with an in-memory `runsById` map for O(1) repeat retrievals. For large history logs (>64KB), tail lines are read and indexed backwards via `readTailLinesSync` without parsing the entire multi-megabyte file. Preserved strict server line ceiling (593 lines $\le 600$).
+- **Cleanup of Stale Archive Artifacts** (#236): Removed 10 obsolete `.tgz` archives (versions 0.2.17 through 0.2.43) from the DEV root workspace.
+- **Dynamic Fast Mode Activation on Single-Candidate Budget Trim** (#215): In `lib/moa-runner.js`, when budget guard action `'trim'` reduces reference models to a single candidate and `!curator_synthesis`, `isFastMode` is dynamically set to `true`, directly returning the single model output and avoiding redundant downstream judge execution and empty peer critique.
+- **Rate Limit Window Protection on Malformed / Empty Prompts** (#218): Moved `_lastRunTimestamp = now` in `lib/routes.js` after initial prompt validation (`if (!prompt.trim()) return 400`), ensuring invalid or empty requests do not consume the 1000ms cooldown window.
+- **Clarification of Functional NLP Intent Classifier Tokens** (#219): Documented in `docs/design/DESIGN.md` that multilingual keyword lists (`fresh` and `mod`) in `isRefinementTask` are functional classifier tokens for detecting task intent on natural language inputs, not UI localization strings.
+- **Confirmation of Workspace Path Containment** (#222): Documented in `docs/design/DESIGN.md` that candidate workspace file writes are strictly confined to the project directory via `assertPathContained` and `realpathSync` resolution in `lib/file-workspace.js`, preventing directory traversal and external path leaks.
+
 ## 0.2.48
 
 ### Fixed
