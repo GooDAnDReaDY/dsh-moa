@@ -26,7 +26,7 @@ test('Block 5 (#182): isSafeWriteRequest rejects non-loopback missing origin and
     headers: { 'sec-fetch-site': 'same-site', host: '192.168.1.111:3000' },
   }), false, 'non-loopback same-site without origin must be rejected')
 
-  // 3. Non-loopback with matching origin and host -> allowed
+  // 3. Non-loopback with matching origin and host -> strictly rejected (#234)
   assert.equal(isSafeWriteRequest({
     socket: { remoteAddress: '192.168.1.50' },
     headers: {
@@ -34,7 +34,7 @@ test('Block 5 (#182): isSafeWriteRequest rejects non-loopback missing origin and
       host: '192.168.1.111:3000',
       'sec-fetch-site': 'same-origin',
     },
-  }), true, 'non-loopback same-origin with matching Origin must be accepted')
+  }), false, 'non-loopback write request with spoofed Origin must be rejected (#234)')
 
   // 4. Non-loopback with mismatched origin -> rejected
   assert.equal(isSafeWriteRequest({
