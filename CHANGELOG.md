@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.50
+
+### Fixed
+- **Filesystem Isolation Defense against Segmented / Computed Shell Evasion in Test Gate** (#161): Hardened `COMPUTED_SHELL_EVASION` regex in both `lib/moa-test-gate.js` and ephemeral preload fence `.moa-fence-*.cjs` to intercept command substitutions (`$(printf ...`, `$(echo ...`, `\`printf ...\``), segmented path concatenation (`printf %s '/' 'mnt'...`), and variable file sinks (`cat "$p"`, `printf ... > "$p"`, `>> "$p"`). Extended `scanPathTokensForLeak` to reconstruct segmented path string arguments assembled via `printf %s` and verify them against `allowedRoots`. Candidate test commands and scripts attempting outside reads or writes are strictly blocked before execution (`FAIL (code 1)`). Server file line count strictly preserved (569 lines <= 600).
+- **Elimination of False Positives on Inert Base64 Data in Test Gate** (#225): Removed broad global base64 string decoding from `decodeEscapedStrings`, restricting static string normalization strictly to octal (`\ooo`) and hex (`\xHH`) string escape sequences. Inert base64 data strings (such as `Buffer.from("...", "base64")`) are no longer falsely converted into filesystem path tokens, allowing benign data processing to pass the test gate without compromising runtime path containment enforced by Node.js Permission Model and `.moa-fence-*.cjs`.
+- **Elimination of Vacuous Assertions and Hardening of Contract Tests** (#187): In `test/issues-pack-234-236.test.mjs`, removed conditional guard around Fast Mode assertions in test `#215`, unconditionally verifying candidate trimming, single-candidate references, `isFastMode: true`, and non-failure status. Adjusted budget threshold to $0.01 so pipeline legitimately trims to one candidate and exercises direct Fast Mode. In test `#235`, increased history file rows to 160 (exceeding the 100 tail lines window) to guarantee cold fallback execution and verify negative caching. In `test/audit-pack-232.test.mjs`, upgraded test `#187` to load and execute the actual `lib/client.js` bundle, verifying `useSyncExternalStore` contract, store subscription lifecycle, referential stability of snapshots, and React component element validity.
+- **Negative Caching and O(1) History Lookup for Missing IDs** (#235): Enhanced `getMoaRunById` in `lib/history.js` with negative caching (`cache.runsById.set(runId, null)`) and a `cache.fullyIndexed` flag set upon cold fallback scanning. Repeated lookups for missing run IDs now return `null` immediately from memory with 0 bytes read and 0 synchronous `readFileSync` calls, eliminating repeated multi-megabyte disk I/O on unindexed IDs. Server file line count strictly maintained at 594 lines (<= 600).
+
 ## 0.2.49
 
 ### Fixed
