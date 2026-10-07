@@ -47,11 +47,11 @@ test('#235: getMoaRunById efficiently looks up runs with caching and handles lar
 
   try {
     invalidateHistoryCache()
-    // Generate a file > 64KB with multiple runs
+    // Generate a file > 64KB with multiple runs (>150 to exceed tail limit of 100)
     const padding = 'x'.repeat(1024)
     const runIds = []
     const lines = []
-    for (let i = 1; i <= 70; i++) {
+    for (let i = 1; i <= 160; i++) {
       const id = `run-item-${i}`
       runIds.push(id)
       lines.push(JSON.stringify({
@@ -69,20 +69,22 @@ test('#235: getMoaRunById efficiently looks up runs with caching and handles lar
     assert.ok(fs.statSync(historyFile).size > 65536, 'file must be >64KB for tail reading branch')
 
     // Find the latest run (in the tail)
-    const latestRun = getMoaRunById('run-item-70', historyFile)
+    const latestRun = getMoaRunById('run-item-160', historyFile)
     assert.ok(latestRun, 'latest run must be found')
-    assert.equal(latestRun.id, 'run-item-70')
+    assert.equal(latestRun.id, 'run-item-160')
 
     // Second call should hit in-memory cache
-    const cachedRun = getMoaRunById('run-item-70', historyFile)
+    const cachedRun = getMoaRunById('run-item-160', historyFile)
     assert.equal(cachedRun, latestRun, 'repeated call must return identical cached object')
 
-    // Find an earlier run
+    // Find an earlier run (outside tail 100, forces fallback full indexing)
     const earlierRun = getMoaRunById('run-item-1', historyFile)
     assert.ok(earlierRun, 'earlier run must be found via fallback')
     assert.equal(earlierRun.id, 'run-item-1')
 
-    // Non-existent run returns null
+    // Non-existent run returns null on first cold lookup
+    assert.equal(getMoaRunById('non-existent-id', historyFile), null)
+    // Non-existent run returns null on repeated lookup via negative cache
     assert.equal(getMoaRunById('non-existent-id', historyFile), null)
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true })
@@ -164,10 +166,10 @@ test('#215: budget trim to single candidate activates fast mode directly when no
       messages: [],
       preset: {
         name: 'test-trim',
-        references: ['p1:model-cheap', 'p2:model-expensive'],
-        aggregator: 'p1:judge-expensive',
+        reference_models: [{ provider: 'p1', model: 'model-cheap' }, { provider: 'p2', model: 'model-expensive' }],
+        aggregator: { provider: 'p1', model: 'judge-expensive' },
         budget_guard_enabled: true,
-        max_budget_usd: 0.0000001, // extremely low to trigger trim or single
+        max_budget_usd: 0.01, // extremely low to trigger trim or single
         budget_action: 'trim',
         curator_synthesis: false,
       },
@@ -180,11 +182,11 @@ test('#215: budget trim to single candidate activates fast mode directly when no
       checkpoint: false,
     })
 
-    // If trimmed down to 1 reference candidate, isFastMode must be true
-    if (res.references?.length === 1) {
-      assert.equal(res.isFastMode, true, 'isFastMode must be true when references trimmed to 1')
-      assert.equal(res.aggregator, 'Fast Mode (Direct)', 'aggregator must indicate Fast Mode (Direct)')
-    }
+    assert.ok(res, 'pipeline result must be returned')
+    assert.notEqual(res.kind, 'failure', 'pipeline must not fail')
+    assert.equal(res.references?.length, 1, 'references must be trimmed to exactly 1 candidate')
+    assert.equal(res.isFastMode, true, 'isFastMode must be true when references trimmed to 1')
+    assert.equal(res.aggregator, 'Fast Mode (Direct)', 'aggregator must indicate Fast Mode (Direct)')
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true })
   }

@@ -228,47 +228,95 @@ test('#168: Budget abort preserves all tokens when panel executed and judge abor
   await fs.rm(tmp, { recursive: true, force: true }).catch(() => {})
 })
 
-// ── ISSUE #187: useSyncExternalStore lifecycle contract ───────────────────
+// ── ISSUE #187: useSyncExternalStore lifecycle and client component contract ──
 
-test('#187: React useSyncExternalStore contract (snapshot referential stability and subscription lifecycle)', () => {
-  // Simulates external store conforming to React useSyncExternalStore contract
-  let state = { config: { enabled: true, preset: 'default' }, version: 1 }
-  const listeners = new Set()
+test('#187: React useSyncExternalStore contract and client component lifecycle', async () => {
+  const React = (await import('react')).default
+  const clientFile = path.resolve('lib/client.js')
+  const clientCode = await fs.readFile(clientFile, 'utf8')
 
-  const store = {
-    subscribe: (listener) => {
-      listeners.add(listener)
-      return () => listeners.delete(listener)
-    },
-    getSnapshot: () => state,
-    update: (newConfig) => {
-      state = { config: { ...state.config, ...newConfig }, version: state.version + 1 }
-      listeners.forEach((l) => l())
+  let registered = null
+  const prevWindow = globalThis.window
+  globalThis.window = {
+    __ModuleLoader__: {
+      load: (entry) => { registered = entry },
     },
   }
 
-  // 1. Referential stability: consecutive getSnapshot calls return identical reference
-  const snap1 = store.getSnapshot()
-  const snap2 = store.getSnapshot()
-  assert.equal(Object.is(snap1, snap2), true, 'Consecutive getSnapshot calls must return referentially identical snapshot')
+  try {
+    eval(clientCode)
+    assert.ok(registered, 'lib/client.js must register with __ModuleLoader__')
+    assert.equal(registered.id, '@goodandready/dsh-moa')
+    assert.equal(typeof registered.factory, 'function')
 
-  // 2. Subscription lifecycle
-  let notifyCount = 0
-  const unsub = store.subscribe(() => {
-    notifyCount++
-  })
-  assert.equal(listeners.size, 1, 'Listener must be registered')
+    let state = { config: { enabled: true, preset: 'default' }, version: 1 }
+    const listeners = new Set()
+    const mockStore = {
+      subscribe: (listener) => {
+        listeners.add(listener)
+        return () => listeners.delete(listener)
+      },
+      getSnapshot: () => state,
+      update: (newConfig) => {
+        state = { config: { ...state.config, ...newConfig }, version: state.version + 1 }
+        listeners.forEach((l) => l())
+      },
+    }
 
-  // 3. Update notification and new snapshot reference
-  store.update({ preset: 'creative' })
-  assert.equal(notifyCount, 1, 'Subscriber must be notified on update')
-  const snap3 = store.getSnapshot()
-  assert.equal(Object.is(snap1, snap3), false, 'New snapshot must have new reference on update')
-  assert.equal(snap3.config.preset, 'creative')
+    const slots = []
+    const mockCtx = {
+      slots: {
+        register: (meta, comp) => slots.push({ meta, comp }),
+      },
+      locale: { register: () => () => {} },
+      effect: (fn) => fn(),
+      get: (name) => (name === 'configForms' ? mockCtx.configForms : null),
+      configForms: {
+        get: (ns) => (ns === 'dsh-moa' ? mockStore : null),
+      },
+      triggers: { registerSource: () => () => {} },
+    }
 
-  // 4. Unsubscribe lifecycle
-  unsub()
-  assert.equal(listeners.size, 0, 'Unsubscribe must remove listener')
-  store.update({ preset: 'speed' })
-  assert.equal(notifyCount, 1, 'Unsubscribed listener must NOT be called on subsequent updates')
+    const mod = registered.factory((id) => (id === 'react' ? React : {}))
+    assert.ok(mod, 'Plugin client module must be returned by factory')
+    assert.ok(Array.isArray(mod.inject), 'Plugin client module must declare inject')
+    assert.ok(mod.inject.includes('configForms'), 'Client module must inject configForms')
+    assert.equal(typeof mod.apply, 'function', 'Client module must export apply function')
+
+    mod.apply(mockCtx)
+    assert.ok(slots.length > 0, 'Client apply must register settings/plugin slots')
+
+    // 1. Referential stability: consecutive getSnapshot calls return identical reference
+    const snap1 = mockStore.getSnapshot()
+    const snap2 = mockStore.getSnapshot()
+    assert.equal(Object.is(snap1, snap2), true, 'Consecutive getSnapshot calls must return referentially identical snapshot')
+
+    // 2. Subscription lifecycle
+    let notifyCount = 0
+    const unsub = mockStore.subscribe(() => {
+      notifyCount++
+    })
+    assert.equal(listeners.size, 1, 'Listener must be registered')
+
+    // 3. Update notification and new snapshot reference
+    mockStore.update({ preset: 'creative' })
+    assert.equal(notifyCount, 1, 'Subscriber must be notified on update')
+    const snap3 = mockStore.getSnapshot()
+    assert.equal(Object.is(snap1, snap3), false, 'New snapshot must have new reference on update')
+    assert.equal(snap3.config.preset, 'creative')
+
+    // 4. Unsubscribe lifecycle
+    unsub()
+    assert.equal(listeners.size, 0, 'Unsubscribe must remove listener')
+    mockStore.update({ preset: 'speed' })
+    assert.equal(notifyCount, 1, 'Unsubscribed listener must NOT be called on subsequent updates')
+
+    // 5. Component instantiation with real client code
+    const slotEntry = slots.find((s) => s.meta?.name === 'settings.plugin.item' || s.meta?.name === 'plugins.item')
+    assert.ok(slotEntry, 'Must register settings.plugin.item or plugins.item slot')
+    const element = slotEntry.comp({ ctx: mockCtx })
+    assert.ok(React.isValidElement(element), 'Slot component must return valid React element')
+  } finally {
+    globalThis.window = prevWindow
+  }
 })
