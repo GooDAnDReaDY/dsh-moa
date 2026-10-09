@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.51
+
+### Fixed
+- **Full React Lifecycle Verification for Client Component Hooks** (#187): In `test/audit-pack-232.test.mjs`, upgraded test `#187` from shallow element inspection to complete lifecycle verification of the client component (`MoACard` with `useMoASettings`) executed via React 18 Concurrent Root reconciler (`react-dom/client` `createRoot`) and `React.act`. Verified that component mounting triggers `React.useSyncExternalStore` subscription (`subscribeCount === 1`, 1 active listener in Set) and initial state snapshotting; verified that external store updates trigger React re-renders and re-snapshotting with updated configuration; and verified that component unmount cleanly runs hook cleanup, invoking unsubscribe (`unsubscribeCount === 1`, 0 listeners).
+
 ## 0.2.50
 
 ### Fixed

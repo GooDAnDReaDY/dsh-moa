@@ -232,16 +232,95 @@ test('#168: Budget abort preserves all tokens when panel executed and judge abor
 
 test('#187: React useSyncExternalStore contract and client component lifecycle', async () => {
   const React = (await import('react')).default
+  const ReactDOMClient = (await import('react-dom/client')).default
   const clientFile = path.resolve('lib/client.js')
   const clientCode = await fs.readFile(clientFile, 'utf8')
 
+  class MockNode {
+    constructor() {
+      this.ownerDocument = globalThis.document
+    }
+  }
+
+  class MockElement extends MockNode {
+    constructor(nodeName = 'div') {
+      super()
+      this.nodeName = nodeName.toUpperCase()
+      this.tagName = nodeName.toUpperCase()
+      this.nodeType = 1
+      this.childNodes = []
+      this.style = {}
+      this.dataset = {}
+      this.attributes = {}
+      this.options = []
+    }
+    appendChild(child) {
+      this.childNodes.push(child)
+      if (child.tagName === 'OPTION') this.options.push(child)
+      child.parentNode = this
+      return child
+    }
+    removeChild(child) {
+      const idx = this.childNodes.indexOf(child)
+      if (idx !== -1) this.childNodes.splice(idx, 1)
+      const optIdx = this.options.indexOf(child)
+      if (optIdx !== -1) this.options.splice(optIdx, 1)
+      child.parentNode = null
+      return child
+    }
+    insertBefore(newChild, refChild) {
+      const idx = this.childNodes.indexOf(refChild)
+      if (idx === -1) this.childNodes.push(newChild)
+      else this.childNodes.splice(idx, 0, newChild)
+      if (newChild.tagName === 'OPTION') this.options.push(newChild)
+      newChild.parentNode = this
+      return newChild
+    }
+    setAttribute(k, v) { this.attributes[k] = v }
+    getAttribute(k) { return this.attributes[k] }
+    removeAttribute(k) { delete this.attributes[k] }
+    addEventListener() {}
+    removeEventListener() {}
+  }
+
+  const doc = {
+    nodeType: 9,
+    createElement: (tag) => new MockElement(tag),
+    createElementNS: (_, tag) => new MockElement(tag),
+    createTextNode: (text) => ({ nodeType: 3, nodeName: '#text', nodeValue: text, textContent: text, style: {}, ownerDocument: doc }),
+    createComment: (data) => ({ nodeType: 8, nodeName: '#comment', nodeValue: data, style: {}, ownerDocument: doc }),
+    createDocumentFragment: () => new MockElement('#document-fragment'),
+    documentElement: new MockElement('html'),
+    head: new MockElement('head'),
+    body: new MockElement('body'),
+    addEventListener() {},
+    removeEventListener() {},
+  }
+
   let registered = null
   const prevWindow = globalThis.window
+  const prevDoc = globalThis.document
+  const prevFetch = globalThis.fetch
+  const prevActEnv = globalThis.IS_REACT_ACT_ENVIRONMENT
+
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true
+  globalThis.document = doc
   globalThis.window = {
+    document: doc,
+    addEventListener() {},
+    removeEventListener() {},
+    HTMLIFrameElement: class {},
+    Element: MockElement,
+    HTMLElement: MockElement,
+    Node: MockNode,
     __ModuleLoader__: {
       load: (entry) => { registered = entry },
     },
   }
+  globalThis.fetch = () => Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve({ ok: true, presets: [], models: [], runs: [] }),
+  })
 
   try {
     eval(clientCode)
@@ -249,16 +328,35 @@ test('#187: React useSyncExternalStore contract and client component lifecycle',
     assert.equal(registered.id, '@goodandready/dsh-moa')
     assert.equal(typeof registered.factory, 'function')
 
-    let state = { config: { enabled: true, preset: 'default' }, version: 1 }
+    let state = {
+      status: 'ready',
+      value: { enabled: true, presets: [{ name: 'default' }], default_preset: 'default' },
+      version: 1,
+    }
     const listeners = new Set()
+    let subscribeCount = 0
+    let unsubscribeCount = 0
+    let getSnapshotCount = 0
+
     const mockStore = {
       subscribe: (listener) => {
+        subscribeCount++
         listeners.add(listener)
-        return () => listeners.delete(listener)
+        return () => {
+          unsubscribeCount++
+          listeners.delete(listener)
+        }
       },
-      getSnapshot: () => state,
+      getSnapshot: () => {
+        getSnapshotCount++
+        return state
+      },
       update: (newConfig) => {
-        state = { config: { ...state.config, ...newConfig }, version: state.version + 1 }
+        state = {
+          ...state,
+          value: { ...state.value, ...newConfig },
+          version: state.version + 1,
+        }
         listeners.forEach((l) => l())
       },
     }
@@ -291,32 +389,50 @@ test('#187: React useSyncExternalStore contract and client component lifecycle',
     const snap2 = mockStore.getSnapshot()
     assert.equal(Object.is(snap1, snap2), true, 'Consecutive getSnapshot calls must return referentially identical snapshot')
 
-    // 2. Subscription lifecycle
-    let notifyCount = 0
-    const unsub = mockStore.subscribe(() => {
-      notifyCount++
-    })
-    assert.equal(listeners.size, 1, 'Listener must be registered')
-
-    // 3. Update notification and new snapshot reference
-    mockStore.update({ preset: 'creative' })
-    assert.equal(notifyCount, 1, 'Subscriber must be notified on update')
-    const snap3 = mockStore.getSnapshot()
-    assert.equal(Object.is(snap1, snap3), false, 'New snapshot must have new reference on update')
-    assert.equal(snap3.config.preset, 'creative')
-
-    // 4. Unsubscribe lifecycle
-    unsub()
-    assert.equal(listeners.size, 0, 'Unsubscribe must remove listener')
-    mockStore.update({ preset: 'speed' })
-    assert.equal(notifyCount, 1, 'Unsubscribed listener must NOT be called on subsequent updates')
-
-    // 5. Component instantiation with real client code
+    // 2. Component instantiation check (React.isValidElement)
     const slotEntry = slots.find((s) => s.meta?.name === 'settings.plugin.item' || s.meta?.name === 'plugins.item')
     assert.ok(slotEntry, 'Must register settings.plugin.item or plugins.item slot')
     const element = slotEntry.comp({ ctx: mockCtx })
     assert.ok(React.isValidElement(element), 'Slot component must return valid React element')
+
+    // 3. Real React hook lifecycle via Concurrent Root renderer and React.act
+    const container = doc.createElement('div')
+    const root = ReactDOMClient.createRoot(container)
+    const pageElement = React.createElement(slotEntry.comp, { ctx: mockCtx, view: 'page' })
+
+    await React.act(async () => {
+      root.render(pageElement)
+    })
+
+    assert.equal(subscribeCount, 1, 'React useSyncExternalStore must subscribe to the store on component mount')
+    assert.equal(listeners.size, 1, 'Store must maintain active subscriber while component is mounted')
+    assert.ok(getSnapshotCount >= 1, 'React useSyncExternalStore must call getSnapshot during mount')
+
+    // 4. Update notification triggers re-render and re-snapshot
+    const snapsBeforeUpdate = getSnapshotCount
+    await React.act(async () => {
+      mockStore.update({ default_preset: 'creative' })
+    })
+
+    assert.ok(getSnapshotCount > snapsBeforeUpdate, 'React useSyncExternalStore must re-query getSnapshot on store update')
+    const updatedSnap = mockStore.getSnapshot()
+    assert.equal(updatedSnap.value.default_preset, 'creative', 'Updated store value must reflect in snapshot')
+
+    // 5. Unmount cleans up subscription
+    await React.act(async () => {
+      root.unmount()
+    })
+
+    assert.equal(unsubscribeCount, 1, 'React useSyncExternalStore must invoke unsubscribe callback on component unmount')
+    assert.equal(listeners.size, 0, 'Store listener must be removed upon component unmount')
+
+    // Further updates after unmount do NOT notify old listener
+    mockStore.update({ default_preset: 'speed' })
+    assert.equal(listeners.size, 0, 'Unmounted component must not receive subsequent store updates')
   } finally {
     globalThis.window = prevWindow
+    globalThis.document = prevDoc
+    globalThis.fetch = prevFetch
+    globalThis.IS_REACT_ACT_ENVIRONMENT = prevActEnv
   }
 })
