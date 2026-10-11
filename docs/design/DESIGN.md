@@ -225,3 +225,14 @@
      - В тестовый набор добавлен файл `test/audit-pack-232.test.mjs`, покрывающий все 7 воспроизведений независимого аудита #232 и контракт `useSyncExternalStore`.
      - Тестовый набор увеличен до 261 теста со 100% прохождением на Node 22 и Node 24, подтверждена устойчивость при параллельных прогонах.
 
+- 2026-10-11 — Устранение хвостов бюджет-аккаунтинга #158/#168 (v0.2.52, Gitea Issue #242):
+  1. **Двойная сигнатура и полный учёт логов Test Gate в calcSynthesisPromptTokens (`lib/moa-budget.js`, `lib/moa-multi-judge.js`, Issue #242)**:
+     - Функция `calcSynthesisPromptTokens` принимает параметры как в виде объекта конфигурации `{ userPrompt, referenceOutputs, judgeCriteria, overhead, options }`, так и в виде позиционных аргументов `(userPrompt, referenceOutputs, judgeCriteria, overhead, options)`.
+     - При наличии хотя бы одного кандидата с `testResult` автоматически учитывается оверхед директивы `TEST_GATE_DIRECTIVE` (~550 символов), а для каждого кандидата с логами тестов в оценку токенов входит `150 + (candidate.testResult.output.length || 0)`.
+     - В `lib/moa-multi-judge.js` вызов `calcSynthesisPromptTokens` стандартизирован на объектную форму с передачей актуальных `successfulRefs` и `judgeCriteria`.
+  2. **Сквозная агрегация токенов и стоимости при post-panel abort (`lib/moa-budget.js`, Issue #242)**:
+     - `createBudgetAbortPayload` полностью агрегирует метрики кандидатов и панели `multiJudgeResult`: в `usage` гарантированно заполняются `totalTokens`, `totalInputTokens`, `totalOutputTokens` и `totalCostUsd`.
+     - В случае превышения бюджета после завершения судейской коллегии перед вызовом финального синтеза токены панели (например, 1937 токенов) суммируются с токенами кандидатов (274 токена), обеспечивая сохранение 100% фактического расхода (2211 токенов) в возвращаемом объекте прерывания.
+  3. **Регрессионные контрактные тесты (`test/audit-issue-242.test.mjs`, `test/re-audit-pack-47.test.mjs`, Issue #242)**:
+     - Добавлен тестовый файл `test/audit-issue-242.test.mjs`, валидирующий обе сигнатуры, учёт логов Test Gate, точное сложение токенов/стоимости и сквозное сохранение телеметрии в реальном пайплайне при post-panel прерывании.
+     - Тест в `test/re-audit-pack-47.test.mjs` откалиброван под реальный бюджет `0.0025`, гарантируя выполнение панели и безусловную проверку post-panel прерывания.

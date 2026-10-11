@@ -254,7 +254,7 @@ test('#158 & #168: Multi-judge panel accounts for tokens and budget, retaining p
     judge_models: [{ provider: 'mock', model: 'panel-judge' }],
     max_tokens: 64,
     budget_guard_enabled: true,
-    max_budget_usd: 0.002,
+    max_budget_usd: 0.0025,
     budget_action: 'abort',
   }
 
@@ -274,12 +274,14 @@ test('#158 & #168: Multi-judge panel accounts for tokens and budget, retaining p
   })
 
   assert.ok(res, 'Pipeline result must exist')
+  assert.equal(res.kind, 'failure', 'Must abort before judge synthesis')
+  assert.ok(calls.some((c) => c.model === 'panel-judge'), 'Panel MUST have been called')
+  assert.ok(!calls.some((c) => c.model === 'judge'), 'Judge MUST NOT have been called')
   const actualTokenSum = calls.reduce((acc, c) => acc + c.inputTokens + c.outputTokens, 0)
 
   // When pipeline aborts after panel, reported tokens must equal actual tokens (#168)
-  if (res.kind === 'failure') {
-    assert.equal(res.usage?.totalTokens, actualTokenSum, `Abort payload must retain all phase tokens: reported ${res.usage?.totalTokens} vs actual ${actualTokenSum}`)
-  }
+  assert.equal(res.usage?.totalTokens, actualTokenSum, `Abort payload must retain all phase tokens: reported ${res.usage?.totalTokens} vs actual ${actualTokenSum}`)
+  assert.ok(res.usage?.multiJudge, 'multiJudge usage object must be present')
 
   await fs.rm(tmp, { recursive: true, force: true }).catch(() => {})
 })
