@@ -67,6 +67,7 @@ test('updater: isSafeWriteRequest blocks cross-site write requests', () => {
   }), false)
 
   assert.equal(isSafeWriteRequest({
+    socket: { remoteAddress: '127.0.0.1' },
     headers: {
       'sec-fetch-site': 'same-origin',
       origin: 'http://127.0.0.1:3000',
@@ -82,10 +83,10 @@ test('updater: isSafeWriteRequest blocks cross-site write requests', () => {
     },
   }), false)
 
-  // Standard same-origin or tool invocation without origin headers
+  // Absent remote address fails closed (#244)
   assert.equal(isSafeWriteRequest({
     headers: {},
-  }), true)
+  }), false)
 })
 
 test('updater: does NOT include --config.minimumReleaseAge=0 per ecosystem quarantine policy', async () => {

@@ -33,11 +33,11 @@ test('#234: isSafeWriteRequest strictly rejects non-loopback write requests even
   }
   assert.equal(isSafeWriteRequest(validLoopbackReq), true, 'loopback same-origin must be accepted')
 
-  // In-process / tool invocation without remote address
-  const inProcessReq = {
+  // Absent remote address fails closed (#244)
+  const noRemoteReq = {
     headers: {},
   }
-  assert.equal(isSafeWriteRequest(inProcessReq), true, 'in-process write request must be accepted')
+  assert.equal(isSafeWriteRequest(noRemoteReq), false, 'request without remote address must be rejected')
 })
 
 // ── ISSUE #235: getMoaRunById uses in-memory cache and tail reading ──────
@@ -125,6 +125,7 @@ test('#218: empty prompt rejects with 400 without burning the rate limit cooldow
       const rawData = JSON.stringify(payload)
       const req = {
         method: 'POST',
+        socket: { remoteAddress: '127.0.0.1' },
         headers: { 'content-type': 'application/json' },
         on: (event, cb) => {
           if (event === 'data') cb(Buffer.from(rawData))

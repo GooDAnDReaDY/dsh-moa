@@ -164,6 +164,7 @@ test('DSH 0.1.7 persistence: POST /dsh-moa/presets validates and calls settings.
 
   const mockReq = {
     method: 'POST',
+    socket: { remoteAddress: '127.0.0.1' },
     headers: { host: 'localhost:3000' },
     on: (evt, handler) => {
       if (evt === 'data') handler(Buffer.from(JSON.stringify(updatedPayload)))

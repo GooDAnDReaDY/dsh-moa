@@ -35,6 +35,7 @@ async function invokeRoute(handler, payload = null, method = 'GET', url = '/dsh-
   const req = {
     method,
     url,
+    socket: { remoteAddress: '127.0.0.1' },
     headers: {
       host: 'localhost:3080',
       'sec-fetch-site': 'same-origin',

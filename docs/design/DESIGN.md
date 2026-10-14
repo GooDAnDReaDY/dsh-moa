@@ -236,3 +236,15 @@
   3. **Регрессионные контрактные тесты (`test/audit-issue-242.test.mjs`, `test/re-audit-pack-47.test.mjs`, Issue #242)**:
      - Добавлен тестовый файл `test/audit-issue-242.test.mjs`, валидирующий обе сигнатуры, учёт логов Test Gate, точное сложение токенов/стоимости и сквозное сохранение телеметрии в реальном пайплайне при post-panel прерывании.
      - Тест в `test/re-audit-pack-47.test.mjs` откалиброван под реальный бюджет `0.0025`, гарантируя выполнение панели и безусловную проверку post-panel прерывания.
+
+- 2026-10-14 — Комплексное усиление безопасности и изоляции рабочей директории (v0.2.53, Gitea Issue #244):
+  1. **Валидация рабочей директории `cwd` и запрет обхода контрольных точек в `/dsh-moa/run` (`lib/routes.js`, Issue #244)**:
+     - Параметр `payload.cwd` в POST-эндпоинте `/dsh-moa/run` валидируется через `isAllowedWorkspace` против разрешённых корней рабочей области (`workspaceRoot`, `ctx.baseDir`, `process.cwd()`, `cfg.workspace_root`, `cfg.allowed_workspaces` и `os.tmpdir()` в тестовом окружении). Любая попытка выхода за пределы доверенной директории немедленно пресекается с HTTP 403 (`Forbidden: cwd escapes allowed workspace boundary`).
+     - Заблокирована возможность клиентского отключения контрольных точек через невалидированные флаги: вызов `runMoAPipeline` из `/dsh-moa/run` принудительно устанавливает `force: false` и `checkpoint: true`, исключая перезапись файлов без создания снимка Time Machine.
+  2. **Fail-closed защита от CSRF/Cross-Site при отсутствии адреса сокета в `isSafeWriteRequest` (`lib/updater.js`, Issue #244)**:
+     - В функции `isSafeWriteRequest` устранено поведение fail-open (`!remote || isLoopback(remote)`). При отсутствии `remoteAddress` сокета или сетевого подключения запрос безусловно отклоняется (`if (!remote || !isLoopback(remote)) return false`), что соответствует каноническому стандарту защиты DSH-плагинов.
+  3. **Проверка лексической и канонической изоляции путей в `cleanMoaWorkspaces` (`lib/file-workspace.js`, Issue #244)**:
+     - В функции очистки `cleanMoaWorkspaces` пути `.moa` и `safeRunId` проверяются через `assertPathContained` перед операцией `fs.rm`, предотвращая несанкционированное удаление директорий за пределами базового каталога.
+  4. **Регрессионный набор тестов (`test/audit-issue-244.test.mjs`, Issue #244)**:
+     - Добавлен тестовый файл `test/audit-issue-244.test.mjs`, проверяющий fail-closed контракт `isSafeWriteRequest`, ограничение путей в `cleanMoaWorkspaces`, строгую изоляцию `cwd` в `/dsh-moa/run` и безусловную защиту pre-promotion контрольных точек.
+     - Полный тестовый набор расширен до 276 тестов со 100% прохождением.
