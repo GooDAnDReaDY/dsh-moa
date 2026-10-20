@@ -1,11 +1,13 @@
 # Changelog
 
-## 0.2.54
+## 0.2.55
 
 ### Security
-- **Fail-Closed DSH Connection Authentication on All Read & Write Endpoints** (#257): Guarded all HTTP read-endpoints (`/dsh-moa/status`, `/dsh-moa/models`, `/dsh-moa/presets`, `/dsh-moa/history`, `/dsh-moa/leaderboard`, `/dsh-moa/diff`, `/dsh-moa/history/export`, `/dsh-moa/runs/*`) and write-endpoints with authoritative `assertAuthorizedRequest(req, res, ctx)`. Unauthenticated remote network callers on LAN/WAN receive immediate HTTP 401 (`Authentication required`) or 403 (`Forbidden`), completely preventing leakage of user prompts, agent memory context, workspace filesystem paths, and candidate code solutions. Authenticated browser sessions via DeepSeek Harness Web UI and local loopback callers (CLI, health check) continue operating seamlessly.
-- **Dedicated Access Control Module & Strict Server Line Limits** (#257): Factored authentication evaluation, connection discovery (`getConnection`), `writeJson`, `readBody`, and workspace isolation validation (`isAllowedWorkspace`) into `lib/access.js` (135 lines), reducing `lib/routes.js` to 572 lines and strictly maintaining all server files below the 600-line architectural ceiling.
-- **Comprehensive Regression Suite** (#257): Added `test/audit-issue-257.test.mjs` verifying connection service delegation, remote LAN rejection, cross-site CSRF blocking, and authenticated passthrough. Full test suite extended to 284 tests with 100% pass rate.
+- **Fail-Closed DSH Connection Authentication & Reverse-Proxy Defense on All Endpoints** (#257): Guarded all HTTP read-endpoints (`/dsh-moa/status`, `/dsh-moa/models`, `/dsh-moa/presets`, `/dsh-moa/history`, `/dsh-moa/leaderboard`, `/dsh-moa/diff`, `/dsh-moa/history/export`, `/dsh-moa/runs/*`) and write-endpoints with authoritative `assertAuthorizedRequest(req, res, ctx)`. Unauthenticated remote network callers on LAN/WAN receive immediate HTTP 401 (`Authentication required`) or 403 (`Forbidden`), completely preventing leakage of user prompts, agent memory context, workspace filesystem paths, and candidate code solutions.
+- **Reverse Proxy Injected AutoAuth Protection** (#257): Implemented `cookieNameForAuthority`, `isLoopbackCookieName`, and `hasClientCredentials` in `lib/access.js`. When requests are forwarded through reverse proxies (e.g. `dsh-lanmode` on port 3080 with `x-forwarded-for`), proxy-injected loopback cookies are excluded from client credential evaluation. Only authentic client session cookies or tokens grant admission.
+- **Prefix Route Registration Fix** (#257): Standardized prefix route `/dsh-moa/runs` without trailing slash, ensuring exact and prefix matching in `dsh-host-webserver` functions correctly.
+- **Dedicated Access Control Module & Strict Server Line Limits** (#257): Factored authentication evaluation, connection discovery (`getConnection`), `writeJson`, `readBody`, and workspace isolation validation (`isAllowedWorkspace`) into `lib/access.js` (202 lines), keeping `lib/routes.js` at 572 lines and strictly maintaining all server files below the 600-line architectural ceiling.
+- **Comprehensive Regression Suite** (#257): Added `test/audit-issue-257.test.mjs` verifying connection service delegation, proxy forwarding rejection, cookie isolation, remote LAN rejection, cross-site CSRF blocking, and authenticated passthrough. Full test suite extended to 288 tests with 100% pass rate.
 
 ## 0.2.53
 

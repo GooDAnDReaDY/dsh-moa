@@ -249,7 +249,7 @@
      - Добавлен тестовый файл `test/audit-issue-244.test.mjs`, проверяющий fail-closed контракт `isSafeWriteRequest`, ограничение путей в `cleanMoaWorkspaces`, строгую изоляцию `cwd` в `/dsh-moa/run` и безусловную защиту pre-promotion контрольных точек.
      - Полный тестовый набор расширен до 276 тестов со 100% прохождением.
 
-- 2026-10-20 — Защита read-маршрутов MoA и защита от обхода через reverse-proxy (v0.2.54, Gitea Issue #257):
+- 2026-10-20 — Защита read-маршрутов MoA и защита от обхода через reverse-proxy (v0.2.55, Gitea Issue #257):
   1. **Каноническая аутентификация и защита от обхода через reverse-proxy (`lib/access.js`, `lib/routes.js`, Issue #257)**:
      - Все HTTP read-маршруты (`/dsh-moa/status`, `/dsh-moa/models`, `/dsh-moa/presets`, `/dsh-moa/history`, `/dsh-moa/leaderboard`, `/dsh-moa/diff`, `/dsh-moa/history/export`, `/dsh-moa/runs/*`) и write-маршруты защищены вызовом `assertAuthorizedRequest(req, res, ctx)`.
      - При вызове из удалённой сети (LAN/WAN) неаутентифицированные клиенты немедленно отклоняются с кодом HTTP 401 (`Authentication required`) или 403 (`Forbidden`), предотвращая утечку пользовательских промптов, контекста памяти, структуры `cwd`, параметров моделей и содержимого файлов кандидатов.
