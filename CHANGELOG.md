@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.57
+
+### Features
+- **Interactive Workbench with 1-10 File Scoring, Pick & Mix Selection, Top-Model Glue and Judge Re-Check** (#251):
+  - **Candidate File Scoring (1-10)**: Judge evaluates each generated candidate file from 1 to 10 with key pros and cons. Structured parsing supports both JSON code comments and Markdown tables. File scores are recorded in run history and exposed via REST APIs.
+  - **Interactive WebUI Matrix**: Added `InteractiveWorkbenchSection` in WebUI displaying candidate files by path with color-coded score badges (green $\ge 8$, amber 5-7, red $< 5$), pros/cons, radio buttons for picking desired files across candidates, and customizable harmonization instructions.
+  - **Top-Model Glue Pipeline**: Identifies top reference model from turn ratings and invokes it to harmonize imports, interfaces, contracts, and type declarations into a unified codebase. Glued files are saved to `.moa/<runId>/workbench-glue`.
+  - **Judge Re-Audit**: Aggregator/judge performs a final validation audit of the glued composite (checking cross-file imports, contracts, and antipatterns) before promoting files to the project root.
+  - **Companion Plugin Integration**: Added links to companion plugin `dsh-time-machine` (https://github.com/goodandready/dsh-time-machine) near settings toggle and in workbench header for safe shadow Git pre-promotion checkpoints.
+  - **Dedicated Workbench Module & Strict Server Line Limit**: Factored workbench scoring, top-model glue, judge re-check, and REST routes into `lib/moa-workbench.js` (473 lines). All server files in `lib/*.js` strictly remain $\le 600$ lines.
+  - **Regression Test Suite**: Added `test/audit-issue-251.test.mjs` (10 tests) verifying score directives, JSON/table parsing, top-model selection, assemble execution, judge re-audit, schema defaults, and endpoint access control. Full test suite extended to 304 tests with 100% pass rate.
+
 ## 0.2.56
 
 ### Security
