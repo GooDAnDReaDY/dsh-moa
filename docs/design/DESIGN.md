@@ -249,14 +249,16 @@
      - Добавлен тестовый файл `test/audit-issue-244.test.mjs`, проверяющий fail-closed контракт `isSafeWriteRequest`, ограничение путей в `cleanMoaWorkspaces`, строгую изоляцию `cwd` в `/dsh-moa/run` и безусловную защиту pre-promotion контрольных точек.
      - Полный тестовый набор расширен до 276 тестов со 100% прохождением.
 
-- 2026-10-20 — Защита read-маршрутов MoA через DSH Connection Service (v0.2.54, Gitea Issue #257):
-  1. **Каноническая аутентификация через `ctx.connection.requestRejection(req)` (`lib/access.js`, `lib/routes.js`, Issue #257)**:
+- 2026-10-20 — Защита read-маршрутов MoA и защита от обхода через reverse-proxy (v0.2.54, Gitea Issue #257):
+  1. **Каноническая аутентификация и защита от обхода через reverse-proxy (`lib/access.js`, `lib/routes.js`, Issue #257)**:
      - Все HTTP read-маршруты (`/dsh-moa/status`, `/dsh-moa/models`, `/dsh-moa/presets`, `/dsh-moa/history`, `/dsh-moa/leaderboard`, `/dsh-moa/diff`, `/dsh-moa/history/export`, `/dsh-moa/runs/*`) и write-маршруты защищены вызовом `assertAuthorizedRequest(req, res, ctx)`.
      - При вызове из удалённой сети (LAN/WAN) неаутентифицированные клиенты немедленно отклоняются с кодом HTTP 401 (`Authentication required`) или 403 (`Forbidden`), предотвращая утечку пользовательских промптов, контекста памяти, структуры `cwd`, параметров моделей и содержимого файлов кандидатов.
+     - При проксировании через `dsh-lanmode` (заголовок `x-forwarded-for` от non-loopback IP) проверяется наличие подлинных клиентских аутентификационных данных (`hasClientCredentials(req)`: клиентские session cookies `dsh-auth-*` для удалённого authority, `dsh_auth_session`, `dsh_token`, `dsh_lan_pin`). Инжектированные прокси loopback-cookies (`isLoopbackCookieName`) исключаются, блокируя обход аутентификации.
+     - Исправлен префиксный маршрут `/dsh-moa/runs` (без замыкающего слэша) для точного сопоставления префиксов в `dsh-host-webserver`.
      - Аутентифицированные сессии DSH Web UI и локальные loopback-вызовы (CLI/тесты) продолжают работать штатно без деградации.
   2. **Выделение модуля контроля доступа `lib/access.js`**:
-     - Вспомогательные функции авторизации, извлечения соединения `getConnection(ctx)`, чтения тела запроса `readBody`, формирования JSON-ответов `writeJson` и проверки изоляции рабочей области `isAllowedWorkspace` вынесены в `lib/access.js`.
-     - Сохранены строгие ограничения на размер серверных файлов ($\le 600$ строк в `lib/*.js`): `lib/routes.js` сокращён до 574 строк, `lib/access.js` составляет 135 строк.
+     - Вспомогательные функции авторизации, извлечения соединения `getConnection(ctx)`, чтения тела запроса `readBody`, формирования JSON-ответов `writeJson`, проверки изоляции рабочей области `isAllowedWorkspace`, `cookieNameForAuthority`, `isLoopbackCookieName` и `hasClientCredentials` вынесены в `lib/access.js`.
+     - Сохранены строгие ограничения на размер серверных файлов (<= 600 строк в `lib/*.js`): `lib/routes.js` — 572 строки, `lib/access.js` — 202 строки.
   3. **Регрессионный тестовый набор (`test/audit-issue-257.test.mjs`, Issue #257)**:
-     - Добавлен тестовый набор `test/audit-issue-257.test.mjs` (8 тестов), покрывающий проверку `getConnection`, `isLoopbackIp`, fail-closed блокировку неаутентифицированных удалённых вызовов на всех read-маршрутах, защиту от cross-site CSRF-запросов и беспрепятственный пропуск аутентифицированных запросов.
-     - Общий набор тестов расширен до 284 тестов с успешным 100% прохождением.
+     - Добавлен тестовый набор `test/audit-issue-257.test.mjs` (12 тестов), покрывающий проверку `getConnection`, `isLoopbackIp`, `cookieNameForAuthority`, `isLoopbackCookieName`, `hasClientCredentials`, блокировку проксированных вызовов без клиентских данных, fail-closed блокировку неаутентифицированных удалённых вызовов на всех read-маршрутах, защиту от cross-site CSRF-запросов и беспрепятственный пропуск аутентифицированных запросов.
+     - Общий набор тестов расширен до 288 тестов с успешным 100% прохождением (FAIL=0, WARN=4 в dsh-plugin-preflight).

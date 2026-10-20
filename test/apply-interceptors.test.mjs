@@ -77,7 +77,7 @@ test('apply(): registers turn interceptors and routes without touching them', ()
 
   const paths = routes.map((r) => r.path)
   assert.ok(paths.includes('/dsh-moa/status'))
-  assert.ok(paths.includes('/dsh-moa/runs/'), 'run-by-id prefix route registered')
+  assert.ok(paths.includes('/dsh-moa/runs'), 'run-by-id prefix route registered')
 })
 
 test('apply(): non-moa messages pass through pre-step and llm/stream untouched', async () => {

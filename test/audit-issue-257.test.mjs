@@ -5,6 +5,9 @@ import { registerMoaRoutes } from '../lib/routes.js'
 import {
   getConnection,
   isLoopbackIp,
+  cookieNameForAuthority,
+  isLoopbackCookieName,
+  hasClientCredentials,
   getReadRejectionStatus,
   assertAuthorizedRequest,
 } from '../lib/access.js'
@@ -147,6 +150,43 @@ test('Issue #257: isLoopbackIp handles IPv4, IPv6, localhost and rejects remote 
   assert.equal(isLoopbackIp(null), false)
 })
 
+test('Issue #257: cookieNameForAuthority and isLoopbackCookieName identify loopback auth cookies', () => {
+  const loopbackName1 = cookieNameForAuthority('127.0.0.1:3080')
+  const loopbackName2 = cookieNameForAuthority('localhost:3000')
+  const remoteName = cookieNameForAuthority('192.168.1.111:3080')
+
+  assert.ok(loopbackName1.startsWith('dsh-auth-'))
+  assert.ok(remoteName.startsWith('dsh-auth-'))
+  assert.notEqual(loopbackName1, remoteName)
+
+  assert.equal(isLoopbackCookieName(loopbackName1), true)
+  assert.equal(isLoopbackCookieName(loopbackName2), true)
+  assert.equal(isLoopbackCookieName(remoteName), false)
+  assert.equal(isLoopbackCookieName('invalid-cookie'), false)
+  assert.equal(isLoopbackCookieName(null), false)
+})
+
+test('Issue #257: hasClientCredentials distinguishes injected loopback cookie from authentic client session', () => {
+  const loopbackCookie = cookieNameForAuthority('127.0.0.1:3080') + '=v1.loopback.sig'
+  const remoteCookie = cookieNameForAuthority('192.168.1.111:3080') + '=v1.client.sig'
+
+  // 1. Injected loopback cookie only -> false
+  assert.equal(hasClientCredentials({ headers: { host: '127.0.0.1:3080', cookie: loopbackCookie } }), false)
+
+  // 2. Client supplied non-loopback authority cookie -> true
+  assert.equal(hasClientCredentials({ headers: { host: '127.0.0.1:3080', cookie: `${remoteCookie}; ${loopbackCookie}` } }), true)
+
+  // 3. Client supplied session tokens -> true
+  assert.equal(hasClientCredentials({ headers: { cookie: 'dsh_auth_session=s123; ' + loopbackCookie } }), true)
+  assert.equal(hasClientCredentials({ headers: { cookie: 'dsh_token=t456' } }), true)
+  assert.equal(hasClientCredentials({ headers: { cookie: 'dsh_lan_pin=7890' } }), true)
+
+  // 4. Missing or empty headers -> false
+  assert.equal(hasClientCredentials(null), false)
+  assert.equal(hasClientCredentials({ headers: {} }), false)
+  assert.equal(hasClientCredentials({ headers: { cookie: '' } }), false)
+})
+
 test('Issue #257: getReadRejectionStatus blocks cross-site requests with 403', () => {
   const req = {
     headers: {
@@ -156,6 +196,36 @@ test('Issue #257: getReadRejectionStatus blocks cross-site requests with 403', (
     socket: { remoteAddress: '127.0.0.1' },
   }
   assert.equal(getReadRejectionStatus(req), 403)
+})
+
+test('Issue #257: getReadRejectionStatus blocks forwarded remote requests carrying only injected proxy cookies', () => {
+  const loopbackCookie = cookieNameForAuthority('127.0.0.1:3080') + '=v1.proxy.sig'
+  const reqForwarded = {
+    headers: {
+      host: '127.0.0.1:3080',
+      'x-forwarded-for': '192.168.1.123',
+      cookie: loopbackCookie,
+    },
+    socket: { remoteAddress: '127.0.0.1' },
+  }
+  // Even if connection service would admit (due to proxy loopback cookie), access guard rejects with 401
+  const ctxAdmit = { connection: { requestRejection: () => undefined } }
+  assert.equal(getReadRejectionStatus(reqForwarded, ctxAdmit), 401)
+})
+
+test('Issue #257: getReadRejectionStatus admits forwarded remote requests with authentic client session', () => {
+  const loopbackCookie = cookieNameForAuthority('127.0.0.1:3080') + '=v1.proxy.sig'
+  const remoteCookie = cookieNameForAuthority('192.168.1.111:3080') + '=v1.client.sig'
+  const reqForwardedAuth = {
+    headers: {
+      host: '127.0.0.1:3080',
+      'x-forwarded-for': '192.168.1.123',
+      cookie: `${remoteCookie}; ${loopbackCookie}`,
+    },
+    socket: { remoteAddress: '127.0.0.1' },
+  }
+  const ctxAdmit = { connection: { requestRejection: () => undefined } }
+  assert.equal(getReadRejectionStatus(reqForwardedAuth, ctxAdmit), undefined)
 })
 
 test('Issue #257: getReadRejectionStatus delegates to connection.requestRejection', () => {
@@ -195,7 +265,7 @@ test('Issue #257: getReadRejectionStatus fails closed with 401 for remote LAN ca
   }
   assert.equal(getReadRejectionStatus(reqRemote, null), 401)
 
-  // Forwarded proxy header from remote client
+  // Forwarded proxy header from remote client without credentials
   const reqXff = {
     headers: { host: '127.0.0.1:3000', 'x-forwarded-for': '192.168.1.55' },
     socket: { remoteAddress: '127.0.0.1' },
@@ -236,7 +306,7 @@ test('Issue #257: Read-routes block unauthenticated remote LAN requests with 401
     '/dsh-moa/leaderboard',
     '/dsh-moa/diff',
     '/dsh-moa/history/export',
-    '/dsh-moa/runs/',
+    '/dsh-moa/runs',
   ]
 
   for (const path of readRoutePaths) {
@@ -245,7 +315,7 @@ test('Issue #257: Read-routes block unauthenticated remote LAN requests with 401
 
     const { req, res, send, getResult } = createMockReqRes({
       method: 'GET',
-      url: path === '/dsh-moa/runs/' ? '/dsh-moa/runs/mock-run-id' : path,
+      url: path === '/dsh-moa/runs' ? '/dsh-moa/runs/mock-run-id' : path,
       headers: { host: '192.168.1.111:3080' },
       remoteAddress: '192.168.1.55',
     })
