@@ -302,6 +302,9 @@ dsh-moa:
 
 ## 📊 REST API & Endpoints
 
+> [!IMPORTANT]
+> **Authentication & Access Control**: All HTTP endpoints enforce fail-closed authentication via the DeepSeek Harness Connection Service (`ctx.connection.requestRejection`). Unauthenticated remote callers over LAN/WAN receive HTTP 401 (`Authentication required`) or 403 (`Forbidden`), strictly preventing disclosure of prompts, workspace structures, and candidate files. Mutation endpoints additionally require loopback origin and CSRF validation (`sec-fetch-site`).
+
 | Endpoint | Method | Description |
 |:---|:---|:---|
 | `/dsh-moa/status` | `GET` | Health/enablement snapshot used by the settings card status chip |
@@ -332,7 +335,7 @@ npm test
 ## 🛠️ Internal Tooling & Development
 
 For local verification and package integrity validation:
-- `npm test`: runs the full test suite (95 tests)
+- `npm test`: runs the full test suite (288 tests)
 - `./deploy.sh`: local infrastructure validation script (verifies package size, identity parity in package.json/cordis.patch.yml/client.js, and tests). Excluded from the published npm package.
 
 ## 📄 License

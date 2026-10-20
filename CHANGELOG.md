@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.2.55
+
+### Security
+- **Fail-Closed DSH Connection Authentication & Reverse-Proxy Defense on All Endpoints** (#257): Guarded all HTTP read-endpoints (`/dsh-moa/status`, `/dsh-moa/models`, `/dsh-moa/presets`, `/dsh-moa/history`, `/dsh-moa/leaderboard`, `/dsh-moa/diff`, `/dsh-moa/history/export`, `/dsh-moa/runs/*`) and write-endpoints with authoritative `assertAuthorizedRequest(req, res, ctx)`. Unauthenticated remote network callers on LAN/WAN receive immediate HTTP 401 (`Authentication required`) or 403 (`Forbidden`), completely preventing leakage of user prompts, agent memory context, workspace filesystem paths, and candidate code solutions.
+- **Reverse Proxy Injected AutoAuth Protection** (#257): Implemented `cookieNameForAuthority`, `isLoopbackCookieName`, and `hasClientCredentials` in `lib/access.js`. When requests are forwarded through reverse proxies (e.g. `dsh-lanmode` on port 3080 with `x-forwarded-for`), proxy-injected loopback cookies are excluded from client credential evaluation. Only authentic client session cookies or tokens grant admission.
+- **Prefix Route Registration Fix** (#257): Standardized prefix route `/dsh-moa/runs` without trailing slash, ensuring exact and prefix matching in `dsh-host-webserver` functions correctly.
+- **Dedicated Access Control Module & Strict Server Line Limits** (#257): Factored authentication evaluation, connection discovery (`getConnection`), `writeJson`, `readBody`, and workspace isolation validation (`isAllowedWorkspace`) into `lib/access.js` (202 lines), keeping `lib/routes.js` at 572 lines and strictly maintaining all server files below the 600-line architectural ceiling.
+- **Comprehensive Regression Suite** (#257): Added `test/audit-issue-257.test.mjs` verifying connection service delegation, proxy forwarding rejection, cookie isolation, remote LAN rejection, cross-site CSRF blocking, and authenticated passthrough. Full test suite extended to 288 tests with 100% pass rate.
+
+## 0.2.53
+
+### Security
+- **Workspace Boundary Containment & Pre-Promotion Checkpoint Enforcement** (#244): Validated `payload.cwd` in `/dsh-moa/run` against allowed workspaces boundary via `isAllowedWorkspace` and enforced `force: false, checkpoint: true` on pipeline execution to prevent uncheckpointed file overwrites.
+- **Fail-Closed CSRF Defense on Socketless Requests** (#244): Strengthened `isSafeWriteRequest` to fail closed when socket remote address is absent.
+- **Canonical Path Containment in Directory Cleanup** (#244): Confined `cleanMoaWorkspaces` via `assertPathContained` before recursively removing `.moa` directories.
+
+## 0.2.52
+
+### Fixed
+- **Complete Token Accounting for Test Gate Logs and Multi-Judge Panel Post-Panel Abort** (#242): Expanded `calcSynthesisPromptTokens` to support both object and positional signatures while accounting for candidate `testResult.output` logs. Extended `createBudgetAbortPayload` to aggregate tokens and costs across all candidates and multi-judge panel runs.
+
 ## 0.2.51
 
 ### Fixed
