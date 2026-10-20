@@ -337,3 +337,72 @@ test('Feature #251: HTTP routes GET /dsh-moa/runs/:id/workbench and POST .../ass
     await fs.rm(tmpDir, { recursive: true, force: true })
   }
 })
+
+
+test('Issue #263: /dsh-moa/runs route handles Cordis-like proxy throwing on un-injected baseDir', async () => {
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'moa-cordis-proxy-'))
+  const runId = 'test-wb-cordis-proxy-run'
+
+  try {
+    await writeCandidateWorkspace(tmpDir, 1, [
+      { relativePath: 'src/main.ts', content: 'console.log("hello")' },
+    ], { runId })
+
+    await recordMoaRunAsync({
+      id: runId,
+      cwd: tmpDir,
+      prompt: 'Test cordis context proxy',
+      preset: 'default',
+      candidates: [
+        { index: 1, provider: 'p1', model: 'm1', label: 'Candidate 1', files: ['src/main.ts'] },
+      ],
+      winnerIndex: 1,
+      aggregator: { provider: 'pj', model: 'mj' },
+    })
+    invalidateHistoryCache()
+
+    const registered = []
+    const cordisProxyCtx = new Proxy({
+      webServer: { register: (entry) => { registered.push(entry); return () => {} } },
+      effect: (fn) => fn(),
+      connection: { requestRejection: () => undefined },
+      reflect: { get: (k, mustInject) => undefined },
+    }, {
+      get(target, prop) {
+        if (prop in target) return target[prop]
+        throw new Error(`cannot get property "${String(prop)}" without inject`)
+      }
+    })
+
+    registerMoaRoutes(cordisProxyCtx, {
+      live: () => ({ enabled: true, presets: [{ name: 'default' }] }),
+      callLlm: async () => 'VERDICT: PASSED\nAUDIT_SCORE: 8\nAUDIT_NOTES: OK',
+      // note workspaceRoot is NOT passed, simulating DSH production startup
+    })
+
+    const runsRoute = registered.find((r) => r.path === '/dsh-moa/runs')
+    assert.ok(runsRoute, 'prefix /dsh-moa/runs must be registered')
+
+    let resCode = 0, resBody = null
+    const mockRes = {
+      writeHead: (code) => { resCode = code },
+      end: (data) => { resBody = JSON.parse(data) },
+    }
+    const mockReq = {
+      method: 'GET',
+      url: `/dsh-moa/runs/${runId}/workbench`,
+      headers: { host: '127.0.0.1:3000' },
+      socket: { remoteAddress: '127.0.0.1' },
+    }
+
+    // Must NOT throw "cannot get property 'baseDir' without inject"
+    await runsRoute.handler(mockReq, mockRes)
+    assert.equal(resCode, 200)
+    assert.equal(resBody.ok, true)
+    assert.equal(resBody.runId, runId)
+    assert.equal(resBody.candidates.length, 1)
+    assert.equal(resBody.candidates[0].files[0].relativePath, 'src/main.ts')
+  } finally {
+    await fs.rm(tmpDir, { recursive: true, force: true })
+  }
+})
