@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.56
+
+### Security
+- **Test-Gate Child Process Sandbox Escape Prevention** (#260): Strictly omitted `--allow-child-process` from Node.js permissions when running candidate tests without OS-level container isolation (bubblewrap), preventing untrusted test scripts from spawning child processes with stripped `NODE_OPTIONS` to bypass filesystem boundaries and leak host secrets.
+- **Dedicated Sandbox & Evasion Detection Module** (#260): Created `lib/moa-sandbox.js` (287 lines) housing OS sandbox probing (`isOsSandboxAvailable`), permission flags building (`buildPermOpts`), package manager command resolution (`resolveTestCommand`), runtime fence generation (`generateFenceCode`), and environment scrubbing (`getScrubbedEnv`). Reduced `lib/moa-test-gate.js` from 569 to 460 lines (<= 600).
+- **Direct Test Runner Command Resolution** (#260): Implemented `resolveTestCommand` mapping `npm test`, `npm run test`, and `pnpm test` directly to the underlying `scripts.test` in `package.json`, enabling test execution under Node permission model without requiring `npm` child process invocation.
+- **Fail-Closed Security Environment Defense** (#260): Guarded `child_process` methods in runtime fence with `ERR_ACCESS_DENIED`, and added detection of `NODE_OPTIONS` stripping attempts (`env -u`, `unset NODE_OPTIONS`, `export NODE_OPTIONS=`) in test commands and candidate `package.json`.
+- **Comprehensive Regression Suite** (#260): Added `test/audit-issue-260.test.mjs` (6 tests) verifying child process denial, PoC exploit prevention, path containment, and command resolution. Full test suite expanded to 294 tests with 100% pass rate.
+
 ## 0.2.55
 
 ### Security
