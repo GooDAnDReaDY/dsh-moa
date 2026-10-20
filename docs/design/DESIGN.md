@@ -248,3 +248,15 @@
   4. **Регрессионный набор тестов (`test/audit-issue-244.test.mjs`, Issue #244)**:
      - Добавлен тестовый файл `test/audit-issue-244.test.mjs`, проверяющий fail-closed контракт `isSafeWriteRequest`, ограничение путей в `cleanMoaWorkspaces`, строгую изоляцию `cwd` в `/dsh-moa/run` и безусловную защиту pre-promotion контрольных точек.
      - Полный тестовый набор расширен до 276 тестов со 100% прохождением.
+
+- 2026-10-20 — Защита read-маршрутов MoA через DSH Connection Service (v0.2.54, Gitea Issue #257):
+  1. **Каноническая аутентификация через `ctx.connection.requestRejection(req)` (`lib/access.js`, `lib/routes.js`, Issue #257)**:
+     - Все HTTP read-маршруты (`/dsh-moa/status`, `/dsh-moa/models`, `/dsh-moa/presets`, `/dsh-moa/history`, `/dsh-moa/leaderboard`, `/dsh-moa/diff`, `/dsh-moa/history/export`, `/dsh-moa/runs/*`) и write-маршруты защищены вызовом `assertAuthorizedRequest(req, res, ctx)`.
+     - При вызове из удалённой сети (LAN/WAN) неаутентифицированные клиенты немедленно отклоняются с кодом HTTP 401 (`Authentication required`) или 403 (`Forbidden`), предотвращая утечку пользовательских промптов, контекста памяти, структуры `cwd`, параметров моделей и содержимого файлов кандидатов.
+     - Аутентифицированные сессии DSH Web UI и локальные loopback-вызовы (CLI/тесты) продолжают работать штатно без деградации.
+  2. **Выделение модуля контроля доступа `lib/access.js`**:
+     - Вспомогательные функции авторизации, извлечения соединения `getConnection(ctx)`, чтения тела запроса `readBody`, формирования JSON-ответов `writeJson` и проверки изоляции рабочей области `isAllowedWorkspace` вынесены в `lib/access.js`.
+     - Сохранены строгие ограничения на размер серверных файлов ($\le 600$ строк в `lib/*.js`): `lib/routes.js` сокращён до 574 строк, `lib/access.js` составляет 135 строк.
+  3. **Регрессионный тестовый набор (`test/audit-issue-257.test.mjs`, Issue #257)**:
+     - Добавлен тестовый набор `test/audit-issue-257.test.mjs` (8 тестов), покрывающий проверку `getConnection`, `isLoopbackIp`, fail-closed блокировку неаутентифицированных удалённых вызовов на всех read-маршрутах, защиту от cross-site CSRF-запросов и беспрепятственный пропуск аутентифицированных запросов.
+     - Общий набор тестов расширен до 284 тестов с успешным 100% прохождением.
