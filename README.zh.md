@@ -150,6 +150,9 @@ graph TD
 ### 8. 提升前 Git 快照检查点 (`dsh-time-machine`)
 在将胜出候选者的文件提升并覆盖至项目根目录前，`dsh-moa` 自动调用本地 `dsh-time-machine` 建立影子 Git 检查点 (`moa-pre-promotion: candidate-N`)。如 `dsh-time-machine` 未安装或无法访问，文件提升将被阻断以防止未备份的项目文件被意外覆盖（仅在明确不需要检查点时可通过 `force: true` 覆盖）。
 
+### 9. 自动化测试执行网关 (Automated Test Execution Gate)
+当启用 `test_gate_enabled: true` 并配置 `test_command`（如 `npm test` 或 `pytest`）时，候选代码将在临时沙箱覆盖层中执行。沙箱基于 Node.js 原生权限模型（`--permission`）与运行时防护栏（`lib/moa-sandbox.js`）。在无操作系统级容器隔离（bubblewrap）时，严格禁用子进程创建（省略 `--allow-child-process`），杜绝候选代码通过剥离 `NODE_OPTIONS` 逃逸沙箱 (#260)。包管理器命令（`npm test`）直接映射到底层脚本，并在执行前严密拦截任何规避意图（`env -u NODE_OPTIONS`、`unset NODE_OPTIONS` 等）。裁判在最终决策前将获取客观的测试结果、耗时与输出日志。
+
 ### 18. 平滑降级与本地容灾恢复 (Local Fallback Resilience)
 当 `local_fallback_enabled: true` 时，因网络中断、超时或速率限制（429/500）而失败的候选模型会自动使用配置的本地模型（Ollama / MiniPC）恢复。每个后备模型都拥有独立的超时执行配额与关联主 turn signal 的隔离取消控制器，防止云端超时耗尽本地恢复时间。同时严格检测终止错误与流中断，确保安全容灾且杜绝已取消 turn 的延迟文件提升。
 
