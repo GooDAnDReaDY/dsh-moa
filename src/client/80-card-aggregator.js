@@ -386,6 +386,44 @@
                 )
               ),
 
+              /* Interactive Workbench & File Scoring (#251) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.interactive_workbench_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, interactive_workbench_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.workbench_title') || '🛠️ Interactive Workbench (1-10 File Scoring & Top-Model Glue)'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.workbench_desc') || 'Judge scores each candidate file (1–10). Mix and match candidate files in the UI; the top model harmonizes them into a unified project followed by judge re-audit.'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 11, color: 'var(--dsw-alias-label-tertiary, #888)', marginLeft: 22, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 } },
+                  '🔗 ' + (t('aggregator.workbench_companion') || 'Companion Plugin:'),
+                  React.createElement(
+                    'a',
+                    {
+                      href: 'https://github.com/goodandready/dsh-time-machine',
+                      target: '_blank',
+                      rel: 'noopener noreferrer',
+                      style: { color: 'var(--dsw-alias-state-brand-primary, #3b82f6)', textDecoration: 'underline' },
+                    },
+                    'dsh-time-machine'
+                  ),
+                  '(' + (t('aggregator.workbench_companion_note') || 'safe shadow Git checkpoints before file promotion') + ')'
+                )
+              ),
+
               /* Graceful Degradation & Local Fallback (#175, #176) */
               React.createElement(
                 'div',

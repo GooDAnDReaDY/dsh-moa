@@ -175,6 +175,31 @@
       'diff.select_run': '运行记录：',
       'diff.latest_run': '最新 / 当前工作区',
       'updater.success': '成功更新至 v{version}，请重启 DSH 使其生效。',
+
+      // Interactive Workbench (#251)
+      'aggregator.workbench_title': '🛠️ 交互式工作台 (1-10分文件打分与最优模型粘合)',
+      'aggregator.workbench_desc': '裁判为每个候选文件打分 (1-10) 并标注优缺点。在 UI 中自由组合各候选文件，由当轮最高分模型进行代码粘合统一，最终由裁判复审。',
+      'aggregator.workbench_companion': '配套插件：',
+      'aggregator.workbench_companion_note': '文件提升前安全创建影子 Git 快照',
+      'workbench.title': '🛠️ 交互式合成工作台',
+      'workbench.desc': '查看候选模型的文件质量打分 (1–10)，自由混搭组合目标文件，由最高分模型粘合统一并执行最终裁判复审。',
+      'workbench.select_run': 'MoA 运行：',
+      'workbench.latest_run': '选择运行记录…',
+      'workbench.no_runs': '暂无生成文件的 MoA 记录。',
+      'workbench.empty_files': '此运行记录未发现候选文件。',
+      'workbench.file_header': '项目文件',
+      'workbench.candidate_header': '候选版本与评分 (1-10)',
+      'workbench.instructions_label': '粘合协同指令（可选）：',
+      'workbench.instructions_placeholder': '例如：对齐导入路径、统一 TypeScript 类型、规范导出接口...',
+      'workbench.assemble_btn': '🚀 粘合与装配 (最优模型)',
+      'workbench.assembling': '⏳ 正在通过最优模型协同粘合文件...',
+      'workbench.recheck_title': '⚖️ 裁判复审判定',
+      'workbench.audit_passed': '通过 (PASSED)',
+      'workbench.audit_failed': '未通过 (FAILED)',
+      'workbench.promote_btn': '提升粘合结果至项目根目录',
+      'workbench.promoted_ok': '✅ 粘合方案已成功提升至项目工作区！',
+      'workbench.pros': '优势：',
+      'workbench.cons': '不足：',
     }
 
 
