@@ -51,6 +51,7 @@ Single-model AI generation often suffers from blind spots, single-perspective bi
 8. **Fast Mode & Custom Judge Criteria**: Ultra-fast single-model preset for quick tasks and customizable evaluation guidelines for the judge.
 9. **Run History & Win-Rate Leaderboard**: Persistent logging of every run kind (synthesis, fast mode, questionnaire) with built-in REST endpoints (`/dsh-moa/history`, `/dsh-moa/leaderboard`, `/dsh-moa/runs/<id>`).
 10. **Live Canvas 1-Click Preview (optional)**: when the `@goodandready/dsh-live-canvas` plugin is installed in the same profile, the promoted HTML is pushed to its sandbox and the MoA answer carries a one-click preview link; without it the step is skipped silently.
+11. **Interactive Workbench (File Scoring 1–10, User Pick & Mix, Top-Model Glue & Judge Re-Check)**: Judge scores each candidate file (1–10) with pros and cons. Users can mix and match files across proposals in the WebUI. The turn's top-performing reference model harmonizes cross-file imports and contracts, followed by a final judge re-audit before promotion. Companion integration with [`dsh-time-machine`](https://github.com/goodandready/dsh-time-machine) for safe pre-promotion rollback checkpoints.
 
 ---
 
