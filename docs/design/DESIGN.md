@@ -262,3 +262,16 @@
   3. **Регрессионный тестовый набор (`test/audit-issue-257.test.mjs`, Issue #257)**:
      - Добавлен тестовый набор `test/audit-issue-257.test.mjs` (12 тестов), покрывающий проверку `getConnection`, `isLoopbackIp`, `cookieNameForAuthority`, `isLoopbackCookieName`, `hasClientCredentials`, блокировку проксированных вызовов без клиентских данных, fail-closed блокировку неаутентифицированных удалённых вызовов на всех read-маршрутах, защиту от cross-site CSRF-запросов и беспрепятственный пропуск аутентифицированных запросов.
      - Общий набор тестов расширен до 288 тестов с успешным 100% прохождением (FAIL=0, WARN=4 в dsh-plugin-preflight).
+
+- 2026-10-20 — Защита шлюза выполнения тестов Test Gate от обхода через дочерний процесс без NODE_OPTIONS (v0.2.56, Gitea Issue #260):
+  1. **Выделение модуля песочницы `lib/moa-sandbox.js` (283 строки)**:
+     - Модуль изолирует детекцию уклонения (`isSandboxEvasion`), проверку bubblewrap/OS-песочницы (`isOsSandboxAvailable`), прямое разрешение скриптов package manager (`resolveTestCommand`), генерацию флагов прав доступа (`buildPermOpts`), генерацию кода перехватчика (`generateFenceCode`) и очистку переменных окружения (`getScrubbedEnv`).
+     - Сокращён размер `lib/moa-test-gate.js` с 569 строк до 460 строк при строгом соблюдении проектного лимита $\le 600$ строк на серверный файл.
+  2. **Устранение вектора побега через child_process и сброс NODE_OPTIONS (#260)**:
+     - При отсутствии контейнерной изоляции уровня ОС (bubblewrap) флаг `--allow-child-process` безусловно исключён из опций запуска Node.js (`buildPermOpts`), что лишает код кандидата возможности породить дочерний процесс без переданных параметров безопасности `NODE_OPTIONS`.
+     - В рантайм-фенсе (`generateFenceCode`) вызовы методов `child_process` (`spawn`, `spawnSync`, `exec`, `execSync`, `execFile`, `execFileSync`, `fork`) перехватываются и блокируются с исключением `ERR_ACCESS_DENIED`, если не включена изоляция ОС.
+     - Прямой маппинг команд `npm test`, `npm run test`, `pnpm test` на реальные скрипты в `package.json` (`resolveTestCommand`) исключает необходимость порождения `npm` как дочернего процесса.
+     - Детекция попыток очистки переменных безопасности (`env -u NODE_OPTIONS`, `unset NODE_OPTIONS`, `export NODE_OPTIONS=`) в команде теста или скриптах `package.json` с немедленным отклонением до выполнения.
+  3. **Регрессионные тесты (`test/audit-issue-260.test.mjs`, Issue #260)**:
+     - Добавлен тестовый набор `test/audit-issue-260.test.mjs` (6 тестов), проверяющий: отсутствие `--allow-child-process` без ОС-песочницы, маппинг `resolveTestCommand`, обнаружение `NODE_OPTIONS` evasion, блокировку вредоносного `package.json`, воспроизведение эксплойта Issue #260 (попытка порождения `env -u NODE_OPTIONS` завершается `ERR_ACCESS_DENIED`), блокировку несанкционированного чтения через `readFileSync`.
+     - Полный тестовый набор расширен до 294 тестов со 100% успешным прохождением.
