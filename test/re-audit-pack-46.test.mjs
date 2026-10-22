@@ -10,7 +10,7 @@ import { registerMoaRoutes } from '../lib/routes.js'
 import { runMoAPipeline } from '../lib/moa-runner.js'
 import { runCandidateTestGate } from '../lib/moa-test-gate.js'
 import { apply } from '../lib/index.js'
-import { recordMoaRun, invalidateHistoryCache } from '../lib/history.js'
+import { recordMoaRunAsync, invalidateHistoryCache } from '../lib/history.js'
 
 function createMockReqRes({ method = 'GET', url = '/', headers = {}, body = '' } = {}) {
   const req = new EventEmitter()
@@ -140,7 +140,7 @@ test('#208: POST /dsh-moa/promote fails closed on unknown runId, empty history, 
     }
 
     // Record a valid run
-    const rec = recordMoaRun({ cwd: tmpDir, prompt: 'test prompt', candidateCount: 1 })
+    const rec = await recordMoaRunAsync({ cwd: tmpDir, prompt: 'test prompt', candidateCount: 1 })
 
     // 3c. Recorded run exists, but caller passes mismatched cwd -> 403
     {
@@ -212,7 +212,7 @@ test('#211: GET /dsh-moa/diff fails closed on unknown runId and empty history', 
     }
 
     // Record a valid run
-    const rec = recordMoaRun({ cwd: tmpDir, prompt: 'diff prompt', candidateCount: 1 })
+    const rec = await recordMoaRunAsync({ cwd: tmpDir, prompt: 'diff prompt', candidateCount: 1 })
 
     // 4c. Query cwd mismatch with recorded run -> 403
     {

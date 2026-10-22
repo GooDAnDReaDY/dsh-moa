@@ -85,7 +85,7 @@
         ),
         emptyWarning ? React.createElement(
           'div',
-          { style: { fontSize: 11, color: 'var(--dsw-alias-state-warning-primary, #e6a23c)', marginTop: 2 } },
+          { style: { fontSize: 11, color: 'var(--dsw-alias-state-warning-primary)', marginTop: 2 } },
           emptyWarning
         ) : null
       )

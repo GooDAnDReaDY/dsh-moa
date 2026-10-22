@@ -4,19 +4,19 @@ import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
 import { getDefaultHistoryDir,
-  recordMoaRun,
+  recordMoaRunAsync,
   getMoaHistory,
   getMoaLeaderboard,
   getMoaRunById,
 } from '../lib/history.js'
 
-test('history: records run, reads paginated history, and calculates leaderboard', () => {
+test('history: records run, reads paginated history, and calculates leaderboard', async () => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'moa-hist-test-'))
   const histFile = path.join(tmpDir, 'history.jsonl')
 
   try {
     // 1. Record Run 1
-    const run1 = recordMoaRun(
+    const run1 = await recordMoaRunAsync(
       {
         prompt: 'Build calculator',
         preset: 'default',
@@ -38,7 +38,7 @@ test('history: records run, reads paginated history, and calculates leaderboard'
     assert.equal(run1.winnerModel, 'p1:m1')
 
     // 2. Record Run 2
-    const run2 = recordMoaRun(
+    const run2 = await recordMoaRunAsync(
       {
         prompt: 'Build stopwatch',
         preset: 'fast',

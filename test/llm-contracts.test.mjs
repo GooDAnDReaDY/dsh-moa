@@ -4,7 +4,17 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-import { createLlmCaller, callConfigEquals, toContentBlocks, toLlmMessages } from '../lib/moa-llm.js'
+import { createLlmCaller, toContentBlocks, toLlmMessages } from '../lib/moa-llm.js'
+
+function callConfigEquals(a, b) {
+  if (!a || !b) return false
+  if (a.provider !== b.provider) return false
+  if (a.model !== b.model) return false
+  if (a.temperature !== b.temperature) return false
+  if (a.maxTokens !== b.maxTokens) return false
+  if (a.reasoningEffort !== b.reasoningEffort) return false
+  return true
+}
 import { runMoAPipeline } from '../lib/moa-runner.js'
 import { runReferencesParallel } from '../lib/moa-candidates.js'
 

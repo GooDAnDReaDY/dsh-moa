@@ -12,7 +12,7 @@ import {
 import { summarizeMoAUsage, estimateTokenCost } from '../lib/pricing.js'
 import { generateMoABenchmarkReport } from '../lib/moa-report.js'
 import {
-  recordMoaRun,
+  recordMoaRunAsync,
   getMoaHistory,
   getMoaLeaderboard,
   readTailLinesSync,
@@ -114,7 +114,7 @@ test('Block 4 (#168): multi-judge usage and costs are tracked and included in pi
   assert.ok(totalSummary.totalCostUsd > 0.007)
 })
 
-test('Block 4 (#169): history records preserve persona, temperature, fallback, testResult, and slot details', () => {
+test('Block 4 (#169): history records preserve persona, temperature, fallback, testResult, and slot details', async () => {
   const refs = [
     {
       index: 1,
@@ -142,7 +142,7 @@ test('Block 4 (#169): history records preserve persona, temperature, fallback, t
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'moa-hist-169-'))
   const histFile = path.join(tmpDir, 'history.jsonl')
   try {
-    const recorded = recordMoaRun({
+    const recorded = await recordMoaRunAsync({
       prompt: 'Refactor security',
       candidates: histItems,
       winnerIndex: 1,
@@ -236,12 +236,12 @@ test('Block 4 (#184): readTailLinesSync does not corrupt UTF-8 multi-byte charac
   }
 })
 
-test('Block 4 (#185): getMoaLeaderboard correctly credits wins for fallback models and winnerIndex', () => {
+test('Block 4 (#185): getMoaLeaderboard correctly credits wins for fallback models and winnerIndex', async () => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'moa-hist-185-'))
   const histFile = path.join(tmpDir, 'history-lb.jsonl')
   try {
     // Run where candidate 1 is a fallback model with fallback label
-    recordMoaRun({
+    await recordMoaRunAsync({
       prompt: 'Code task with fallback winner',
       candidates: [
         {

@@ -6,7 +6,6 @@ import path from 'node:path'
 
 import {
   rotateHistoryFileIfNeeded,
-  recordMoaRun,
   recordMoaRunAsync,
   getMoaHistory,
   getMoaLeaderboard,

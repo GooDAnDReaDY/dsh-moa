@@ -408,7 +408,7 @@
                 ),
                 React.createElement(
                   'div',
-                  { style: { fontSize: 11, color: 'var(--dsw-alias-label-tertiary, #888)', marginLeft: 22, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 } },
+                  { style: { fontSize: 11, color: 'var(--dsw-alias-label-tertiary)', marginLeft: 22, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 } },
                   '🔗 ' + (t('aggregator.workbench_companion') || 'Companion Plugin:'),
                   React.createElement(
                     'a',
@@ -416,7 +416,7 @@
                       href: 'https://github.com/goodandready/dsh-time-machine',
                       target: '_blank',
                       rel: 'noopener noreferrer',
-                      style: { color: 'var(--dsw-alias-state-brand-primary, #3b82f6)', textDecoration: 'underline' },
+                      style: { color: 'var(--dsw-alias-state-brand-primary)', textDecoration: 'underline' },
                     },
                     'dsh-time-machine'
                   ),
