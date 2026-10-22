@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.58
+
+### Bug Fixes
+- **Normalize Message Content to Content-Block Array for DSH 0.2.x Adapter Compatibility** (#265):
+  - **Adapter Contract Compatibility**: Fixed `TypeError: content.some is not a function` (which wraps as `DeepSeek Messages transport failed` in DeepSeek adapter) on DSH 0.2.x (`@deepseek-ai/dsh-llm-pi-ai`, `@deepseek-ai/dsh-llm-deepseek`, etc.) when advisor prompts are sent with string `content`.
+  - **Unified Dispatcher Normalization in `lib/moa-llm.js`**: Added `toContentBlocks` and `toLlmMessages` in `createLlmCaller`, automatically normalizing messages across all pipeline phases (`moa-prompts`, `moa-candidates`, `moa-runner`, `moa-workbench`) into standard content-block arrays (`[{ type: 'text', text: '...' }]`) before passing to `prep.stream({ messages })`.
+  - **Robust Type Handling**: Normalizer safely handles plain strings, existing content-block arrays, objects (`{ text }` or `{ content }`), empty strings, numbers, and null/undefined values without throw.
+  - **Architectural Line Budget**: `lib/moa-llm.js` extended to 188 lines, strictly adhering to the architectural budget ceiling (<= 600 lines).
+  - **Regression Test Coverage**: Added contract tests in `test/llm-contracts.test.mjs` verifying message block normalization and adapter `m.content.some(...)` invocation. All 308 tests pass.
+
 ## 0.2.57
 
 ### Features
