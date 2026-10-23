@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.2.59
+
+### Bug Fixes
+- **Missing React DevDependencies for Test Suite on Clean Clones** (#268):
+  - Added `"react": "^18.3.1"` and `"react-dom": "^18.3.1"` to `devDependencies` in `package.json` and updated `package-lock.json`.
+  - Resolved `ERR_MODULE_NOT_FOUND` in test #187 (`test/audit-pack-232.test.mjs`) when running on clean environments lacking global/parent React installations.
+  - Satisfies preflight rule #13 (`devDependencies ⊆ peerDependencies`).
+
+### Refactoring & UI Debt
+- **Eliminate Color Hardcoding in Workbench Viewer and Prune Dead Exports** (#269):
+  - **DSH Theme Parity**: Replaced 21 hardcoded hex (`#...`) and `rgba(...)` color values across `src/client/56-workbench-viewer.js`, `src/client/30-ui-primitives.js`, and `src/client/80-card-aggregator.js` with DSH semantic CSS variables (`var(--dsw-alias-state-...)`, `var(--dsw-alias-label-...)`) and `color-mix(...)`.
+  - **Dark Theme Error Badge**: Fixed white/light error badge (`#fee2e2` / `#b91c1c`) blinding users in dark theme by adopting `color-mix(in srgb, var(--dsw-alias-state-error-primary) 12%, transparent)` with matching semi-transparent border and semantic text color.
+  - **Pruned Dead Exports**: Removed unused synchronous `recordMoaRun` from `lib/history.js` (migrated test callers to non-blocking `recordMoaRunAsync`, freeing 27 lines and bringing `lib/history.js` comfortably down to 567 lines <= 600 limit).
+  - **Pruned Uncalled Server Helpers**: Moved test-only `callConfigEquals` from `lib/moa-llm.js` directly into `test/llm-contracts.test.mjs`; integrated `resetMemoryCatalog()` call in `lib/pricing.js` `loadCachedCatalog()` cache-invalidation handler.
+  - **Preflight Cleanliness**: Preflight reports `хардкода цветов нет` (0 hardcoded colors) and 0 uncalled exports.
+
 ## 0.2.58
 
 ### Bug Fixes
