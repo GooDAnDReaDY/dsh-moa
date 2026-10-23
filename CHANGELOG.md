@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.60
+
+### Bug Fixes
+- **Admit Genuine Loopback and In-Process Callers without Session Cookies** (#271, GitHub #2):
+  - Fixed a regression from `0.2.53` where non-browser loopback clients (such as adjacent DSH plugins or local CLI callers) calling `POST /dsh-moa/run` were rejected with `401 {"ok":false,"error":"Authentication required"}` when DSH connection service was active.
+  - In `lib/access.js` (`getReadRejectionStatus`), verified genuine local socket connections (`127.0.0.1`, `::1`, `localhost`) not forwarded from remote proxies (`!isForwardedRemote`) are admitted directly, preserving connection service session validation for remote and forwarded LAN traffic.
+  - Added strict Origin/Host validation preventing cross-origin requests from targeting loopback while permitting valid same-origin test/proxy hosts.
+  - Re-exported `runMoAPipeline` in `lib/index.js` enabling programmatic in-process pipeline execution without HTTP transport overhead.
+  - Added regression test suite `test/issue-271-loopback-auth.test.mjs` verifying loopback admission, remote LAN 401 rejection, forwarded proxy validation, and in-process export. Full test suite extended to 311 tests (100% pass rate).
+
 ## 0.2.59
 
 ### Bug Fixes
