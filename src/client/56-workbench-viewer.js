@@ -171,7 +171,7 @@
           /* Companion Plugin Badge */
           React.createElement(
             'div',
-            { style: { marginLeft: 'auto', fontSize: 11, color: 'var(--dsw-alias-label-tertiary, #888)', display: 'flex', alignItems: 'center', gap: 4 } },
+            { style: { marginLeft: 'auto', fontSize: 11, color: 'var(--dsw-alias-label-tertiary)', display: 'flex', alignItems: 'center', gap: 4 } },
             '🔗 Companion: ',
             React.createElement(
               'a',
@@ -179,7 +179,7 @@
                 href: 'https://github.com/goodandready/dsh-time-machine',
                 target: '_blank',
                 rel: 'noopener noreferrer',
-                style: { color: 'var(--dsw-alias-state-brand-primary, #3b82f6)', textDecoration: 'underline' },
+                style: { color: 'var(--dsw-alias-state-brand-primary)', textDecoration: 'underline' },
               },
               'dsh-time-machine'
             )
@@ -187,7 +187,7 @@
         ),
 
         loading && React.createElement('div', { style: { padding: '16px 0', fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, '⏳ Loading workbench data...'),
-        error && React.createElement('div', { style: { padding: '8px 12px', background: '#fee2e2', color: '#b91c1c', borderRadius: 6, fontSize: 12, marginTop: 8 } }, error),
+        error && React.createElement('div', { style: { padding: '8px 12px', background: 'color-mix(in srgb, var(--dsw-alias-state-error-primary) 12%, transparent)', color: 'var(--dsw-alias-state-error-primary)', border: '1px solid color-mix(in srgb, var(--dsw-alias-state-error-primary) 30%, transparent)', borderRadius: 6, fontSize: 12, marginTop: 8 } }, error),
 
         /* File Matrix */
         !loading && !error && allFiles.length === 0 && React.createElement(
@@ -237,7 +237,7 @@
                 fileScores.map((scoreItem) => {
                   const isChecked = selectedCand === scoreItem.candidateIndex
                   const scoreVal = scoreItem.score || 7
-                  const scoreBg = scoreVal >= 8 ? '#10b981' : (scoreVal >= 5 ? '#f59e0b' : '#ef4444')
+                  const scoreBg = scoreVal >= 8 ? 'var(--dsw-alias-state-success-primary)' : (scoreVal >= 5 ? 'var(--dsw-alias-state-warning-primary)' : 'var(--dsw-alias-state-error-primary)')
 
                   return React.createElement(
                     'label',
@@ -249,9 +249,9 @@
                         gap: 8,
                         cursor: 'pointer',
                         padding: '6px 8px',
-                        background: isChecked ? 'rgba(59, 130, 246, 0.08)' : 'transparent',
+                        background: isChecked ? 'color-mix(in srgb, var(--dsw-alias-state-brand-primary) 8%, transparent)' : 'transparent',
                         borderRadius: 6,
-                        border: isChecked ? '1px solid var(--dsw-alias-state-brand-primary, #3b82f6)' : '1px solid transparent',
+                        border: isChecked ? '1px solid var(--dsw-alias-state-brand-primary)' : '1px solid transparent',
                       },
                     },
                     React.createElement('input', {
@@ -259,7 +259,7 @@
                       name: 'file-' + file,
                       checked: isChecked,
                       onChange: () => setSelections((prev) => ({ ...prev, [file]: scoreItem.candidateIndex })),
-                      style: { marginTop: 3, accentColor: 'var(--dsw-alias-state-brand-primary, #3b82f6)' },
+                      style: { marginTop: 3, accentColor: 'var(--dsw-alias-state-brand-primary)' },
                     }),
                     React.createElement(
                       'div',
@@ -285,12 +285,12 @@
                       ),
                       scoreItem.pros && React.createElement(
                         'div',
-                        { style: { fontSize: 11, color: '#16a34a', marginTop: 2 } },
+                        { style: { fontSize: 11, color: 'var(--dsw-alias-state-success-primary)', marginTop: 2 } },
                         '⭐ ' + (t('workbench.pros') || 'Pros:') + ' ' + scoreItem.pros
                       ),
                       scoreItem.cons && React.createElement(
                         'div',
-                        { style: { fontSize: 11, color: '#dc2626', marginTop: 1 } },
+                        { style: { fontSize: 11, color: 'var(--dsw-alias-state-error-primary)', marginTop: 1 } },
                         '⚠️ ' + (t('workbench.cons') || 'Cons:') + ' ' + scoreItem.cons
                       )
                     )
@@ -329,7 +329,7 @@
 
           assembleError && React.createElement(
             'div',
-            { style: { padding: '8px 12px', background: '#fee2e2', color: '#b91c1c', borderRadius: 6, fontSize: 12, marginTop: 8 } },
+            { style: { padding: '8px 12px', background: 'color-mix(in srgb, var(--dsw-alias-state-error-primary) 12%, transparent)', color: 'var(--dsw-alias-state-error-primary)', border: '1px solid color-mix(in srgb, var(--dsw-alias-state-error-primary) 30%, transparent)', borderRadius: 6, fontSize: 12, marginTop: 8 } },
             assembleError
           ),
 
@@ -340,15 +340,15 @@
               style: {
                 marginTop: 10,
                 padding: '12px',
-                background: 'rgba(16, 185, 129, 0.05)',
-                border: '1px solid #10b981',
+                background: 'color-mix(in srgb, var(--dsw-alias-state-success-primary) 6%, transparent)',
+                border: '1px solid color-mix(in srgb, var(--dsw-alias-state-success-primary) 40%, transparent)',
                 borderRadius: 8,
               },
             },
             React.createElement(
               'div',
               { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } },
-              React.createElement('div', { style: { fontWeight: 700, fontSize: 13, color: '#047857' } }, '✨ Harmonization Complete! Top Model: ' + (assembleResult.topModel || 'Master')),
+              React.createElement('div', { style: { fontWeight: 700, fontSize: 13, color: 'var(--dsw-alias-state-success-primary)' } }, '✨ Harmonization Complete! Top Model: ' + (assembleResult.topModel || 'Master')),
               React.createElement(
                 'span',
                 {
@@ -356,7 +356,7 @@
                     fontSize: 11,
                     fontWeight: 700,
                     color: '#fff',
-                    background: assembleResult.judgeAudit?.passed ? '#10b981' : '#ef4444',
+                    background: assembleResult.judgeAudit?.passed ? 'var(--dsw-alias-state-success-primary)' : 'var(--dsw-alias-state-error-primary)',
                     padding: '2px 8px',
                     borderRadius: 4,
                   },
@@ -393,7 +393,7 @@
 
             promoted && React.createElement(
               'div',
-              { style: { fontSize: 12, fontWeight: 600, color: '#059669', marginTop: 4 } },
+              { style: { fontSize: 12, fontWeight: 600, color: 'var(--dsw-alias-state-success-primary)', marginTop: 4 } },
               t('workbench.promoted_ok') || '✅ Harmonized deliverable promoted to workspace root!'
             )
           )

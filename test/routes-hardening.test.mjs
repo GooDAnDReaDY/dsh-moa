@@ -182,8 +182,8 @@ test('Issue #117: promoteCandidateWorkspace propagates error on failure instead 
 
   const tmpBase = await fs.mkdtemp(path.join(os.tmpdir(), 'moa-promote-fail-'))
   try {
-    const { recordMoaRun } = await import('../lib/history.js')
-    const run = recordMoaRun({ cwd: tmpBase, prompt: 'test', candidateCount: 1 })
+    const { recordMoaRunAsync } = await import('../lib/history.js')
+    const run = await recordMoaRunAsync({ cwd: tmpBase, prompt: 'test', candidateCount: 1 })
 
     // Create candidate-1 with a file both in legacy and runId scoped folders
     const candDir = path.join(tmpBase, '.moa', 'candidate-1')

@@ -64,5 +64,9 @@
     "@deepseek-ai/dsh-settings": {
       "optional": true
     }
+  },
+  "devDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }

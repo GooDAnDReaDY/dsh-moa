@@ -10,7 +10,7 @@ import { runCandidateTestGate } from '../lib/moa-test-gate.js'
 import { writeCandidateWorkspace, isLoopbackUrl } from '../lib/file-workspace.js'
 import { applyBudgetGuardrails, checkPhaseBudget } from '../lib/moa-budget.js'
 import { registerMoaRoutes } from '../lib/routes.js'
-import { recordMoaRun } from '../lib/history.js'
+import { recordMoaRunAsync } from '../lib/history.js'
 import { logger } from '../lib/logger.js'
 
 const suiteTmp = fsSync.mkdtempSync(path.join(os.tmpdir(), 'moa-suite-45-'))
@@ -466,7 +466,7 @@ test('#211: candidate diff route rejects unauthorized cwd and missing runs', asy
   assert.match(res404.json.error, /not found/i)
 
   // 2. Mismatched cwd for existing run returns 403
-  recordMoaRun({
+  await recordMoaRunAsync({
     id: 'test-run-auth-211',
     timestamp: Date.now(),
     preset: 'default',

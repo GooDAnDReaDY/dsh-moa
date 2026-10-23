@@ -19,7 +19,7 @@ import {
 import {
   getMoaLeaderboard,
   exportMoaHistory,
-  recordMoaRun,
+  recordMoaRunAsync,
 } from '../lib/history.js'
 import { runMoAPipeline } from '../lib/moa-runner.js'
 
@@ -134,12 +134,12 @@ test('formatMoAResponse: renders candidate override actions when allowCandidateO
   assert.ok(output.includes('/moa promote test-run-999 2'))
 })
 
-test('exportMoaHistory: exports filtered CSV and JSON telemetry', (t) => {
+test('exportMoaHistory: exports filtered CSV and JSON telemetry', async (t) => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'moa-export-test-'))
   t.after(() => fs.rmSync(tmpDir, { recursive: true, force: true }))
 
   const historyFile = path.join(tmpDir, 'moa-history.jsonl')
-  recordMoaRun({
+  await recordMoaRunAsync({
     id: 'run-1',
     preset: 'code-review',
     winnerModel: 'p1:m1',
@@ -149,7 +149,7 @@ test('exportMoaHistory: exports filtered CSV and JSON telemetry', (t) => {
     candidates: [{ provider: 'p1', model: 'm1', costUsd: 0.005 }],
   }, historyFile)
 
-  recordMoaRun({
+  await recordMoaRunAsync({
     id: 'run-2',
     preset: 'fast-audit',
     winnerModel: 'p2:m2',
@@ -178,12 +178,12 @@ test('exportMoaHistory: exports filtered CSV and JSON telemetry', (t) => {
   assert.equal(parsed[0].id, 'run-2')
 })
 
-test('getMoaLeaderboard: calculates stats with preset filter', (t) => {
+test('getMoaLeaderboard: calculates stats with preset filter', async (t) => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'moa-lb-filter-'))
   t.after(() => fs.rmSync(tmpDir, { recursive: true, force: true }))
 
   const historyFile = path.join(tmpDir, 'moa-history.jsonl')
-  recordMoaRun({
+  await recordMoaRunAsync({
     preset: 'code-review',
     winnerModel: 'p1:m1',
     candidates: [
@@ -192,7 +192,7 @@ test('getMoaLeaderboard: calculates stats with preset filter', (t) => {
     ],
   }, historyFile)
 
-  recordMoaRun({
+  await recordMoaRunAsync({
     preset: 'math-logic',
     winnerModel: 'p2:m2',
     candidates: [

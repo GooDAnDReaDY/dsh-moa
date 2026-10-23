@@ -8,7 +8,6 @@ import {
   isTestEnvironment,
   getDefaultHistoryDir,
   getDefaultHistoryFile,
-  recordMoaRun,
   recordMoaRunAsync,
 } from '../lib/history.js'
 import { runMoAPipeline } from '../lib/moa-runner.js'
