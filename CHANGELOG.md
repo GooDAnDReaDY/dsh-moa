@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.2.66
+
+### Build System & Client Quality Assurance
+- **Modernized Client Builder `build-client` with esbuild, Atomic Writes, and no-undef Checks** (#276):
+  - Refactored `scripts/build-client.mjs` following canonical `dsh-clinebot` architecture.
+  - Integrated `esbuild.transformSync` for syntax validation and legal comments stripping.
+  - Implemented atomic file generation via `tempOut -> renameSync`, eliminating race conditions during parallel testing.
+  - Added automated validation for official DSH Store package limits (strictly $le 256$ KiB; current bundle 169 KiB).
+  - Enforced `eslint --rule no-undef: 2` verification across the assembled client bundle with environment globals (`window`, `document`, `fetch`, `URLSearchParams`, `structuredClone`, etc.).
+  - Added automated drift check (`build-client.mjs --check`) to the `npm test` pipeline.
+  - Added test suite `test/issue-276-build-client.test.mjs`.
+
+### Reliability & Preset Diagnostics
+- **Dynamic Preset Model Validation via `ctx.llm` Provider Registry** (#283):
+  - Created `lib/moa-model-validator.js` (241 lines) providing provider and model introspection:
+    - `getActiveLlmProviders(ctx)`: inspects registered and configurable LLM providers from `ctx.llm`.
+    - `getActiveLlmModels(ctx, providers)`: queries model catalogs per provider with timeout guardrails.
+    - `validateSlot(slot, role, activeProviders, modelMap)`: identifies missing providers, unregistered providers, and dead models.
+    - `validatePreset(preset, options)`: inspects reference candidates, aggregator model, and fallbacks.
+    - `validateAllPresets(presets, ctx)`: aggregates diagnostic summaries and logs structured warnings (`logger.warn`).
+  - Added `ctx.moa.validatePresets(presets)` and `ctx.moa.getActiveProviders()` to `MoaService`.
+  - Integrated dynamic validation into `GET /dsh-moa/presets` and `POST /dsh-moa/presets` HTTP responses for real-time UI alerting.
+  - Added comprehensive test suite `test/issue-283-model-validation.test.mjs`, expanding test suite to 351 tests (100% pass rate).
+
 ## 0.2.65
 
 ### Features & CLI / Chat Integration
