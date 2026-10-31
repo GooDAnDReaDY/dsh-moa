@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.2.62
+
+### Refactoring & Architecture
+- **Pipeline Stage Pattern for `runMoAPipeline`** (#279):
+  - Decomposed monolithic `lib/moa-runner.js` (593 lines, 7 lines from 600-line budget limit) into a clean, modular Pipeline Stage Pattern in `lib/pipeline/`:
+    - `lib/pipeline/context.js` (107 lines): context collection, refinement detection, prompt enrichment, multi-turn history pruning, and budget guardrails.
+    - `lib/pipeline/candidates.js` (99 lines): parallel fan-out to advisor models, workspace isolation, candidate syntax checks, and test execution gate.
+    - `lib/pipeline/questions.js` (79 lines): clarifying questionnaire synthesis branch with transient retry and history logging.
+    - `lib/pipeline/fast-mode.js` (100 lines): single-candidate direct bypass, workspace promotion, and live preview generation.
+    - `lib/pipeline/peer-critique.js` (113 lines): Consilium Round 2 peer critique, opponent solution synthesis, and re-test gating.
+    - `lib/pipeline/multi-judge.js` (37 lines): multi-judge consensus panel execution and budget checkpointing.
+    - `lib/pipeline/synthesis.js` (150 lines): judge synthesis prompt building, fallback judge chain execution, and streaming delta dispatch.
+    - `lib/pipeline/promotion.js` (114 lines): winning candidate evaluation, workspace promotion, live canvas previews, benchmark report generation, and async history recording.
+    - `lib/pipeline/runner.js` (163 lines): lightweight stage coordinator orchestrating the full pipeline lifecycle.
+  - Replaced `lib/moa-runner.js` with an 8-line re-export barrel ensuring 100% backward compatibility for all programmatic callers.
+- **Dynamic Cordis Service Injection & Resilience** (#274):
+  - Reduced static `export const inject` in `lib/index.js` from `['webServer', 'llm', 'sessions', 'tools']` to minimal `['llm']`.
+  - Created `lib/services.js` (40 lines) with safe accessor `service(ctx, name)` and `getWebServerPort(ctx)` preventing Cordis Strict Proxy Guard crashes on un-injected properties.
+  - Migrated web server surfaces and one-click updater endpoints to dynamic on-demand injection (`ctx.inject(['webServer'], ...)`), enabling graceful degradation and seamless execution in headless environments, CLI scripts, and minimal test runners.
+  - Added test suites `test/issue-274-dynamic-injection.test.mjs` and `test/issue-279-pipeline-stages.test.mjs`, extending tests to 321 tests (100% pass rate).
+
 ## 0.2.61
 
 ### Refactoring & Architecture
