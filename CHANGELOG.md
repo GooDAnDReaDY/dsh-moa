@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.2.61
+
+### Refactoring & Architecture
+- **Decompose `lib/routes.js` into Modular Subrouters** (#273):
+  - Split monolithic `lib/routes.js` (586 lines, near 600-line budget limit) into cohesive domain subrouters in `lib/routes/`:
+    - `lib/routes/presets.js` (241 lines): `/dsh-moa/status`, `/dsh-moa/models`, `/dsh-moa/presets`, `/dsh-moa/route-preset`.
+    - `lib/routes/workbench.js` (197 lines): `/dsh-moa/promote`, `/dsh-moa/diff`, `/dsh-moa/runs/:id/workbench`, `/dsh-moa/runs/:id/workbench/assemble`.
+    - `lib/routes/pipeline.js` (91 lines): `/dsh-moa/run`.
+    - `lib/routes/history.js` (81 lines): `/dsh-moa/history`, `/dsh-moa/leaderboard`, `/dsh-moa/history/export`.
+  - Replaced `lib/routes.js` with a lightweight 21-line dispatcher maintaining 100% backward compatibility for all route registrations and exports.
+- **Decompose `lib/file-workspace.js` into Modular Submodules** (#278):
+  - Split monolithic `lib/file-workspace.js` (594 lines, near 600-line budget limit) into cohesive domain modules in `lib/workspace/`:
+    - `lib/workspace/fs.js` (284 lines): candidate workspace isolation, file blocks extraction, candidate promotion and cleanup.
+    - `lib/workspace/scanner.js` (100 lines): project context scanning, file collection, and refinement task detection.
+    - `lib/workspace/diff.js` (94 lines): line diff computation and file syntax verification.
+    - `lib/workspace/security.js` (80 lines): safe relative path assertions, boundary confinement, and loopback URL checks.
+    - `lib/workspace/checkpoint.js` (51 lines): pre-promotion checkpoints with `dsh-time-machine`.
+  - Replaced `lib/file-workspace.js` with a 34-line re-export module preserving 100% API compatibility for both internal modules and external consumers.
+
+
 ## 0.2.60
 
 ### Bug Fixes
