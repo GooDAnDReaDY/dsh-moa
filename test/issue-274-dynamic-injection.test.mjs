@@ -29,18 +29,16 @@ test('services: service() safely handles strict proxy throwing on missing proper
   assert.deepEqual(service(strictCtx, 'llm'), { dummy: true })
 })
 
-test('services: service() resolves via ctx.get() and ctx.reflect.get()', () => {
+test('services: service() resolves via ctx.get() and direct property', () => {
   const ctxWithGet = {
     get: (prop) => (prop === 'custom' ? { value: 42 } : undefined)
   }
   assert.deepEqual(service(ctxWithGet, 'custom'), { value: 42 })
 
-  const ctxWithReflect = {
-    reflect: {
-      get: (prop) => (prop === 'reflected' ? 'ok' : undefined)
-    }
+  const ctxWithProp = {
+    direct: 'ok'
   }
-  assert.equal(service(ctxWithReflect, 'reflected'), 'ok')
+  assert.equal(service(ctxWithProp, 'direct'), 'ok')
 })
 
 test('services: getWebServerPort() extracts port safely or returns null', () => {

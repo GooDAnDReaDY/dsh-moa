@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.62
+## 0.2.63
 
 ### Refactoring & Architecture
 - **Pipeline Stage Pattern for `runMoAPipeline`** (#279):
