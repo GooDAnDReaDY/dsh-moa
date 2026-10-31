@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.2.65
+
+### Features & CLI / Chat Integration
+- **Official Slash-Command `/moa` Registration via `dsh-commands`** (#275):
+  - Created `lib/commands.js` (83 lines) implementing dynamic injection `ctx.inject(['commands'], ...)` and command registration via `commands.register(...)`.
+  - Registered official slash command with `name: 'moa'`, `definitionId: '@goodandready/dsh-moa'`, input hint `[presets|history|status|<prompt>]`, description, and both handler and execute lifecycle methods.
+  - Added introspection and convenience subcommands:
+    - `/moa presets`: lists active configured MoA presets with advisor counts.
+    - `/moa history`: inspects recent runs, winners, and token costs from history.
+    - `/moa status`: returns active plugin enablement and default preset.
+    - `/moa help`: displays command usage guide.
+    - `/moa <prompt>`: dispatches MoA turn with real-time streaming consensus.
+  - Added comprehensive unit tests in `test/issue-275-slash-commands.test.mjs`.
+
+### Resilience & Error Handling
+- **Centralized LLM Error Taxonomy and Candidate Failover Mechanism** (#282):
+  - Created `lib/errors.js` (176 lines) establishing a comprehensive domain error hierarchy:
+    - Base `MoaError` with `code`, `status`, `isRetryable`, and `fallbackEligible`.
+    - Typed subclasses: `RateLimitError` (HTTP 429), `ContextOverflowError` (HTTP 400), `AuthenticationError` (HTTP 401/403), `ModelNotFoundError` (HTTP 404), `TransientNetworkError` (HTTP 502/503/504 / ECONNRESET / timeout).
+    - `classifyLlmError(err)` helper parsing HTTP status codes, error messages, and codes.
+    - `isFailoverEligible(err)` guard protecting against retrying or failing over non-recoverable errors (e.g. invalid API key).
+  - Integrated candidate model failover in `lib/moa-candidates.js`:
+    - Automatically redirects failed candidate queries to candidate-specific `slot.fallbacks`, global `options.fallback_models`, or `options.local_fallback_models` on rate limits (429), context overflows, and network timeouts.
+    - Immediate fast-fail without wasted failover attempts on `AuthenticationError`.
+    - Records `was_fallback: true` and `failoverReason` in candidate telemetry.
+  - Enhanced `callWithTransientRetry` to leverage `classified.isRetryable` from the centralized taxonomy.
+  - Added unit test suite `test/issue-282-error-failover.test.mjs`, bringing the test suite to 341 tests (100% pass rate).
+
 ## 0.2.64
 
 ### Features & Ecosystem Integration

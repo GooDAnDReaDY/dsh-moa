@@ -73,14 +73,14 @@ test('dynamic injection: apply() gracefully handles headless environment without
 
 test('dynamic injection: apply() registers routes when webServer is dynamically injected', () => {
   const registeredRoutes = []
-  let injectCalledWith = null
+  const allInjected = []
 
   const targetCtx = {
     logger: { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} },
     effect: (fn) => fn(),
     on: () => () => {},
     inject: (deps, cb) => {
-      injectCalledWith = deps
+      allInjected.push(deps)
       if (deps.includes('webServer')) {
         cb({
           webServer: {
@@ -98,7 +98,7 @@ test('dynamic injection: apply() registers routes when webServer is dynamically 
 
   apply(targetCtx, { enabled: true, default_preset: 'default', presets: [] })
 
-  assert.deepEqual(injectCalledWith, ['webServer'])
+  assert.ok(allInjected.some((deps) => deps.includes('webServer')), 'webServer must be dynamically injected')
   assert.ok(registeredRoutes.length > 0, 'Routes must be registered via dynamic webServer injection')
 })
 
