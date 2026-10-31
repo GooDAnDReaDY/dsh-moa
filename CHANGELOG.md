@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.69 (2026-10-31)
+
+### Features
+- **Quota-Aware Provider Balancing (#253)**: Added `lib/moa-quota-balancer.js` and `quota_aware_balancing_enabled` preset toggle to query `@goodandready/dsh-key-limits` and `@goodandready/dsh-subscriptions` before Layer 1 generation and substitute low-quota slots with healthy fallback models.
+- **Self-Healing Post-Promotion Build Loop (#252)**: Added `lib/moa-self-healing.js` (`self_healing_enabled`, `self_healing_max_retries`, `self_healing_command`) to verify promoted workspace files, request automated hotfix patches from the aggregator on build/test failure, and perform unconditional rollback via `@goodandready/dsh-time-machine` if retries are exhausted.
+
 ## 0.2.68 (2026-10-31)
 
 ### Features
