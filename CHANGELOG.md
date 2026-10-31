@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.2.64
+
+### Features & Ecosystem Integration
+- **Native Cordis Service ctx.moa** (#280):
+  - Created MoaService class (lib/moa-service.js, 155 lines) providing in-process consensus pipeline execution and configuration introspection for peer plugins.
+  - Registered ctx.provide("moa", moaService) and ctx.moa = moaService on the Cordis Context, enabling consumers to inject moa via ctx.inject(["moa"], ...) or direct property access.
+  - Provided core in-process methods:
+    - ctx.moa.run(options): in-process execution with preset routing, progress callbacks, stream delta dispatch, workspace containment, and time machine integration.
+    - ctx.moa.getPresets(): returns active configured presets.
+    - ctx.moa.getPreset(idOrName): returns a specific preset with fallback to default.
+    - ctx.moa.getHistory(limit, offset): returns history runs and summary statistics.
+    - ctx.moa.resolvePresetForPrompt(prompt): resolves the most suitable preset for a prompt.
+    - ctx.moa.on(event, listener) & ctx.moa.emit(event, payload): event listeners and dispatch forwards.
+  - Added comprehensive test suite test/issue-280-moa-service.test.mjs.
+
+- **Cordis Event Bus Integration ctx.emit** (#281):
+  - Introduced lib/events.js (30 lines) defining standard lifecycle events MOA_EVENTS:
+    - moa/run-start: { runId, prompt, preset, candidatesCount, timestamp }
+    - moa/candidate-complete: { runId, round, model, success, durationMs, tokens }
+    - moa/critique-complete: { runId, critiquesCount }
+    - moa/judge-verdict: { runId, winningIndex, winningModel, scores }
+    - moa/run-finish: { runId, durationMs, totalTokens, totalCostUsd, promotedFiles, winnerIndex }
+  - Integrated event emission into lib/pipeline/runner.js, lib/pipeline/fast-mode.js, lib/pipeline/promotion.js, and lib/moa-candidates.js with duration and model telemetry.
+  - Ensured best-effort error isolation (emitEvent): listener crashes or missing event dispatchers never interrupt pipeline execution.
+  - Added comprehensive test suite test/issue-281-event-bus.test.mjs, extending test suite to 331 tests (100% pass rate).
+
 ## 0.2.63
 
 ### Refactoring & Architecture
