@@ -101,8 +101,8 @@ test('updater: client.js includes one-click card integration (updateAvailable, l
   assert.equal(clientSrc.includes('updateAvailable'), true, 'updateAvailable missing from client.js')
   assert.equal(clientSrc.includes('latestVersion'), true, 'latestVersion missing from client.js')
   assert.equal(clientSrc.includes('/api/dsh-moa/update'), true, '/api/dsh-moa/update endpoint missing from client.js')
-  assert.equal(clientSrc.includes("'updater.title'"), true, 'updater.title missing from client.js')
-  assert.equal(clientSrc.includes("'updater.btnUpdate'"), true, 'updater.btnUpdate missing from client.js')
+  assert.equal(clientSrc.includes('updater.title'), true, 'updater.title missing from client.js')
+  assert.equal(clientSrc.includes('updater.btnUpdate'), true, 'updater.btnUpdate missing from client.js')
 })
 
 test('updater: readLockPid extracts PID from json, numeric string, or regex', () => {

@@ -214,8 +214,8 @@ test('Block 5 (#173, #174): useSyncExternalStore cached snapshot and updater suc
   const clientContent = fs.readFileSync(clientPath, 'utf8')
 
   // #174: Stable frozen snapshot sentinels
-  assert.match(clientContent, /const UNAVAILABLE_SNAPSHOT = Object\.freeze\(\{ status: 'unavailable' \}\)/, 'UNAVAILABLE_SNAPSHOT sentinel must be frozen')
-  assert.match(clientContent, /const LOADING_SNAPSHOT = Object\.freeze\(\{ status: 'loading' \}\)/, 'LOADING_SNAPSHOT sentinel must be frozen')
+  assert.match(clientContent, /const UNAVAILABLE_SNAPSHOT = Object\.freeze\(\{ status: ['"]unavailable['"] \}\)/, 'UNAVAILABLE_SNAPSHOT sentinel must be frozen')
+  assert.match(clientContent, /const LOADING_SNAPSHOT = Object\.freeze\(\{ status: ['"]loading['"] \}\)/, 'LOADING_SNAPSHOT sentinel must be frozen')
   assert.match(clientContent, /scope \? scope\.getSnapshot\(\) : UNAVAILABLE_SNAPSHOT/, 'getSnapshot must return stable UNAVAILABLE_SNAPSHOT when scope is absent')
 
   // #173: Updater contract: supports updatedVersion and restartRequired

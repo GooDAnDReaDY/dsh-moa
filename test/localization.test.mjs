@@ -26,8 +26,8 @@ test('localization: lib/client.js defines full zh dictionary with complete key p
   assert.deepEqual(missingInZh, [], 'All keys in en must exist in zh dictionary')
 
   // Verify registration in exports.apply
-  assert.ok(clientContent.includes("addLocale('en', en)"))
-  assert.ok(clientContent.includes("addLocale('zh', zh)"))
+  assert.ok(clientContent.includes("addLocale('en', en)") || clientContent.includes('addLocale("en", en)'))
+  assert.ok(clientContent.includes("addLocale('zh', zh)") || clientContent.includes('addLocale("zh", zh)'))
 })
 
 test('formatMoAResponse: renders canonical English output', () => {

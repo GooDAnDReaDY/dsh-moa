@@ -19,7 +19,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "node --import ./test/_setup.mjs --test test/*.test.mjs",
+    "test": "node scripts/build-client.mjs --check && node --import ./test/_setup.mjs --test test/*.test.mjs",
     "build:client": "node scripts/build-client.mjs"
   },
   "keywords": [
@@ -66,6 +66,8 @@
     }
   },
   "devDependencies": {
+    "esbuild": "^0.28.2",
+    "eslint": "^10.14.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   }
