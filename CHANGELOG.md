@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.67
+
+### Features & Terminal Interface
+- **DSH Terminal User Interface (TUI) Settings Support via `tuiSettingsSections`** (#277):
+  - Created `lib/tui-settings.js` implementing `buildTuiSection({ live })` and `applyTuiSettings(ctx, { live })` with dynamic Cordis injection `ctx.inject(['tuiSettingsSections'], ...)`.
+  - Added interactive TUI settings controls for `enabled`, `default_preset` (with dynamic preset options), `interactive_workbench_enabled`, `ask_clarifying_questions`, `test_gate_enabled`, `smart_routing_enabled`, and `uncertainty_scoring_enabled`.
+  - Added unit test suite `test/issue-277-tui-settings.test.mjs`.
+
+### Hallucination Detection & Consensus Quality
+- **Token-Level Uncertainty and Entropy Scoring for Hallucination Detection** (#256):
+  - Created `lib/moa-uncertainty.js` implementing Shannon entropy calculation (`calculateTokenEntropy`) across `top_logprobs` distributions and scalar `logprob` surprisal.
+  - Added `analyzeCandidateUncertainty` and `formatUncertaintyAnnotations` to detect high-entropy token spans (e.g. hallucinated method calls or signatures) and inject structured warnings into the Judge synthesis prompt when `uncertainty_scoring_enabled: true`.
+  - Added `uncertainty_scoring_enabled` to `PresetSchema` and `Config`.
+  - Added unit test suite `test/issue-256-uncertainty-scoring.test.mjs`.
+
 ## 0.2.66
 
 ### Build System & Client Quality Assurance
