@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.71 (2026-10-31)
+
+### Features
+- **AST-Level Composite Merge via `dsh-context-lens` (#248)**: Added `lib/moa-ast-merge.js` and `ast_composite_merge_enabled` preset toggle to deduplicate imports and semantically merge JSDoc, type signatures, and function declarations across candidates using `@goodandready/dsh-context-lens` with clean fallback.
+- **Speculative MoA with Fast-Draft & Multi-Auditor Diffs (#247)**: Added `lib/moa-speculative.js` (`speculative_moa_enabled`, `speculative_draft_model`) to generate a fast initial draft, dispatch parallel diff audits across reference models, apply valid SEARCH/REPLACE and diff hunks, and fall back to standard parallel MoA if the draft model fails.
+- **Adversarial TDD Loop with Auto-Generated Unit Test Gate (#246)**: Added `lib/moa-adversarial-tdd.js` and `adversarial_tdd_enabled` preset toggle to synthesize edge-case unit test suites via a Red-Team Test Engineer model, execute them in isolated candidate sandboxes, and inject the verification report into the Judge context.
+
 ## 0.2.70 (2026-10-31)
 
 ### Features
