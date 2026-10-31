@@ -36,6 +36,44 @@
                 )
               ),
 
+              /* Multimodal Visual MoA Consensus (#250) */
+              React.createElement(
+                "div",
+                { style: { display: "flex", flexDirection: "column", gap: 6, padding: "8px 12px", background: "var(--dsw-alias-bg-layer-2)", borderRadius: 8, border: "1px solid var(--dsw-alias-border-l2)", marginTop: 8 } },
+                React.createElement(
+                  "label",
+                  { style: { display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 13, fontWeight: 500 } },
+                  React.createElement("input", {
+                    type: "checkbox",
+                    checked: Boolean(currentPreset.visual_moa_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, visual_moa_enabled: e.target.checked })),
+                    style: { accentColor: "var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))", cursor: "pointer" },
+                  }),
+                  t("aggregator.visual_moa_title") || "👁️ Multimodal Visual MoA Consensus"
+                ),
+                React.createElement(
+                  "div",
+                  { style: { fontSize: 12, color: "var(--dsw-alias-label-secondary)", marginLeft: 22 } },
+                  t("aggregator.visual_moa_desc") || "Render UI candidates in Live Canvas and evaluate visual layout fidelity via Vision Bridge VLM."
+                ),
+                React.createElement(
+                  "div",
+                  { style: { fontSize: 11, color: "var(--dsw-alias-label-tertiary)", marginLeft: 22, marginTop: 2, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" } },
+                  "🔗 Companion Plugins:",
+                  React.createElement(
+                    "a",
+                    { href: "https://github.com/GooDAnDReaDY/dsh-vision-bridge", target: "_blank", rel: "noopener noreferrer", style: { color: "var(--dsw-alias-state-brand-primary)", textDecoration: "underline" } },
+                    "@goodandready/dsh-vision-bridge"
+                  ),
+                  "/",
+                  React.createElement(
+                    "a",
+                    { href: "https://github.com/GooDAnDReaDY/dsh-live-canvas", target: "_blank", rel: "noopener noreferrer", style: { color: "var(--dsw-alias-state-brand-primary)", textDecoration: "underline" } },
+                    "@goodandready/dsh-live-canvas"
+                  )
+                )
+              ),
+
               /* Quota-Aware Provider Balancing (#253) */
               React.createElement(
                 "div",

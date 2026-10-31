@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.70 (2026-10-31)
+
+### Features
+- **Multimodal Visual MoA Consensus (#250)**: Added `lib/moa-visual-consensus.js` and `visual_moa_enabled` preset toggle to render UI/Frontend candidates in `@goodandready/dsh-live-canvas`, capture screenshots, and evaluate layout fidelity via `@goodandready/dsh-vision-bridge` with graceful fallback to text evaluation.
+- **Empirical Elo Rating & Active Learning Leaderboard (#249)**: Added `lib/moa-elo.js` and `elo_ranking_enabled` preset toggle to compute pairwise Elo ratings segmented by task category (`frontend`, `backend`, `refactoring`, `testing`, `sql`, `general`), display Elo in the WebUI leaderboard, and weight Smart Routing preset selection by historical category Elo.
+
 ## 0.2.69 (2026-10-31)
 
 ### Features
