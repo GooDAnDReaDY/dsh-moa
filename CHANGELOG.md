@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.68 (2026-10-31)
+
+### Features
+- **MoA-to-Subagents Swarm with Isolated Git Worktrees (#255)**: Added `lib/moa-swarm.js`, `subagent_swarm_enabled` preset toggle, and `--swarm` CLI flag to provision isolated worktrees/sandboxes per candidate, execute autonomous subagent passes, collect git diffs, and guarantee worktree cleanup.
+- **Prompt-Adaptive Dynamic Persona Synthesis (#254)**: Added `lib/moa-adaptive-personas.js` and `adaptive_personas_enabled` preset toggle to classify prompt domains (database, frontend, security, performance, testing, backend) and dynamically assign distinct complementary engineering personas to each proposer slot.
+
 ## 0.2.67
 
 ### Features & Terminal Interface
