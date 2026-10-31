@@ -92,6 +92,7 @@
                     React.createElement('th', { style: { padding: '6px 8px' } }, t('leaderboard.runs')),
                     React.createElement('th', { style: { padding: '6px 8px' } }, t('leaderboard.wins')),
                     React.createElement('th', { style: { padding: '6px 8px' } }, t('leaderboard.winrate')),
+                    React.createElement('th', { style: { padding: '6px 8px' } }, 'Elo'),
                     React.createElement('th', { style: { padding: '6px 10px' } }, t('leaderboard.cost'))
                   )
                 ),
@@ -106,6 +107,7 @@
                       React.createElement('td', { style: { padding: '6px 8px', color: 'var(--dsw-alias-label-secondary)' } }, String(m.runs)),
                       React.createElement('td', { style: { padding: '6px 8px', color: 'var(--dsw-alias-state-success-primary)' } }, String(m.wins)),
                       React.createElement('td', { style: { padding: '6px 8px', fontWeight: 600 } }, (m.winRate ?? 0) + '%'),
+                      React.createElement('td', { style: { padding: '6px 8px', fontWeight: 600, color: 'var(--dsw-alias-state-brand-primary)' } }, String(m.elo ?? 1500)),
                       React.createElement('td', { style: { padding: '6px 10px', color: 'var(--dsw-alias-label-secondary)' } }, (m.avgCostUsd > 0) ? ('$' + m.avgCostUsd.toFixed(4)) : 'Free')
                     )
                   )
