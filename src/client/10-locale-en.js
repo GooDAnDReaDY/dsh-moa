@@ -160,6 +160,12 @@
       'config.smart_routing_model': 'Routing Model:',
 
       // Multi-Turn Context
+      'aggregator.context_pruning_title': '✂️ Cross-Candidate Context Pruning (Diff-Only Judge Context)',
+      'aggregator.context_pruning_desc': 'Replaces unchanged base project files with compact unified diffs (---/+++ hunks) in the Judge prompt, slashing prompt tokens by up to 85%.',
+      'aggregator.context_pruning_lines': 'Context lines around changes:',
+      'aggregator.semantic_cache_title': '⚡ Semantic Caching for Candidate Generations',
+      'aggregator.semantic_cache_desc': 'Persists intermediate candidate outputs locally by deterministic SHA-256 fingerprint, eliminating duplicate API costs on retry or repeat requests.',
+      'aggregator.semantic_cache_ttl': 'Cache TTL (hours):',
       'aggregator.multi_turn_title': 'Multi-Turn Context & Diff Pruning',
       'aggregator.multi_turn_desc': 'Retain conversation context across turns while pruning duplicate code blocks.',
 

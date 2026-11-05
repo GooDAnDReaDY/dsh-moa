@@ -257,6 +257,8 @@ dsh-moa:
 | `/dsh-moa/run` | `POST` | 通过 HTTP 运行完整 MoA 管线（`enabled: false` 时返回 400） |
 | `/dsh-moa/diff` | `GET` | 计算候选运行结果或综合输出的行级别差异（支持按 runId 解析工作区） |
 | `/dsh-moa/promote` | `POST` | 手动将候选工作区文件提升到项目根目录（带时间机器快照） |
+| `/dsh-moa/cache` | `GET` | 返回语义缓存统计信息、命中次数与节省 Token 指标 |
+| `/dsh-moa/cache` | `POST` | 清除语义缓存条目，支持 olderThanMs 过滤 |
 | `/api/dsh-moa/update` | `POST` | 从 npm 一键更新插件，带安全写入源校验 |
 
 ---

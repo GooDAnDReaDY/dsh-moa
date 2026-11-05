@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.73 (2026-11-05)
+
+### Features
+- **Cross-Candidate Unchanged Base Context Pruning (#305)**: Added `lib/pipeline/context-pruner.js`, `context_pruning_enabled` (default: `true`), and `context_pruning_diff_lines` (default: `5`) preset options to replace large, mostly-unchanged project base files in the Judge prompt with unified diff patches (---/+++ hunks), slashing Judge prompt tokens by 70–85% while preserving 100% of candidate files on disk for winner promotion.
+- **Semantic Caching for Intermediate Candidate Generations (#318)**: Added `lib/pipeline/semantic-cache.js`, `createCachingCallLlm`, `semantic_cache_enabled` (default: `false`), and `semantic_cache_ttl_hours` (default: `168`) preset options to persist candidate model outputs locally by deterministic SHA-256 fingerprint, eliminating redundant API token costs during iterative testing and retry requests.
+- **Semantic Cache Management HTTP Endpoints (#318)**: Added `GET /dsh-moa/cache` to inspect cache entries, saved tokens, and disk footprint, and `POST /dsh-moa/cache/clear` to purge cached entries.
+- **Pipeline Events & Telemetry**: Added `moa/context-pruning` and `moa/cache-hit` Cordis event bus notifications, streaming live token savings directly to client progress telemetry.
+
 ## 0.2.72 (2026-11-05)
 
 ### Features
