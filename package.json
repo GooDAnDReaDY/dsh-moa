@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-moa",
-  "version": "0.2.71",
+  "version": "0.2.72",
   "description": "Mixture of Agents (MoA) plugin for DeepSeek Harness with /moa slash command",
   "type": "module",
   "main": "lib/index.js",
@@ -72,3 +72,4 @@
     "react-dom": "^18.3.1"
   }
 }
+
