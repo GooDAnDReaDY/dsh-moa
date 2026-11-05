@@ -160,6 +160,12 @@
       'config.smart_routing_model': '分流决策模型：',
 
       // Multi-Turn Context
+      'aggregator.context_pruning_title': '✂️ 候选跨模型上下文精简 (Judge 仅差异补丁)',
+      'aggregator.context_pruning_desc': '在 Judge 提示词中将未修改的基础项目文件替换为紧凑的统一差异块 (---/+++)，在大文件场景下削减高达 85% 的提示词 Token。',
+      'aggregator.context_pruning_lines': '差异上下文行数:',
+      'aggregator.semantic_cache_title': '⚡ 候选生成语义缓存',
+      'aggregator.semantic_cache_desc': '通过确定的 SHA-256 指纹在本地持久化候选模型中间输出，在重试或重复迭代中消除冗余 API 费用。',
+      'aggregator.semantic_cache_ttl': '缓存有效期 (小时):',
       'aggregator.multi_turn_title': '多轮对话上下文与差异剪枝',
       'aggregator.multi_turn_desc': '跨轮次保留对话上下文并剪枝重复代码块。',
 

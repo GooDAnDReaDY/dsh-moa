@@ -316,3 +316,26 @@
   4. **Тестовое покрытие и префлайт (`test/issue-303-syntax-filter.test.mjs`, `test/issue-299-early-consensus.test.mjs`, `test/issue-303-299-prejudge-pipeline.test.mjs`)**:
      - 3 новых тестовых набора, 398 тестов проходят успешно (100% PASS).
      - Префлайт `dsh-plugin-preflight` пройден с `FAIL=0 WARN=3`.
+
+- 2026-11-05 — Межканидатное усечение неизменённого базового контекста и семантическое кэширование промежуточных генераций (v0.2.73, Gitea Issue #305, #318):
+  1. **Межканидатное усечение неизменённого базового контекста (`lib/pipeline/context-pruner.js`, Issue #305)**:
+     - Функция `generateUnifiedDiff` генерирует компактные унифицированные diff-патчи (`--- a/path\n+++ b/path\n@@ ... @@`) с настраиваемым окном контекстных строк (`contextLines`, по умолчанию 5).
+     - Функция `shouldPruneFile` оценивает длину файла (порог `minLines: 25`) и долю изменений (`maxChangeRatio: 0.65`), защищая тотально переписанные файлы от раздувания diff.
+     - Функция `pruneCandidateEnsemble` заменяет в промпте судьи многострочные неизменённые файлы проектов на diff-патчи, сокращая объем промпта на 70–85% на больших проектах.
+     - Оригинальные файлы кандидатов в полном объёме сохраняются в песочницах на диске для безопасного финального промоушна.
+     - Формируется поясняющая директива для судьи (`formatPruningDirective`), предписывающая оценивать точность и безопасность диффов без штрафов за краткость формата.
+     - Настройки пресета: `context_pruning_enabled` (по умолчанию `true`), `context_pruning_diff_lines` (по умолчанию `5`).
+  2. **Семантическое кэширование промежуточных генераций кандидатов (`lib/pipeline/semantic-cache.js`, `lib/routes/cache.js`, Issue #318)**:
+     - Нормализует текст промпта (`normalizePrompt`), убирая избыточные пробелы и пустые строки, и вычисляет детерминированный SHA-256 хэш (`computePromptFingerprint`) с учётом модели, температуры и системного контекста.
+     - Модуль кэша (`getCacheEntry`, `setCacheEntry`, `clearSemanticCache`, `getSemanticCacheStats`) сохраняет ответы кандидатов в `.moa/cache/semantic/` с настраиваемым TTL (по умолчанию 168 часов / 7 дней).
+     - Функция-обёртка `createCachingCallLlm` перехватывает вызовы кандидатов, отдавая кэшированный ответ с нулевой стоимостью API (`costUsd: 0`) и генерируя событие шины `moa/cache-hit`.
+     - Добавлены защищённые HTTP-маршруты: `GET /dsh-moa/cache` (инспекция статистики, размера и сэкономленных токенов) и `POST /dsh-moa/cache/clear` (безопасная очистка кэша).
+     - Настройки пресета: `semantic_cache_enabled` (по умолчанию `false`), `semantic_cache_ttl_hours` (по умолчанию `168`).
+  3. **Интеграция в конвейер и WebUI (`lib/pipeline/runner.js`, `lib/events.js`, `src/client/85-card-aggregator-ext.js`)**:
+     - В шину событий добавлены `MOA_EVENTS.CONTEXT_PRUNING` и `MOA_EVENTS.CACHE_HIT`.
+     - В карточку настроек добавлены блоки управления «Cross-Candidate Context Pruning» и «Semantic Caching for Candidate Generations» с полями контекстных строк и TTL.
+     - Добавлены локализационные ключи в `10-locale-en.js` и `20-locale-zh.js`.
+  4. **Тестовое покрытие и префлайт (`test/issue-305-*.test.mjs`, `test/issue-318-*.test.mjs`)**:
+     - 4 новых тестовых файла (14 специализированных тестов), полный тестовый набор вырос до 412 тестов со 100% PASS.
+     - Префлайт `dsh-plugin-preflight` пройден с `FAIL=0 WARN=3`.
+

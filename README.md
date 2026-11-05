@@ -327,6 +327,8 @@ dsh-moa:
 | `/dsh-moa/run` | `POST` | Runs the full MoA pipeline over HTTP (400 when `enabled: false`) |
 | `/dsh-moa/diff` | `GET` | Computes line-by-line diff between candidate runs or curator synthesis |
 | `/dsh-moa/promote` | `POST` | Manually promotes candidate workspace files to project root |
+| `/dsh-moa/cache` | `GET` | Returns semantic cache stats, hit/miss counters, and saved token metrics |
+| `/dsh-moa/cache` | `POST` | Purges cached candidate generations with optional olderThanMs filter |
 | `/api/dsh-moa/update` | `POST` | One-click plugin updater from npm with safe-write verification |
 
 ---
