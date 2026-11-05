@@ -297,3 +297,22 @@
   5. **Регрессионный тестовый набор (`test/audit-issue-251.test.mjs`, Issue #251)**:
      - Добавлен тестовый набор `test/audit-issue-251.test.mjs` (10 тестов), покрывающий директивы, парсинг JSON и таблиц, детекцию лучшей модели, склейку файлов, повторную проверку судьёй, валидацию схемы и авторизацию HTTP-маршрутов.
      - Полный тестовый набор расширен до 304 тестов со 100% прохождением (FAIL=0, WARN=4 в `preflight.sh`).
+
+
+- 2026-11-05 — Локальный синтаксический шлюз кандидатов и ранний выход по семантическому консенсусу (v0.2.72, Gitea Issue #303, #299):
+  1. **Локальный синтаксический шлюз кандидатов без расхода токенов (`lib/pipeline/syntax-filter.js`, Issue #303)**:
+     - Модуль извлекает блоки кода из Markdown (`extractCodeBlocks`), проверяет соответствие открывающих и закрывающих скобок/кавычек (`validateBracketsAndQuotes`), выполняет синтаксическую валидацию JavaScript/TypeScript (через Function constructor и парсеры), JSON (`JSON.parse`) и Python (баланс блоков/скобок).
+     - Функция `applySyntaxFilter` дисквалифицирует синтаксически сломанных кандидатов (если есть хотя бы один валидный) или формирует структурированную директиву замечаний для судьи (`formatSyntaxDirective`).
+     - Поддерживает безопасный режим анонимизации `{ blind: true }` для исключения утечек имён моделей в режиме `blind_evaluation`.
+     - Настройка `local_preflight_check: true` включена по умолчанию в пресетах.
+  2. **Ранний выход при семантическом консенсусе кандидатов (`lib/pipeline/early-consensus.js`, Issue #299)**:
+     - Нормализует решения кандидатов (`normalizeForConsensus`), удаляя комментарии и лишние пробелы, и вычисляет парное токенное сходство Сёренсена-Дайса (`calculateSimilarity`).
+     - При совпадении решений кандидатов с порогом >= `early_exit_threshold` (по умолчанию 0.95) пайплайн пропускает дорогостоящую стадию вызова судьи (Aggregator), напрямую продвигает согласованного кандидата (`stageEarlyConsensus`), фиксирует флаг `earlyConsensus: true` и рассчитывает сэкономленные токены/затраты (`estimateSkippedJudgeUsage`).
+     - Настройки пресета: `early_exit_consensus_enabled` (по умолчанию `false`), `early_exit_threshold` (0.50–1.00, по умолчанию `0.95`).
+  3. **Интеграция в конвейер и WebUI (`lib/pipeline/runner.js`, `lib/moa-schema.js`, `src/client/85-card-aggregator-ext.js`)**:
+     - Шлюз `syntax-filter` встроен между Stage 2 (Proposal Generation) и Stage 3 (Critique / Test Gate), а проверка консенсуса — перед финальной стадией вызова судьи.
+     - В карточку настроек добавлены переключатели «Pre-Judge Syntax Gate» и «Early Exit Consensus» с полем порога сходства.
+     - Добавлены локализационные ключи в `10-locale-en.js` и `20-locale-zh.js`.
+  4. **Тестовое покрытие и префлайт (`test/issue-303-syntax-filter.test.mjs`, `test/issue-299-early-consensus.test.mjs`, `test/issue-303-299-prejudge-pipeline.test.mjs`)**:
+     - 3 новых тестовых набора, 398 тестов проходят успешно (100% PASS).
+     - Префлайт `dsh-plugin-preflight` пройден с `FAIL=0 WARN=3`.

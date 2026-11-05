@@ -180,6 +180,12 @@ Seamlessly retains synthesized baseline code from prior turns while pruning inte
 ### 18. Graceful Degradation & Local Fallback Resilience
 When `local_fallback_enabled: true`, candidates that fail due to network outages, timeouts, or rate limits (429/500) automatically recover using configured local models (Ollama / MiniPC). Each fallback model operates with an independent execution budget and an isolated controller linked to the parent turn signal, preventing cloud timeouts from starving fallback models. Additionally, terminal errors and aborted streams are strictly classified, ensuring reliable error propagation and failover.
 
+### 19. Zero-Token Local Pre-Judge Syntax Filter
+Validates markdown code blocks across all candidate outputs locally using JavaScript/TypeScript AST checking, JSON parsing, and bracket/quote balance verification before calling the Judge LLM. When malformed candidates are detected, they are automatically disqualified or annotated with structured syntax error reports, saving judge tokens and preventing syntax errors from propagating. Configured via `local_preflight_check: true` (enabled by default).
+
+### 20. Early Exit upon Semantic Consensus
+Compares normalized candidate proposals using token-level Sørensen-Dice similarity. When models arrive at identical or near-identical solutions (meeting or exceeding `early_exit_threshold`, default: `0.95`), the expensive Judge synthesis phase is automatically bypassed. The consensus solution is promoted directly to the workspace, saving up to 100% of judge token costs while accelerating pipeline latency. Configured via `early_exit_consensus_enabled: true` and `early_exit_threshold: 0.95`.
+
 ### 6. Live Canvas 1-Click Preview (optional)
 If `@goodandready/dsh-live-canvas` is installed in the same profile, `dsh-moa` pushes the promoted HTML file to the Live Canvas REST contract (`POST /dsh-live-canvas/api/preview`, served by the same harness webServer) and appends a one-click preview link (`/dsh-live-canvas/sandbox/<id>`) to the answer. Without the plugin the step is skipped silently — no errors in the log, no dead links.
 
@@ -289,6 +295,9 @@ dsh-moa:
 | `presets[].quorum_enabled` | `boolean` | `false` | Straggler mitigation: proceed with synthesis once >= 60% candidates respond |
 | `presets[].grace_period_sec` | `number` | `10` | Grace period in seconds to wait for stragglers after quorum is reached |
 | `presets[].aggregator_fallbacks` | `array` | `[]` | Ordered fallback judge models tried if primary aggregator encounters transient errors |
+| `presets[].local_preflight_check` | `boolean` | `true` | Zero-token local AST, JSON, and bracket balance verification for candidate code blocks before the Judge panel |
+| `presets[].early_exit_consensus_enabled` | `boolean` | `false` | Bypass Judge evaluation and promote directly when candidate solutions reach high semantic consensus |
+| `presets[].early_exit_threshold` | `number` | `0.95` | Token-level similarity threshold (0.50 to 1.00) required to trigger early exit consensus |
 | `presets[].blind_evaluation` | `boolean` | `false` | Anonymize candidate model names for the judge/curator to eliminate family/brand bias |
 | `presets[].reference_timeout_sec` | `number` | `60` | Per-candidate execution timeout in seconds |
 | `presets[].aggregator_timeout_sec` | `number` | `180` | Aggregator/judge synthesis timeout in seconds |

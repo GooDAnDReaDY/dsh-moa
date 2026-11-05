@@ -157,6 +157,12 @@ graph TD
 ### 18. 平滑降级与本地容灾恢复 (Local Fallback Resilience)
 当 `local_fallback_enabled: true` 时，因网络中断、超时或速率限制（429/500）而失败的候选模型会自动使用配置的本地模型（Ollama / MiniPC）恢复。每个后备模型都拥有独立的超时执行配额与关联主 turn signal 的隔离取消控制器，防止云端超时耗尽本地恢复时间。同时严格检测终止错误与流中断，确保安全容灾且杜绝已取消 turn 的延迟文件提升。
 
+### 19. 零 Token 本地预审语法网关 (Zero-Token Pre-Judge Syntax Filter)
+在调用裁判模型之前，在本地解析所有候选方案的 Markdown 代码块，进行 JavaScript/TypeScript AST 语法校验、JSON 解析以及括号/引号匹配检查。检测到语法损坏的候选将被自动过滤或附带结构化语法错误注解，无需消耗模型 Token 即可杜绝语法缺陷代码流入最终裁决。通过 `local_preflight_check: true` 配置（默认开启）。
+
+### 20. 语义共识提前退出机制 (Early Exit upon Semantic Consensus)
+基于 Token 级 Sørensen-Dice 相似度算法比对归一化后的候选方案。当多个候选模型给出高度一致的代码方案（达到或超过 `early_exit_threshold` 阈值，默认 0.95）时，自动跳过高耗费的裁判综合评审阶段，直接将共识方案提升至项目，在大幅缩短响应延迟的同时节省多达 100% 的裁判 Token 支出。通过 `early_exit_consensus_enabled: true` 与 `early_exit_threshold: 0.95` 配置。
+
 ### 6. Live Canvas 一键预览（可选）
 若同一 profile 中安装了 `@goodandready/dsh-live-canvas`，`dsh-moa` 会将提升后的 HTML 文件推送到 Live Canvas 的 REST 契约（`POST /dsh-live-canvas/api/preview`，由同一 harness webServer 提供服务），并在回答中附上一键预览链接（`/dsh-live-canvas/sandbox/<id>`）。未安装该插件时此步骤静默跳过——日志无报错，也不会出现死链接。
 
@@ -225,6 +231,9 @@ dsh-moa:
 | `presets[].reference_models` | `array` | `[...]` | 并行提案阶段并发调用的顾问模型列表 |
 | `presets[].aggregator` | `object` | `{...}` | 负责综合评审、代码审查与裁决胜出者的裁判模型 |
 | `presets[].ask_clarifying_questions` | `boolean` | `true` | 针对宽泛需求合成澄清问卷（预设级别开关） |
+| `presets[].local_preflight_check` | `boolean` | `true` | 在裁判评审前本地验证候选代码块的 AST、JSON 与括号平衡（零 Token 消耗） |
+| `presets[].early_exit_consensus_enabled` | `boolean` | `false` | 当候选方案达成高语义共识时跳过裁判评审并直接提升获胜方案 |
+| `presets[].early_exit_threshold` | `number` | `0.95` | 触发语义共识提前退出的 Token 相似度阈值（0.50 至 1.00） |
 | `presets[].reference_temperature` / `.aggregator_temperature` | `number` | `0.6` / `0.4` | 顾问与裁判的采样温度 |
 | `presets[].max_tokens` | `number` | `4096` | 每次模型调用的最大输出 Token 数 |
 | `presets[].judge_criteria` | `string` | `""` | 传给裁判的可选附加评审准则 |
