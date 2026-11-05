@@ -181,6 +181,10 @@
       'aggregator.workbench_desc': '裁判为每个候选文件打分 (1-10) 并标注优缺点。在 UI 中自由组合各候选文件，由当轮最高分模型进行代码粘合统一，最终由裁判复审。',
       'aggregator.workbench_companion': '配套插件：',
       'aggregator.workbench_companion_note': '文件提升前安全创建影子 Git 快照',
+      'aggregator.preflight_syntax_title': '🔍 评审前本地语法检查门禁（零Token开销）',
+      'aggregator.preflight_syntax_desc': '在调用裁判模型前对候选代码进行本地语法检查，零Token剔除语法破损代码。',
+      'aggregator.early_consensus_title': '⚡ 语义共识快速直出（Early Exit）',
+      'aggregator.early_consensus_desc': '当多候选模型生成一致代码（相似度达标）时，直接返回共识解，跳过裁判阶段节约Token与耗时。',
       'workbench.title': '🛠️ 交互式合成工作台',
       'workbench.desc': '查看候选模型的文件质量打分 (1–10)，自由混搭组合目标文件，由最高分模型粘合统一并执行最终裁判复审。',
       'workbench.select_run': 'MoA 运行：',
@@ -201,5 +205,6 @@
       'workbench.pros': '优势：',
       'workbench.cons': '不足：',
     }
+
 
 

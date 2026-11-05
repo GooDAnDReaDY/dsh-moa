@@ -181,6 +181,10 @@
       'aggregator.workbench_desc': 'Judge scores each candidate file from 1 to 10 with pros/cons. Select desired files across candidates; top model harmonizes and glues them, followed by final judge audit.',
       'aggregator.workbench_companion': 'Companion Plugin:',
       'aggregator.workbench_companion_note': 'safe shadow Git checkpoints before file promotion',
+      'aggregator.preflight_syntax_title': '🔍 Pre-Judge Local Syntax Gate (Zero-Token Linter)',
+      'aggregator.preflight_syntax_desc': 'Validate candidate code syntax locally before judge invocation to filter broken code without token costs.',
+      'aggregator.early_consensus_title': '⚡ Early Exit upon Semantic Consensus',
+      'aggregator.early_consensus_desc': 'Bypass the expensive judge round when reference models converge on equivalent code solutions.',
       'workbench.title': '🛠️ Interactive Synthesis Workbench',
       'workbench.desc': 'Inspect candidate file quality scores (1–10), mix and match files across proposals, harmonize with top-model glue, and run a final judge audit.',
       'workbench.select_run': 'MoA Run:',
@@ -201,4 +205,5 @@
       'workbench.pros': 'Pros:',
       'workbench.cons': 'Cons:',
     }
+
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.72 (2026-11-05)
+
+### Features
+- **Zero-Token Local Pre-Judge Syntax Filter (#303)**: Added `lib/pipeline/syntax-filter.js` and `local_preflight_check` preset toggle (default: `true`) to validate code blocks, brackets, and syntax (JavaScript, TypeScript, JSON, Python) across all candidate outputs locally before passing them to the Judge LLM, filtering out malformed candidates or annotating syntax errors without consuming model tokens.
+- **Early Exit upon Semantic Consensus (#299)**: Added `lib/pipeline/early-consensus.js`, `early_exit_consensus_enabled` (default: `false`), and `early_exit_threshold` (default: `0.95`) preset settings to compare normalized candidate outputs via Sørensen-Dice token similarity, automatically promote the winning solution when high consensus is detected, bypass the Judge synthesis phase, and record skipped token savings in execution telemetry.
+
 ## 0.2.71 (2026-10-31)
 
 ### Features
