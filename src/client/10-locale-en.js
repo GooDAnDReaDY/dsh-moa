@@ -225,6 +225,10 @@
       'aggregator.stack_personas_desc': 'Scans project manifests (package.json, Cargo.toml, pyproject.toml, go.mod) and assigns specialized engineering roles to candidate slots.',
       'aggregator.preferences_title': '🧠 Developer Coding Principles & Preferences Metaprompt',
       'aggregator.preferences_desc': 'Injects learned developer preferences (strict typing, functional immutability, error boundaries) to guide Judge synthesis.',
+      'aggregator.security_gate_title': '🛡️ Adversarial White-Hat Security Fuzzing Gate',
+      'aggregator.security_gate_desc': 'Red-team security auditor checks candidate proposals for SQLi, XSS, ReDoS, Command Injection and Path Traversal with blocking SECURITY_VETO.',
+      'aggregator.cove_gate_title': '🔍 Chain-of-Verification (CoVe) Fact-Checking Gate',
+      'aggregator.cove_gate_desc': 'Formulates API existence & method signature verification questions, disqualifying candidates that use hallucinated methods.',
     }
 
 
