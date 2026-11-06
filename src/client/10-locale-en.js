@@ -253,6 +253,12 @@
       'aggregator.embedding_clustering_desc': 'Bypass LLM Judge when candidate embeddings converge into a dominant cluster (>= threshold).',
       'aggregator.embedding_threshold_label': 'Consensus Similarity Threshold:',
       'aggregator.fallback_to_judge_label': 'Fallback to Judge if Opinion Splits',
+      'aggregator.git_tournament_title': '🏆 Multi-Branch Git Sandbox Tournament',
+      'aggregator.git_tournament_desc': 'Executes candidate proposals in isolated Git worktrees and runs real project tests (npm test, pytest).',
+      'aggregator.git_tournament_cmd_label': 'Test Command:',
+      'aggregator.council_arbitration_title': '🏛️ Multi-Persona Role-Playing Council Arbitration',
+      'aggregator.council_arbitration_desc': 'Replaces single-judge bias with a 3-expert jury: Systems Architect, Security Auditor, and Pragmatic Minimalist.',
+      'aggregator.council_weights_label': 'Council Weights (Arch / Sec / Min):',
     }
 
 
