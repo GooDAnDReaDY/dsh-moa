@@ -400,6 +400,118 @@
                 )
               ),
 
+              /* Self-Consistency Temperature Sampling (#301) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.self_consistency_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, self_consistency_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.self_consistency_title') || '🎲 Self-Consistency Temperature Sampling (Single-Model Diversity)'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.self_consistency_desc') || 'Expands a single reference model into multiple parallel samples with varied temperatures and personas, bringing MoA benefits to single-model setups.'
+                ),
+                currentPreset.self_consistency_enabled && React.createElement(
+                  'div',
+                  { style: { marginLeft: 22, marginTop: 4, display: 'flex', alignItems: 'center', gap: 12 } },
+                  React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, (t('aggregator.self_consistency_samples') || 'Samples:') + ' ' + (currentPreset.self_consistency_samples || 3)),
+                  React.createElement('input', {
+                    type: 'range',
+                    min: 2,
+                    max: 5,
+                    value: currentPreset.self_consistency_samples || 3,
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, self_consistency_samples: Number(e.target.value) })),
+                    style: { width: 100, accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))' },
+                  })
+                )
+              ),
+
+              /* Dynamic Consensus Threshold & Multi-Judge Escalation (#300) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 13, fontWeight: 600, color: 'var(--dsw-alias-label-primary)' } },
+                  t('aggregator.escalation_title') || '⚖️ Dynamic Consensus Threshold & Judge Escalation'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } },
+                  t('aggregator.escalation_desc') || 'Detects divergence across candidates. When consensus is weak, automatically upgrades to a senior flagship judge or convenes a 3-judge panel.'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 } },
+                  React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('aggregator.escalation_policy') || 'Escalation Policy:'),
+                  React.createElement(
+                    'select',
+                    {
+                      value: currentPreset.escalation_policy || 'single',
+                      onChange: (e) => updateCurrentPreset((p) => ({ ...p, escalation_policy: e.target.value })),
+                      style: {
+                        padding: '4px 8px',
+                        fontSize: 12,
+                        borderRadius: 6,
+                        border: '1px solid var(--dsw-alias-border-l2)',
+                        background: 'var(--dsw-alias-bg-layer-1)',
+                        color: 'var(--dsw-alias-label-primary)',
+                      },
+                    },
+                    React.createElement('option', { value: 'single' }, t('aggregator.escalation_policy_single') || 'Standard Single Judge (No Escalation)'),
+                    React.createElement('option', { value: 'auto_upgrade' }, t('aggregator.escalation_policy_upgrade') || 'Auto-Upgrade to Senior Judge on Divergence'),
+                    React.createElement('option', { value: 'council_majority' }, t('aggregator.escalation_policy_council') || 'Convene 3-Judge Majority Council on Divergence')
+                  )
+                ),
+                currentPreset.escalation_policy && currentPreset.escalation_policy !== 'single' && React.createElement(
+                  'div',
+                  { style: { display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 } },
+                  React.createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', gap: 12 } },
+                    React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, (t('aggregator.escalation_threshold') || 'Divergence Threshold:') + ' ' + Math.round(((currentPreset.escalation_disagreement_threshold ?? 0.40) * 100)) + '%'),
+                    React.createElement('input', {
+                      type: 'range',
+                      min: 10,
+                      max: 90,
+                      value: Math.round(((currentPreset.escalation_disagreement_threshold ?? 0.40) * 100)),
+                      onChange: (e) => updateCurrentPreset((p) => ({ ...p, escalation_disagreement_threshold: Number(e.target.value) / 100 })),
+                      style: { width: 120, accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))' },
+                    })
+                  ),
+                  currentPreset.escalation_policy === 'auto_upgrade' && React.createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+                    React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('aggregator.escalation_judge_label') || 'Senior Judge:'),
+                    React.createElement(
+                      'div',
+                      { style: { flex: 1, maxWidth: 300 } },
+                      React.createElement(SearchableModelPicker, {
+                        provider: currentPreset.escalation_judge?.provider || '',
+                        model: currentPreset.escalation_judge?.model || '',
+                        onChange: (prov, mod) => {
+                          updateCurrentPreset((p) => ({
+                            ...p,
+                            escalation_judge: { provider: prov, model: mod },
+                          }))
+                        },
+                        availableModels,
+                        t,
+                      })
+                    )
+                  )
+                )
+              ),
+
               /* Fallback Judges Chain */
               React.createElement(
                 'div',

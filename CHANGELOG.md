@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.74 (2026-11-06)
+
+### Features
+- **Dynamic Consensus Threshold & Multi-Judge Escalation (#300)**: Added `lib/pipeline/escalation.js`, `escalation_policy` (`single`, `auto_upgrade`, `council_majority`), `escalation_disagreement_threshold` (default: `0.40`), and `escalation_judge` preset settings. Measures pairwise candidate solution divergence (Disagreement Metric, 0.0–1.0) and automatically escalates when consensus is weak by upgrading to a senior flagship judge (`auto_upgrade`) or convening a 3-judge panel (`council_majority`). Emits `moa/judge-escalation` Cordis events and displays escalation decisions in client progress telemetry.
+- **Self-Consistency Temperature Sampling for Single Models (#301)**: Added `lib/pipeline/self-consistency.js`, `self_consistency_enabled` (default: `false`), `self_consistency_samples` (default: `3`), and `self_consistency_temperatures` (default: `[0.2, 0.6, 0.9]`) preset options. Automatically expands single-model setups (e.g. local Ollama/vLLM or single API key) into parallel candidate slots with distinct sampling temperatures and complementary reasoning personas (`proposer`, `challenger`, `minimalist`), followed by majority agreement scoring and full MoA synthesis. Emits `moa/self-consistency-expand` Cordis events.
+- **WebUI Controls & Localizations (#300, #301)**: Added interactive configuration sliders and selectors for Self-Consistency Sampling and Judge Escalation in preset settings card (`src/client/85-card-aggregator-ext.js`), complete with English, Russian, and Chinese localization.
+
 ## 0.2.73 (2026-11-05)
 
 ### Features

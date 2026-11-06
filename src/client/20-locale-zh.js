@@ -210,6 +210,17 @@
       'workbench.promoted_ok': '✅ 粘合方案已成功提升至项目工作区！',
       'workbench.pros': '优势：',
       'workbench.cons': '不足：',
+      'aggregator.self_consistency_title': '🎲 单模型自洽性温度采样 (Self-Consistency)',
+      'aggregator.self_consistency_desc': '在仅配置单模型时，生成不同温度与角色的多个并行候选方案，让本地 Ollama 或单 Key 也享有 MoA 聚合优势。',
+      'aggregator.self_consistency_samples': '采样数:',
+      'aggregator.escalation_title': '⚖️ 动态共识阈值与裁判升级 (Judge Escalation)',
+      'aggregator.escalation_desc': '检测候选方案间的分歧度。当共识较弱时，自动升级至高阶旗舰裁判或组建 3 裁判多数席。',
+      'aggregator.escalation_policy': '升级策略:',
+      'aggregator.escalation_policy_single': '标准单裁判 (不升级)',
+      'aggregator.escalation_policy_upgrade': '分歧时自动升级至高阶裁判',
+      'aggregator.escalation_policy_council': '分歧时组建 3 裁判多数决策席',
+      'aggregator.escalation_threshold': '分歧阈值:',
+      'aggregator.escalation_judge_label': '高阶裁判模型:',
     }
 
 

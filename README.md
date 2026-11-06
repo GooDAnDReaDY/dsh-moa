@@ -186,6 +186,15 @@ Validates markdown code blocks across all candidate outputs locally using JavaSc
 ### 20. Early Exit upon Semantic Consensus
 Compares normalized candidate proposals using token-level Sørensen-Dice similarity. When models arrive at identical or near-identical solutions (meeting or exceeding `early_exit_threshold`, default: `0.95`), the expensive Judge synthesis phase is automatically bypassed. The consensus solution is promoted directly to the workspace, saving up to 100% of judge token costs while accelerating pipeline latency. Configured via `early_exit_consensus_enabled: true` and `early_exit_threshold: 0.95`.
 
+### 21. Dynamic Consensus Threshold & Multi-Judge Escalation
+Evaluates pairwise candidate solution divergence (Disagreement Metric, 0.0–1.0) using normalized Sørensen-Dice similarity. When candidate consensus is weak (disagreement meets or exceeds `escalation_disagreement_threshold`, default: `0.40`), the pipeline automatically escalates:
+- `auto_upgrade`: Upgrades from a lightweight or fast aggregator to a designated flagship senior judge (`escalation_judge` or first senior fallback judge).
+- `council_majority`: Convenes a 3-judge panel with majority consensus voting.
+Dispatches `moa/judge-escalation` Cordis events and displays escalation decisions in live stream telemetry. Configured via `escalation_policy: 'single' | 'auto_upgrade' | 'council_majority'`, `escalation_disagreement_threshold: 0.40`, and `escalation_judge`.
+
+### 22. Self-Consistency Temperature Sampling for Single Models
+Allows single-model configurations (such as a local Ollama/vLLM instance or a single API key) to leverage Mixture-of-Agents diversity. When enabled on a preset with 1 model slot, the runner expands it into $N$ parallel candidate streams with distinct temperatures (e.g. 0.2, 0.6, 0.9) and complementary personas (`proposer`, `challenger`, `minimalist`), calculates agreement ratio, and performs full MoA consensus synthesis. Dispatches `moa/self-consistency-expand` Cordis events. Configured via `self_consistency_enabled: true`, `self_consistency_samples: 3`, and `self_consistency_temperatures: [0.2, 0.6, 0.9]`.
+
 ### 6. Live Canvas 1-Click Preview (optional)
 If `@goodandready/dsh-live-canvas` is installed in the same profile, `dsh-moa` pushes the promoted HTML file to the Live Canvas REST contract (`POST /dsh-live-canvas/api/preview`, served by the same harness webServer) and appends a one-click preview link (`/dsh-live-canvas/sandbox/<id>`) to the answer. Without the plugin the step is skipped silently — no errors in the log, no dead links.
 
