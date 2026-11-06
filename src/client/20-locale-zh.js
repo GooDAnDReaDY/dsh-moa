@@ -259,6 +259,10 @@
       'aggregator.council_arbitration_title': '🏛️ 多角色虚拟专家委员会仲裁',
       'aggregator.council_arbitration_desc': '通过系统架构师、安全审计师和务实极简主义者三方专家陪审团进行多维加权评审。',
       'aggregator.council_weights_label': '委员会权重 (架构/安全/极简):',
+      'aggregator.benchmark_title': '📊 MoA 预设回归基准测试套件',
+      'aggregator.benchmark_desc': '针对标准基准编码问题校准模型集成相对于单个基线模型的准确率、延迟与成本。',
+      'aggregator.pr_review_title': '🤖 PR 与 Webhook 共识审查机器人模式',
+      'aggregator.pr_review_desc': '为 Gitea/GitHub PR 提供全自动多模型协同代码审查与去重阻断缺陷识别。',
     }
 
 
