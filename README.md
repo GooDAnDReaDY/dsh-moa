@@ -195,6 +195,12 @@ Dispatches `moa/judge-escalation` Cordis events and displays escalation decision
 ### 22. Self-Consistency Temperature Sampling for Single Models
 Allows single-model configurations (such as a local Ollama/vLLM instance or a single API key) to leverage Mixture-of-Agents diversity. When enabled on a preset with 1 model slot, the runner expands it into $N$ parallel candidate streams with distinct temperatures (e.g. 0.2, 0.6, 0.9) and complementary personas (`proposer`, `challenger`, `minimalist`), calculates agreement ratio, and performs full MoA consensus synthesis. Dispatches `moa/self-consistency-expand` Cordis events. Configured via `self_consistency_enabled: true`, `self_consistency_samples: 3`, and `self_consistency_temperatures: [0.2, 0.6, 0.9]`.
 
+### 23. Stack-Aware Dynamic Persona Evolution
+Scans project manifests (`package.json`, `Cargo.toml`, `pyproject.toml`, `requirements.txt`, `go.mod`) to detect languages, frameworks, and libraries. Automatically specializes candidate proposers into domain-specific roles (e.g. React Optimization, TypeScript Safety, Accessibility, FastAPI Async) to maximize hypothesis diversity. Emits `moa/stack-detected` Cordis events. Configured via `stack_aware_personas_enabled: true`.
+
+### 24. Self-Learning Developer Preferences Metaprompt
+Maintains a persistent profile of developer coding principles and architectural preferences in `~/.dsh/moa/preferences.json`. Injects active principles into the Judge prompt to bias consensus toward team standards (strict typing, functional immutability, error boundaries). Manageable via `GET/POST/DELETE /dsh-moa/preferences` REST endpoints and preset toggle `developer_preferences_enabled: true`.
+
 ### 6. Live Canvas 1-Click Preview (optional)
 If `@goodandready/dsh-live-canvas` is installed in the same profile, `dsh-moa` pushes the promoted HTML file to the Live Canvas REST contract (`POST /dsh-live-canvas/api/preview`, served by the same harness webServer) and appends a one-click preview link (`/dsh-live-canvas/sandbox/<id>`) to the answer. Without the plugin the step is skipped silently — no errors in the log, no dead links.
 
