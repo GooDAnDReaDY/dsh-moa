@@ -1,3 +1,41 @@
+              /* MoA Preset Regression Benchmark (#310) & PR Consensus Bot (#311) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.benchmark_suite_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, benchmark_suite_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.benchmark_title') || '📊 MoA Preset Regression Benchmark Suite'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.benchmark_desc') || 'Calibrates ensemble accuracy, latency, and cost against ground-truth coding puzzles vs single baseline.'
+                ),
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500, marginTop: 6 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.pr_review_bot_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, pr_review_bot_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.pr_review_title') || '🤖 PR & Webhook Consensus Reviewer Bot Mode'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.pr_review_desc') || 'Autonomous multi-model code review for Gitea/GitHub pull requests with de-duplicated blocker detection.'
+                )
+              ),
+
               /* Multi-Turn Context & Diff Pruning (#176) */
               React.createElement(
                 'div',

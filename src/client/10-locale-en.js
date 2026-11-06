@@ -259,6 +259,10 @@
       'aggregator.council_arbitration_title': '🏛️ Multi-Persona Role-Playing Council Arbitration',
       'aggregator.council_arbitration_desc': 'Replaces single-judge bias with a 3-expert jury: Systems Architect, Security Auditor, and Pragmatic Minimalist.',
       'aggregator.council_weights_label': 'Council Weights (Arch / Sec / Min):',
+      'aggregator.benchmark_title': '📊 MoA Preset Regression Benchmark Suite',
+      'aggregator.benchmark_desc': 'Calibrates ensemble accuracy, latency, and cost against ground-truth coding puzzles vs single baseline.',
+      'aggregator.pr_review_title': '🤖 PR & Webhook Consensus Reviewer Bot Mode',
+      'aggregator.pr_review_desc': 'Autonomous multi-model code review for Gitea/GitHub pull requests with de-duplicated blocker detection.',
     }
 
 
