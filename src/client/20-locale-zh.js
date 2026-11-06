@@ -237,6 +237,15 @@
       'aggregator.privacy_gate_desc': '在将候选提案发送给外部云端裁判之前，扫描并脱敏专有密钥、本地绝对路径与私有网络 IP。',
       'aggregator.speculative_gate_title': '⚡ 异构投机解码 (本地草稿 + 云端验证)',
       'aggregator.speculative_gate_desc': '轻量级本地边缘模型生成高速草稿，由强大的云端模型一次性快速验证并完善。',
+      'aggregator.pareto_slider_title': '📈 成本与质量帕累托前沿滑块 (Pareto Frontier)',
+      'aggregator.pareto_slider_desc': '从 100% 免费本地边缘模型到超严谨旗舰多裁判共识的响应式平衡调节。',
+      'aggregator.pareto_pos_label': '前沿平衡位置:',
+      'aggregator.hard_budget_title': '🛡️ 刚性 Token 预算保护与动态降级缩放',
+      'aggregator.hard_budget_desc': '在发送前严格核算整轮预测费用，自动降级至经济/本地模型或阻止超出预算。',
+      'aggregator.hard_budget_limit_label': '单轮预算上限 (USD):',
+      'aggregator.hard_budget_policy_label': '超额策略:',
+      'aggregator.hard_budget_policy_downgrade': '自动降级至本地/经济模型',
+      'aggregator.hard_budget_policy_fail': '安全熔断 (停止执行)',
     }
 
 

@@ -237,6 +237,15 @@
       'aggregator.privacy_gate_desc': 'Scans and redacts proprietary secrets, local paths, and private network IPs before forwarding proposals to external cloud judges.',
       'aggregator.speculative_gate_title': '⚡ Heterogeneous Speculative Decoding (Local Draft + Cloud Verifier)',
       'aggregator.speculative_gate_desc': 'Lightweight local edge model generates high-speed token drafts verified and completed in one fast pass by the cloud model.',
+      'aggregator.pareto_slider_title': '📈 Cost vs Quality Pareto Frontier Slider',
+      'aggregator.pareto_slider_desc': 'Reactive balance from 100% free local edge models to ultra-rigorous flagship multi-judge consensus.',
+      'aggregator.pareto_pos_label': 'Frontier Position:',
+      'aggregator.hard_budget_title': '🛡️ Hard Token Budget Guard with Auto-Scaling',
+      'aggregator.hard_budget_desc': 'Pre-calculates turn costs against a hard financial ceiling, automatically scaling down or halting execution.',
+      'aggregator.hard_budget_limit_label': 'Max Cost Per Turn (USD):',
+      'aggregator.hard_budget_policy_label': 'Exceed Policy:',
+      'aggregator.hard_budget_policy_downgrade': 'Auto-Downgrade to Local/Economic',
+      'aggregator.hard_budget_policy_fail': 'Fail-Closed (Halt Execution)',
     }
 
 

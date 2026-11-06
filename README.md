@@ -58,6 +58,8 @@ Single-model AI generation often suffers from blind spots, single-perspective bi
 15. **Mutation Testing Gate for Candidate Tests (#316)**: Injects AST-level fault mutations to compute Mutation Score (killed vs survived mutants), weeding out tautological assertions and fake test suites.
 16. **Hybrid Private Edge MoA & Cloud Judge Sanitizer (#306)**: Preserves confidentiality with local edge proposers on MiniPC while scrubbing absolute paths, internal IPs, and API secrets before external Cloud Judge arbitration.
 17. **Heterogeneous Speculative Decoding (#317)**: High-throughput local edge draft coupled with single-pass cloud model verification, slashing response latency by 2-3x.
+18. **Cost/Quality Pareto Frontier Slider (#307)**: Interactive trade-off slider mapping cost vs quality along the Pareto Frontier with real-time turn cost & latency estimation.
+19. **Hard Token Budget Guard (#319)**: Pre-flight financial cost ceiling with dynamic auto-scaling of cloud models to local edge to guarantee turn budgets.
 
 ---
 

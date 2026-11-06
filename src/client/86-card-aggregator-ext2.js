@@ -384,6 +384,98 @@
                 )
               ),
 
+              /* Pareto Frontier Slider (#307) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: 'var(--dsw-alias-label-primary)', cursor: 'pointer' } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.pareto_slider_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, pareto_slider_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.pareto_slider_title') || '📈 Cost vs Quality Pareto Frontier Slider'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.pareto_slider_desc') || 'Reactive balance from 100% free local edge models to ultra-rigorous flagship multi-judge consensus.'
+                ),
+                currentPreset.pareto_slider_enabled && React.createElement(
+                  'div',
+                  { style: { marginLeft: 22, marginTop: 4, display: 'flex', alignItems: 'center', gap: 10 } },
+                  React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('aggregator.pareto_pos_label') || 'Frontier Position:'),
+                  React.createElement('input', {
+                    type: 'range',
+                    min: 0,
+                    max: 100,
+                    step: 5,
+                    value: currentPreset.pareto_slider_position ?? 50,
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, pareto_slider_position: Number(e.target.value) })),
+                    style: { cursor: 'pointer', flex: 1, maxWidth: 200 },
+                  }),
+                  React.createElement('span', { style: { fontSize: 12, fontWeight: 600, color: 'var(--dsw-alias-label-primary)' } }, String(currentPreset.pareto_slider_position ?? 50) + '%')
+                )
+              ),
+
+              /* Hard Token Budget Guard (#319) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: 'var(--dsw-alias-label-primary)', cursor: 'pointer' } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.hard_budget_guard_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, hard_budget_guard_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.hard_budget_title') || '🛡️ Hard Token Budget Guard with Auto-Scaling'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.hard_budget_desc') || 'Pre-calculates turn costs against a hard financial ceiling, automatically scaling down or halting execution.'
+                ),
+                currentPreset.hard_budget_guard_enabled && React.createElement(
+                  'div',
+                  { style: { marginLeft: 22, marginTop: 4, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12 } },
+                  React.createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', gap: 6 } },
+                    React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('aggregator.hard_budget_limit_label') || 'Max Cost (USD):'),
+                    React.createElement('input', {
+                      type: 'number',
+                      min: 0.001,
+                      max: 10,
+                      step: 0.005,
+                      value: currentPreset.hard_budget_limit_usd ?? 0.02,
+                      onChange: (e) => updateCurrentPreset((p) => ({ ...p, hard_budget_limit_usd: Number(e.target.value) })),
+                      style: { width: 80, padding: '2px 6px', fontSize: 12, borderRadius: 4, border: '1px solid var(--dsw-alias-border-primary)' },
+                    })
+                  ),
+                  React.createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', gap: 6 } },
+                    React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('aggregator.hard_budget_policy_label') || 'Policy:'),
+                    React.createElement(
+                      'select',
+                      {
+                        value: currentPreset.hard_budget_policy || 'auto_downgrade',
+                        onChange: (e) => updateCurrentPreset((p) => ({ ...p, hard_budget_policy: e.target.value })),
+                        style: { padding: '2px 6px', fontSize: 12, borderRadius: 4, border: '1px solid var(--dsw-alias-border-primary)' },
+                      },
+                      React.createElement('option', { value: 'auto_downgrade' }, t('aggregator.hard_budget_policy_downgrade') || 'Auto-Downgrade'),
+                      React.createElement('option', { value: 'fail_closed' }, t('aggregator.hard_budget_policy_fail') || 'Fail-Closed')
+                    )
+                  )
+                )
+              ),
+
               /* Fallback Judges Chain */
               React.createElement(
                 'div',

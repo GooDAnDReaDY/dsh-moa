@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.79 (2026-11-06)
+
+### Features
+- **Cost/Quality Pareto Frontier Slider (#307)**: Added `lib/pipeline/pareto-frontier.js`, `getParetoProfile`, `calculateParetoEnsemble`, `applyParetoAdjustment`, and `pareto_slider_enabled`, `pareto_slider_position` (0–100%, default: 50) preset settings. Reactive trade-off slider balancing financial cost ($), consensus quality, and latency across 4 frontier tiers: Local Free Edge (0–25%), Economic (26–50%), Balanced Production (51–75%), and Ultra-Rigorous Consensus (76–100%). Dynamically estimates turn expenses and latency, automatically assigning curated reference and aggregator models. Emits `moa/pareto-adjusted` Cordis events.
+- **Hard Token Budget Guard with Dynamic Auto-Scaling (#319)**: Added `lib/pipeline/budget-guard.js`, `evaluateHardBudgetLimit`, and `hard_budget_guard_enabled`, `hard_budget_limit_usd` (default: `0.02`), `hard_budget_policy` (`auto_downgrade` vs `fail_closed`) preset options. Pre-calculates projected turn costs against a strict monetary ceiling. Under `auto_downgrade`, dynamically substitutes costly cloud slots with zero-cost local edge models or economic tiers and scales candidate counts to stay strictly below the ceiling. Under `fail_closed`, halts execution immediately to prevent billing surprises. Emits `moa/budget-scaled` Cordis events.
+- **Client WebUI Controls & Localizations (#307, #319)**: Added interactive slider and budget configuration inputs in `src/client/86-card-aggregator-ext2.js` with complete English, Chinese, and Russian localization.
+
 ## 0.2.78 (2026-11-06)
 
 ### Features
