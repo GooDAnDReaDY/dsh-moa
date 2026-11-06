@@ -225,6 +225,10 @@
       'aggregator.stack_personas_desc': '自动扫描项目清单 (package.json, Cargo.toml, pyproject.toml, go.mod) 并为各候选槽位指派专属专业角色。',
       'aggregator.preferences_title': '🧠 自学习开发者代码偏好元提示词 (Developer Preferences)',
       'aggregator.preferences_desc': '将开发者偏好（严格类型、函数不可变性、防御性错误处理等）注入裁判综合评审阶段。',
+      'aggregator.security_gate_title': '🛡️ 对抗性白帽安全模糊测试关卡',
+      'aggregator.security_gate_desc': '红队安全审计器检查候选方案中的 SQLi、XSS、ReDoS、命令注入和路径穿越漏洞，并在发现严重漏洞时触发 SECURITY_VETO 否决。',
+      'aggregator.cove_gate_title': '🔍 验证链 (CoVe) 代码事实与 API 核查关卡',
+      'aggregator.cove_gate_desc': '生成 API 存在性与方法签名核验问题，自动惩罚或取消使用虚构幻觉方法的候选方案。',
     }
 
 

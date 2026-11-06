@@ -252,6 +252,50 @@
                 )
               ),
 
+              /* Adversarial White-Hat Security Fuzzing Gate (#302) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.security_gate_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, security_gate_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.security_gate_title') || '🛡️ Adversarial White-Hat Security Fuzzing Gate'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.security_gate_desc') || 'Red-team security auditor checks candidate proposals for SQLi, XSS, ReDoS, Command Injection and Path Traversal with blocking SECURITY_VETO.'
+                )
+              ),
+
+              /* Chain-of-Verification (CoVe) Fact-Checking Gate (#314) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.cove_verification_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, cove_verification_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.cove_gate_title') || '🔍 Chain-of-Verification (CoVe) Fact-Checking Gate'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.cove_gate_desc') || 'Formulates API existence & method signature verification questions, disqualifying candidates that use hallucinated methods.'
+                )
+              ),
+
               /* Fallback Judges Chain */
               React.createElement(
                 'div',
@@ -297,5 +341,4 @@
             )
           )
         ),
-
 

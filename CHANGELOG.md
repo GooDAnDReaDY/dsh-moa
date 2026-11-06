@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.76 (2026-11-06)
+
+### Features
+- **Adversarial White-Hat Security Fuzzing Gate (#302)**: Added `lib/pipeline/security-fuzzer.js`, `auditCodeSecurity`, `runSecurityAuditGate`, `formatSecurityAuditDirective`, and `security_gate_enabled` / `security_gate_strict_veto` preset settings. Runs an automated Red Team security auditor over candidate solutions prior to Judge arbitration, inspecting code for SQLi (CWE-89), OS Command Injection (CWE-78), DOM XSS (CWE-79), Path Traversal (CWE-22), ReDoS (CWE-400), Prototype Pollution (CWE-1321), Hardcoded Secrets (CWE-798), and TOCTOU races (CWE-362). Emits `moa/security-audit` Cordis events, calculates security scores (0–100), and issues blocking `SECURITY_VETO` directives to prevent adopting vulnerable code.
+- **Chain-of-Verification (CoVe) Fact-Checking Gate for Code (#314)**: Added `lib/pipeline/cove-verifier.js`, `generateCoveQuestions`, `verifyCoveQuestion`, `auditCandidateCove`, `runCoveVerificationGate`, `formatCoveDirective`, and `cove_verification_enabled` / `cove_max_questions` preset settings. Generates 3–5 targeted factual API and module existence verification questions per candidate solution, verifying calls against Node.js standard libraries and declared project dependencies. Detects hallucinated APIs (e.g. `fs.readAllText`, `path.combine`, `crypto.generateRandomUuidString`), emits `moa/cove-verified` Cordis events, deducts hallucination penalties, and injects fact-checking guidance to Judge arbitration.
+- **Client WebUI Controls & Localizations (#302, #314)**: Added interactive configuration toggles for the Adversarial Security Gate and Chain-of-Verification Fact-Checking Gate in `src/client/86-card-aggregator-ext2.js` with English, Russian, and Chinese localization.
+
 ## 0.2.75 (2026-11-06)
 
 ### Features
