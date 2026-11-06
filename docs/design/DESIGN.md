@@ -34,6 +34,8 @@
   7. `DeveloperPreferences` (#309) — персистентное хранилище вкусов и стандартов разработки (`~/.dsh/moa/preferences.json`) и инъекция метапромпта принципов разработчика судье.
   8. `AdversarialSecurityGate` (#302) — состязательный аудит безопасности white-hat перед арбитражем судьи: детекция SQLi, XSS, ReDoS, Command Injection, Path Traversal, Prototype Pollution с блокирующим вердиктом `SECURITY_VETO` при критических уязвимостях.
   9. `CoveFactCheckingGate` (#314) — фильтр верификации фактов и API (Chain-of-Verification): генерация вопросов существования методов и проверка по стандартным библиотекам и зависимостям, штрафующая галлюцинированные API.
+  10. `RuntimeProfilerGate` (#315) — замер задержки исполнения, throughput (ops/sec) и расхода памяти кандидатов в изолированной VM-песочнице с защитой от зависаний (hard timeout).
+  11. `MutationTestingGate` (#316) — инъекция AST-мутаций в код кандидатов и расчёт Mutation Score (killed/survived) для отсева тавтологических тестов и фальшивых проверок.
 - Loading / empty / error / success:
   - `loading` — состояние инициализации настроек и загрузки списка доступных моделей.
   - `ready` — активная конфигурация с валидным списком моделей; статусный бейдж отражает фактический ответ `GET /dsh-moa/status` (online / offline / disabled), а не рисуется безусловно.

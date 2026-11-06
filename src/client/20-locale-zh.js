@@ -229,6 +229,10 @@
       'aggregator.security_gate_desc': '红队安全审计器检查候选方案中的 SQLi、XSS、ReDoS、命令注入和路径穿越漏洞，并在发现严重漏洞时触发 SECURITY_VETO 否决。',
       'aggregator.cove_gate_title': '🔍 验证链 (CoVe) 代码事实与 API 核查关卡',
       'aggregator.cove_gate_desc': '生成 API 存在性与方法签名核验问题，自动惩罚或取消使用虚构幻觉方法的候选方案。',
+      'aggregator.profiler_gate_title': '⚡ 自动运行时 CPU 与内存性能分析关卡',
+      'aggregator.profiler_gate_desc': '在隔离沙箱中运行微基准测试，精确度量执行延迟、吞吐量 (ops/sec) 和堆内存分配。',
+      'aggregator.mutation_gate_title': '🧬 候选测试套件运行时变异测试关卡',
+      'aggregator.mutation_gate_desc': '向代码注入合成故障并验证测试的捕获能力，剔除同义反复与无效的虚假测试。',
     }
 
 
