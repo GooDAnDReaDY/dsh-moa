@@ -263,6 +263,10 @@
       'aggregator.benchmark_desc': 'Calibrates ensemble accuracy, latency, and cost against ground-truth coding puzzles vs single baseline.',
       'aggregator.pr_review_title': '🤖 PR & Webhook Consensus Reviewer Bot Mode',
       'aggregator.pr_review_desc': 'Autonomous multi-model code review for Gitea/GitHub pull requests with de-duplicated blocker detection.',
+      'aggregator.ecosystem_title': '🌐 Context Lens & LLM Wiki Ecosystem Injection',
+      'aggregator.ecosystem_desc': 'Enriches candidate generation with AST symbol graphs and architectural invariants (graceful autonomous fallback).',
+      'aggregator.knowledge_title': '🧠 Long-Term Consensus Knowledge Graph',
+      'aggregator.knowledge_desc': 'Persists consensus decisions to ~/.dsh/moa/knowledge.json and syncs with dsh-memory-brain to prevent recurring debates.',
     }
 
 
