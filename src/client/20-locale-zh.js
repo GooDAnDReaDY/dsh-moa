@@ -253,6 +253,12 @@
       'aggregator.embedding_clustering_desc': '当候选方案的向量嵌入高度收敛并形成主导聚类时，绕过LLM裁判直接产出质心候选。',
       'aggregator.embedding_threshold_label': '共识相似度阈值:',
       'aggregator.fallback_to_judge_label': '意见分歧时回退至裁判',
+      'aggregator.git_tournament_title': '🏆 多分支 Git 沙盒测试锦标赛',
+      'aggregator.git_tournament_desc': '在隔离的临时 Git worktree 中运行候选方案并执行真实项目测试 (npm test, pytest)。',
+      'aggregator.git_tournament_cmd_label': '测试命令:',
+      'aggregator.council_arbitration_title': '🏛️ 多角色虚拟专家委员会仲裁',
+      'aggregator.council_arbitration_desc': '通过系统架构师、安全审计师和务实极简主义者三方专家陪审团进行多维加权评审。',
+      'aggregator.council_weights_label': '委员会权重 (架构/安全/极简):',
     }
 
 

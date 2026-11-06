@@ -420,3 +420,83 @@
                 )
               ),
 
+              /* Multi-Branch Git Sandbox Tournament (#304) & Multi-Persona Council (#313) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.git_tournament_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, git_tournament_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.git_tournament_title') || '🏆 Multi-Branch Git Sandbox Tournament'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.git_tournament_desc') || 'Executes candidate proposals in isolated Git worktrees and runs real project tests (npm test, pytest).'
+                ),
+                Boolean(currentPreset.git_tournament_enabled) && React.createElement(
+                  'div',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, marginLeft: 22, marginTop: 4 } },
+                  React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('aggregator.git_tournament_cmd_label') || 'Test Command:'),
+                  React.createElement('input', {
+                    type: 'text',
+                    value: currentPreset.git_tournament_command || 'npm test',
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, git_tournament_command: e.target.value })),
+                    style: { width: 140, padding: '2px 6px', fontSize: 12, borderRadius: 4, border: '1px solid var(--dsw-alias-border-l2)', background: 'var(--dsw-alias-bg-layer-1)' },
+                  })
+                ),
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500, marginTop: 6 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.council_arbitration_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, council_arbitration_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.council_arbitration_title') || '🏛️ Multi-Persona Role-Playing Council Arbitration'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.council_arbitration_desc') || 'Replaces single-judge bias with a 3-expert jury: Systems Architect, Security Auditor, and Pragmatic Minimalist.'
+                ),
+                Boolean(currentPreset.council_arbitration_enabled) && React.createElement(
+                  'div',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, marginLeft: 22, marginTop: 4 } },
+                  React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('aggregator.council_weights_label') || 'Council Weights (Arch / Sec / Min):'),
+                  React.createElement('input', {
+                    type: 'number',
+                    min: 0,
+                    max: 100,
+                    value: currentPreset.council_weight_architect ?? 35,
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, council_weight_architect: Number(e.target.value) || 0 })),
+                    style: { width: 45, padding: '2px 4px', fontSize: 12, borderRadius: 4, border: '1px solid var(--dsw-alias-border-l2)', background: 'var(--dsw-alias-bg-layer-1)' },
+                  }),
+                  React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, '/'),
+                  React.createElement('input', {
+                    type: 'number',
+                    min: 0,
+                    max: 100,
+                    value: currentPreset.council_weight_security ?? 35,
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, council_weight_security: Number(e.target.value) || 0 })),
+                    style: { width: 45, padding: '2px 4px', fontSize: 12, borderRadius: 4, border: '1px solid var(--dsw-alias-border-l2)', background: 'var(--dsw-alias-bg-layer-1)' },
+                  }),
+                  React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, '/'),
+                  React.createElement('input', {
+                    type: 'number',
+                    min: 0,
+                    max: 100,
+                    value: currentPreset.council_weight_minimalist ?? 30,
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, council_weight_minimalist: Number(e.target.value) || 0 })),
+                    style: { width: 45, padding: '2px 4px', fontSize: 12, borderRadius: 4, border: '1px solid var(--dsw-alias-border-l2)', background: 'var(--dsw-alias-bg-layer-1)' },
+                  })
+                )
+              ),
+
