@@ -246,6 +246,13 @@
       'aggregator.hard_budget_policy_label': 'Exceed Policy:',
       'aggregator.hard_budget_policy_downgrade': 'Auto-Downgrade to Local/Economic',
       'aggregator.hard_budget_policy_fail': 'Fail-Closed (Halt Execution)',
+      'aggregator.rebuttal_debate_title': '🗣️ Multi-Round Rebuttal Debate',
+      'aggregator.rebuttal_debate_desc': 'Candidates cross-examine peer solutions and expose flaws before judge arbitration.',
+      'aggregator.rebuttal_rounds_label': 'Debate Rounds:',
+      'aggregator.embedding_clustering_title': '🧭 Blind Embedding Clustering',
+      'aggregator.embedding_clustering_desc': 'Bypass LLM Judge when candidate embeddings converge into a dominant cluster (>= threshold).',
+      'aggregator.embedding_threshold_label': 'Consensus Similarity Threshold:',
+      'aggregator.fallback_to_judge_label': 'Fallback to Judge if Opinion Splits',
     }
 
 

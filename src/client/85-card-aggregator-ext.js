@@ -302,3 +302,121 @@
                 )
               ),
 
+              /* Pre-Judge Local Syntax Gate (#303) & Early Semantic Consensus (#299) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: currentPreset.local_preflight_check !== false,
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, local_preflight_check: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.preflight_syntax_title') || '🔍 Pre-Judge Local Syntax Gate (Zero-Token Linter)'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.preflight_syntax_desc') || 'Validate candidate code syntax locally before judge invocation to filter broken code without token costs.'
+                ),
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500, marginTop: 4 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.early_exit_consensus_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, early_exit_consensus_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.early_consensus_title') || '⚡ Early Exit upon Semantic Consensus'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.early_consensus_desc') || 'Bypass the expensive judge round when reference models converge on equivalent code solutions.'
+                )
+              ),
+
+              /* Multi-Round Rebuttal Debate (#298) & Blind Embedding Clustering (#312) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.rebuttal_debate_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, rebuttal_debate_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.rebuttal_debate_title') || '🗣️ Multi-Round Rebuttal Debate'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.rebuttal_debate_desc') || 'Candidates cross-examine peer solutions and expose flaws before judge arbitration.'
+                ),
+                Boolean(currentPreset.rebuttal_debate_enabled) && React.createElement(
+                  'div',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, marginLeft: 22, marginTop: 4 } },
+                  React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('aggregator.rebuttal_rounds_label') || 'Debate Rounds:'),
+                  React.createElement('input', {
+                    type: 'number',
+                    min: 1,
+                    max: 3,
+                    value: currentPreset.rebuttal_rounds || 1,
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, rebuttal_rounds: Math.min(3, Math.max(1, Number(e.target.value) || 1)) })),
+                    style: { width: 50, padding: '2px 6px', fontSize: 12, borderRadius: 4, border: '1px solid var(--dsw-alias-border-l2)', background: 'var(--dsw-alias-bg-layer-1)' },
+                  })
+                ),
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500, marginTop: 6 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.embedding_clustering_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, embedding_clustering_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.embedding_clustering_title') || '🧭 Blind Embedding Clustering'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.embedding_clustering_desc') || 'Bypass LLM Judge when candidate embeddings converge into a dominant cluster (>= threshold).'
+                ),
+                Boolean(currentPreset.embedding_clustering_enabled) && React.createElement(
+                  'div',
+                  { style: { display: 'flex', flexDirection: 'column', gap: 4, marginLeft: 22, marginTop: 4 } },
+                  React.createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+                    React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('aggregator.embedding_threshold_label') || 'Consensus Similarity Threshold:'),
+                    React.createElement('input', {
+                      type: 'number',
+                      step: 0.01,
+                      min: 0.50,
+                      max: 0.99,
+                      value: currentPreset.embedding_consensus_threshold ?? 0.88,
+                      onChange: (e) => updateCurrentPreset((p) => ({ ...p, embedding_consensus_threshold: Number(e.target.value) || 0.88 })),
+                      style: { width: 60, padding: '2px 6px', fontSize: 12, borderRadius: 4, border: '1px solid var(--dsw-alias-border-l2)', background: 'var(--dsw-alias-bg-layer-1)' },
+                    })
+                  ),
+                  React.createElement(
+                    'label',
+                    { style: { display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 12 } },
+                    React.createElement('input', {
+                      type: 'checkbox',
+                      checked: currentPreset.fallback_to_judge_on_split !== false,
+                      onChange: (e) => updateCurrentPreset((p) => ({ ...p, fallback_to_judge_on_split: e.target.checked })),
+                      style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))' },
+                    }),
+                    t('aggregator.fallback_to_judge_label') || 'Fallback to Judge if Opinion Splits'
+                  )
+                )
+              ),
+
