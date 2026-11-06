@@ -56,6 +56,8 @@ Single-model AI generation often suffers from blind spots, single-perspective bi
 13. **Chain-of-Verification (CoVe) Fact-Checking Gate for Code (#314)**: Independent pre-judge verification formulating factual API questions, validating modules and functions against standard library and project manifests to eliminate hallucinated methods.
 14. **Runtime CPU & Memory Profiler Gate (#315)**: Sandboxed micro-benchmarking of candidate execution duration, ops/sec throughput, and heap usage with hard timeout protection to select algorithmically optimal code.
 15. **Mutation Testing Gate for Candidate Tests (#316)**: Injects AST-level fault mutations to compute Mutation Score (killed vs survived mutants), weeding out tautological assertions and fake test suites.
+16. **Hybrid Private Edge MoA & Cloud Judge Sanitizer (#306)**: Preserves confidentiality with local edge proposers on MiniPC while scrubbing absolute paths, internal IPs, and API secrets before external Cloud Judge arbitration.
+17. **Heterogeneous Speculative Decoding (#317)**: High-throughput local edge draft coupled with single-pass cloud model verification, slashing response latency by 2-3x.
 
 ---
 
