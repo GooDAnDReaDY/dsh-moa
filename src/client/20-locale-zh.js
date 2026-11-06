@@ -246,6 +246,13 @@
       'aggregator.hard_budget_policy_label': '超额策略:',
       'aggregator.hard_budget_policy_downgrade': '自动降级至本地/经济模型',
       'aggregator.hard_budget_policy_fail': '安全熔断 (停止执行)',
+      'aggregator.rebuttal_debate_title': '🗣️ 多轮反驳辩论机制',
+      'aggregator.rebuttal_debate_desc': '候选模型在裁判仲裁前相互交叉审查并指出对方漏洞与缺陷。',
+      'aggregator.rebuttal_rounds_label': '辩论轮数:',
+      'aggregator.embedding_clustering_title': '🧭 盲向量嵌入聚类',
+      'aggregator.embedding_clustering_desc': '当候选方案的向量嵌入高度收敛并形成主导聚类时，绕过LLM裁判直接产出质心候选。',
+      'aggregator.embedding_threshold_label': '共识相似度阈值:',
+      'aggregator.fallback_to_judge_label': '意见分歧时回退至裁判',
     }
 
 
