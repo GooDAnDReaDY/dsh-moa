@@ -221,6 +221,10 @@
       'aggregator.escalation_policy_council': '分歧时组建 3 裁判多数决策席',
       'aggregator.escalation_threshold': '分歧阈值:',
       'aggregator.escalation_judge_label': '高阶裁判模型:',
+      'aggregator.stack_personas_title': '📦 基于项目配置清单的感知角色演化 (Stack-Aware Personas)',
+      'aggregator.stack_personas_desc': '自动扫描项目清单 (package.json, Cargo.toml, pyproject.toml, go.mod) 并为各候选槽位指派专属专业角色。',
+      'aggregator.preferences_title': '🧠 自学习开发者代码偏好元提示词 (Developer Preferences)',
+      'aggregator.preferences_desc': '将开发者偏好（严格类型、函数不可变性、防御性错误处理等）注入裁判综合评审阶段。',
     }
 
 

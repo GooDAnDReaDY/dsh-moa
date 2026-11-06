@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.75 (2026-11-06)
+
+### Features
+- **Stack-Aware Dynamic Persona Evolution from Project Manifests (#308)**: Added `lib/pipeline/manifest-stack.js`, `detectProjectStack`, `assignStackAwarePersonas`, `formatStackAwareDirective`, and `stack_aware_personas_enabled` (default: `false`) preset option. Automatically parses workspace manifests (`package.json`, `Cargo.toml`, `pyproject.toml`, `requirements.txt`, `go.mod`) to infer primary language, frameworks, and libraries. Dynamically specializes candidate proposers into complementary expert roles (e.g. React Optimization, TypeScript Strict Safety, Accessibility, FastAPI Async) to maximize hypothesis diversity. Emits `moa/stack-detected` Cordis event bus notifications.
+- **Self-Learning Developer Preferences Metaprompt (#309)**: Added `lib/pipeline/developer-preferences.js`, persistent rule storage in `~/.dsh/moa/preferences.json`, `developer_preferences_enabled` (default: `false`), and `formatPreferencesDirective`. Injects developer coding principles and architectural preferences (strict typing, functional immutability, error boundaries) into the Judge synthesis prompt. Emits `moa/preferences-applied` Cordis event bus notifications.
+- **Developer Preferences REST API Endpoints (#309)**: Added `lib/routes/preferences.js` mounting `GET /dsh-moa/preferences` to list active rules, `POST /dsh-moa/preferences` to add/update/toggle rules, and `DELETE /dsh-moa/preferences/:id` to remove rules.
+- **Client UI Modularization & Localizations (#308, #309)**: Added settings toggles for Stack-Aware Personas and Developer Preferences in `src/client/86-card-aggregator-ext2.js` with English, Russian, and Chinese localization. Cleanly modularized aggregator card fragments to remain strictly below the 600-line limit per file.
+
 ## 0.2.74 (2026-11-06)
 
 ### Features

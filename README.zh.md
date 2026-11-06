@@ -172,6 +172,12 @@ graph TD
 ### 22. 单模型自洽性温度采样 (Self-Consistency Temperature Sampling)
 专为仅配置单模型（如本地 Ollama/vLLM 或单一 API Key）的场景设计。开启后自动将单槽位扩展为 $N$ 个并行采样（分别采用 0.2、0.6、0.9 等递增温度与 `proposer`、`challenger`、`minimalist` 互补提示词），评估自洽一致性比率并进行全流程 MoA 综合聚合，触发 `moa/self-consistency-expand` 事件。
 
+### 23. 基于项目清单的感知角色演化 (Stack-Aware Personas)
+自动扫描工作区清单 (`package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`) 识别编程语言、框架与核心依赖，动态为各候选槽位分派互补的领域专家角色（如 React 渲染优化、TypeScript 严格类型安全、可访问性审查、FastAPI 异步架构），触发 `moa/stack-detected` 事件。通过 `stack_aware_personas_enabled: true` 配置。
+
+### 24. 自学习开发者代码偏好元提示词 (Developer Preferences)
+在本地 `~/.dsh/moa/preferences.json` 持久化存储团队编码规范与架构偏好，将启用的规则动态注入裁判评审阶段，使综合方案贴合开发者个人习惯（严格类型、函数不可变性、防御性错误边界）。提供 `GET/POST/DELETE /dsh-moa/preferences` REST 端点，通过 `developer_preferences_enabled: true` 开启。
+
 ### 6. Live Canvas 一键预览（可选）
 若同一 profile 中安装了 `@goodandready/dsh-live-canvas`，`dsh-moa` 会将提升后的 HTML 文件推送到 Live Canvas 的 REST 契约（`POST /dsh-live-canvas/api/preview`，由同一 harness webServer 提供服务），并在回答中附上一键预览链接（`/dsh-live-canvas/sandbox/<id>`）。未安装该插件时此步骤静默跳过——日志无报错，也不会出现死链接。
 

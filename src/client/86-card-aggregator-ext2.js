@@ -1,0 +1,301 @@
+              /* Pre-Judge Local Syntax Gate (#303) & Early Semantic Consensus (#299) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: currentPreset.local_preflight_check !== false,
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, local_preflight_check: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.preflight_syntax_title') || '🔍 Pre-Judge Local Syntax Gate (Zero-Token Linter)'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.preflight_syntax_desc') || 'Validate candidate code syntax locally before judge invocation to filter broken code without token costs.'
+                ),
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500, marginTop: 4 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.early_exit_consensus_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, early_exit_consensus_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.early_consensus_title') || '⚡ Early Exit upon Semantic Consensus'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.early_consensus_desc') || 'Bypass the expensive judge round when reference models converge on equivalent code solutions.'
+                )
+              ),
+
+              /* Multi-Turn Context & Diff Pruning (#176) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: currentPreset.multi_turn_enabled !== false,
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, multi_turn_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.multi_turn_title') || 'Multi-Turn Context & Diff Pruning'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.multi_turn_desc') || 'Retain conversation context across turns while pruning duplicate code blocks.'
+                )
+              ),
+
+              /* Context Pruning (#305) & Semantic Caching (#318) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: currentPreset.context_pruning_enabled !== false,
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, context_pruning_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.context_pruning_title') || '✂️ Cross-Candidate Context Pruning (Diff-Only Judge Context)'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.context_pruning_desc') || 'Replaces unchanged base project files with compact unified diffs (---/+++ hunks) in the Judge prompt, slashing prompt tokens by up to 85%.'
+                ),
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500, marginTop: 4 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.semantic_cache_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, semantic_cache_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.semantic_cache_title') || '⚡ Semantic Caching for Candidate Generations'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.semantic_cache_desc') || 'Persists intermediate candidate outputs locally by deterministic SHA-256 fingerprint, eliminating duplicate API costs on retry or repeat requests.'
+                )
+              ),
+
+              /* Self-Consistency Temperature Sampling (#301) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.self_consistency_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, self_consistency_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.self_consistency_title') || '🎲 Self-Consistency Temperature Sampling (Single-Model Diversity)'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.self_consistency_desc') || 'Expands a single reference model into multiple parallel samples with varied temperatures and personas, bringing MoA benefits to single-model setups.'
+                ),
+                currentPreset.self_consistency_enabled && React.createElement(
+                  'div',
+                  { style: { marginLeft: 22, marginTop: 4, display: 'flex', alignItems: 'center', gap: 12 } },
+                  React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, (t('aggregator.self_consistency_samples') || 'Samples:') + ' ' + (currentPreset.self_consistency_samples || 3)),
+                  React.createElement('input', {
+                    type: 'range',
+                    min: 2,
+                    max: 5,
+                    value: currentPreset.self_consistency_samples || 3,
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, self_consistency_samples: Number(e.target.value) })),
+                    style: { width: 100, accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))' },
+                  })
+                )
+              ),
+
+              /* Dynamic Consensus Threshold & Multi-Judge Escalation (#300) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 13, fontWeight: 600, color: 'var(--dsw-alias-label-primary)' } },
+                  t('aggregator.escalation_title') || '⚖️ Dynamic Consensus Threshold & Judge Escalation'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } },
+                  t('aggregator.escalation_desc') || 'Detects divergence across candidates. When consensus is weak, automatically upgrades to a senior flagship judge or convenes a 3-judge panel.'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 } },
+                  React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('aggregator.escalation_policy') || 'Escalation Policy:'),
+                  React.createElement(
+                    'select',
+                    {
+                      value: currentPreset.escalation_policy || 'single',
+                      onChange: (e) => updateCurrentPreset((p) => ({ ...p, escalation_policy: e.target.value })),
+                      style: {
+                        padding: '4px 8px',
+                        fontSize: 12,
+                        borderRadius: 6,
+                        border: '1px solid var(--dsw-alias-border-l2)',
+                        background: 'var(--dsw-alias-bg-layer-1)',
+                        color: 'var(--dsw-alias-label-primary)',
+                      },
+                    },
+                    React.createElement('option', { value: 'single' }, t('aggregator.escalation_policy_single') || 'Standard Single Judge (No Escalation)'),
+                    React.createElement('option', { value: 'auto_upgrade' }, t('aggregator.escalation_policy_upgrade') || 'Auto-Upgrade to Senior Judge on Divergence'),
+                    React.createElement('option', { value: 'council_majority' }, t('aggregator.escalation_policy_council') || 'Convene 3-Judge Majority Council on Divergence')
+                  )
+                ),
+                currentPreset.escalation_policy && currentPreset.escalation_policy !== 'single' && React.createElement(
+                  'div',
+                  { style: { display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 } },
+                  React.createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', gap: 12 } },
+                    React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, (t('aggregator.escalation_threshold') || 'Divergence Threshold:') + ' ' + Math.round(((currentPreset.escalation_disagreement_threshold ?? 0.40) * 100)) + '%'),
+                    React.createElement('input', {
+                      type: 'range',
+                      min: 10,
+                      max: 90,
+                      value: Math.round(((currentPreset.escalation_disagreement_threshold ?? 0.40) * 100)),
+                      onChange: (e) => updateCurrentPreset((p) => ({ ...p, escalation_disagreement_threshold: Number(e.target.value) / 100 })),
+                      style: { width: 120, accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))' },
+                    })
+                  ),
+                  currentPreset.escalation_policy === 'auto_upgrade' && React.createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+                    React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)' } }, t('aggregator.escalation_judge_label') || 'Senior Judge:'),
+                    React.createElement(
+                      'div',
+                      { style: { flex: 1, maxWidth: 300 } },
+                      React.createElement(SearchableModelPicker, {
+                        provider: currentPreset.escalation_judge?.provider || '',
+                        model: currentPreset.escalation_judge?.model || '',
+                        onChange: (prov, mod) => {
+                          updateCurrentPreset((p) => ({
+                            ...p,
+                            escalation_judge: { provider: prov, model: mod },
+                          }))
+                        },
+                        availableModels,
+                        t,
+                      })
+                    )
+                  )
+                )
+              ),
+
+              /* Stack-Aware Dynamic Persona Evolution (#308) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.stack_aware_personas_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, stack_aware_personas_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.stack_personas_title') || '📦 Stack-Aware Dynamic Persona Evolution (Project Manifests)'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.stack_personas_desc') || 'Scans project manifests (package.json, Cargo.toml, pyproject.toml, go.mod) and assigns specialized engineering roles to candidate slots.'
+                )
+              ),
+
+              /* Self-Learning Developer Preferences Metaprompt (#309) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.developer_preferences_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, developer_preferences_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.preferences_title') || '🧠 Developer Coding Principles & Preferences Metaprompt'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.preferences_desc') || 'Injects learned developer preferences (strict typing, functional immutability, error boundaries) to guide Judge synthesis.'
+                )
+              ),
+
+              /* Fallback Judges Chain */
+              React.createElement(
+                'div',
+                { style: { marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 } },
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 13, fontWeight: 600, color: 'var(--dsw-alias-label-primary)' } },
+                  t('aggregator.fallbacks_title')
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginTop: -4 } },
+                  t('aggregator.fallbacks_desc')
+                ),
+                renderSlotEditorList({
+                  items: currentPreset.aggregator_fallbacks,
+                  badgePrefix: 'Fallback',
+                  onUpdate: (idx, prov, mod) => {
+                    updateCurrentPreset((p) => {
+                      const list = [...(p.aggregator_fallbacks || [])]
+                      list[idx] = { provider: prov, model: mod }
+                      return { ...p, aggregator_fallbacks: list }
+                    })
+                  },
+                  onRemove: (idx) => {
+                    updateCurrentPreset((p) => ({
+                      ...p,
+                      aggregator_fallbacks: (p.aggregator_fallbacks || []).filter((_, i) => i !== idx),
+                    }))
+                  },
+                  onAdd: () => {
+                    updateCurrentPreset((p) => ({
+                      ...p,
+                      aggregator_fallbacks: [...(p.aggregator_fallbacks || []), { provider: (availableModels[0] && availableModels[0].provider) || '', model: (availableModels[0] && availableModels[0].model) || '' }],
+                    }))
+                  },
+                  addLabel: t('aggregator.add_fallback_btn'),
+                  emptyWarning: null,
+                  availableModels,
+                  t,
+                })
+              )
+            )
+          )
+        ),
+
+

@@ -221,6 +221,10 @@
       'aggregator.escalation_policy_council': 'Convene 3-Judge Majority Council on Divergence',
       'aggregator.escalation_threshold': 'Divergence Threshold:',
       'aggregator.escalation_judge_label': 'Senior Judge:',
+      'aggregator.stack_personas_title': '📦 Stack-Aware Dynamic Persona Evolution (Project Manifests)',
+      'aggregator.stack_personas_desc': 'Scans project manifests (package.json, Cargo.toml, pyproject.toml, go.mod) and assigns specialized engineering roles to candidate slots.',
+      'aggregator.preferences_title': '🧠 Developer Coding Principles & Preferences Metaprompt',
+      'aggregator.preferences_desc': 'Injects learned developer preferences (strict typing, functional immutability, error boundaries) to guide Judge synthesis.',
     }
 
 
