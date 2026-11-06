@@ -296,6 +296,50 @@
                 )
               ),
 
+              /* Automated Runtime Memory & CPU Profiler Gate (#315) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.profiler_gate_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, profiler_gate_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.profiler_gate_title') || '⚡ Automated Runtime Memory & CPU Profiler Gate'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.profiler_gate_desc') || 'Runs isolated micro-benchmarks measuring execution latency, throughput (ops/sec), and heap memory usage.'
+                )
+              ),
+
+              /* Runtime Mutation Testing Gate (#316) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.mutation_testing_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, mutation_testing_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.mutation_gate_title') || '🧬 Runtime Mutation Testing Gate for Candidate Tests'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.mutation_gate_desc') || 'Injects synthetic faults into candidate code to test test-suite robustness, eliminating tautological and weak tests.'
+                )
+              ),
+
               /* Fallback Judges Chain */
               React.createElement(
                 'div',

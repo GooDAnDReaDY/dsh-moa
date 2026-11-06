@@ -229,6 +229,10 @@
       'aggregator.security_gate_desc': 'Red-team security auditor checks candidate proposals for SQLi, XSS, ReDoS, Command Injection and Path Traversal with blocking SECURITY_VETO.',
       'aggregator.cove_gate_title': '🔍 Chain-of-Verification (CoVe) Fact-Checking Gate',
       'aggregator.cove_gate_desc': 'Formulates API existence & method signature verification questions, disqualifying candidates that use hallucinated methods.',
+      'aggregator.profiler_gate_title': '⚡ Automated Runtime Memory & CPU Profiler Gate',
+      'aggregator.profiler_gate_desc': 'Runs isolated micro-benchmarks measuring execution latency, throughput (ops/sec), and heap memory usage.',
+      'aggregator.mutation_gate_title': '🧬 Runtime Mutation Testing Gate for Candidate Tests',
+      'aggregator.mutation_gate_desc': 'Injects synthetic faults into candidate code to test test-suite robustness, eliminating tautological and weak tests.',
     }
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.77 (2026-11-06)
+
+### Features
+- **Runtime CPU & Memory Profiler Gate (#315)**: Added `lib/pipeline/runtime-profiler.js`, `profileCodeExecution`, `runProfilerGate`, `formatProfilerDirective`, and `profiler_gate_enabled`, `profiler_iterations` (default: `100`), `profiler_timeout_ms` (default: `2000`) preset settings. Micro-benchmarks candidate JavaScript implementations in an isolated sandbox with hard timeout protection to measure execution latency, ops/sec throughput, and heap memory footprint. Injects objective performance telemetry directly into Judge arbitration to favor algorithmically optimal solutions. Emits `moa/profiler-complete` Cordis events.
+- **Mutation Testing Gate for Candidate Tests (#316)**: Added `lib/pipeline/mutation-tester.js`, `generateMutants`, `auditCandidateMutations`, `runMutationGate`, `formatMutationDirective`, and `mutation_testing_enabled`, `min_mutation_score` (default: `0.70`) preset settings. Injects deterministic AST-level fault mutations (inverting relational operators, strict equality, arithmetic signs, boolean literals, and return statements) into candidate code and executes test suites against each mutant. Calculates Mutation Score (killed vs survived mutants) to expose tautological and false-positive tests, guiding the Judge to resilient implementations. Emits `moa/mutation-complete` Cordis events.
+- **Client WebUI Controls & Localizations (#315, #316)**: Added configuration toggles for Runtime Profiler Gate and Mutation Testing Gate in `src/client/86-card-aggregator-ext2.js` with English, Russian, and Chinese localization.
+
 ## 0.2.76 (2026-11-06)
 
 ### Features
