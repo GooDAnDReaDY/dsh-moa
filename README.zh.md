@@ -163,6 +163,15 @@ graph TD
 ### 20. 语义共识提前退出机制 (Early Exit upon Semantic Consensus)
 基于 Token 级 Sørensen-Dice 相似度算法比对归一化后的候选方案。当多个候选模型给出高度一致的代码方案（达到或超过 `early_exit_threshold` 阈值，默认 0.95）时，自动跳过高耗费的裁判综合评审阶段，直接将共识方案提升至项目，在大幅缩短响应延迟的同时节省多达 100% 的裁判 Token 支出。通过 `early_exit_consensus_enabled: true` 与 `early_exit_threshold: 0.95` 配置。
 
+### 21. 动态共识阈值与裁判自适应升级 (Dynamic Consensus & Judge Escalation)
+基于归一化 Sørensen-Dice 计算候选方案间的分歧度 (Disagreement Metric 0.0–1.0)。当候选分歧超过设定阈值 (`escalation_disagreement_threshold`，默认 0.40) 时，流水线自动触发升级策略：
+- `auto_upgrade`: 自动将普通/快速裁判升级为指定的高阶旗舰裁判 (`escalation_judge` 或首选候补裁判)。
+- `council_majority`: 组建 3 裁判多数席裁决团。
+触发 `moa/judge-escalation` 事件并在实时流中呈现决策依据。
+
+### 22. 单模型自洽性温度采样 (Self-Consistency Temperature Sampling)
+专为仅配置单模型（如本地 Ollama/vLLM 或单一 API Key）的场景设计。开启后自动将单槽位扩展为 $N$ 个并行采样（分别采用 0.2、0.6、0.9 等递增温度与 `proposer`、`challenger`、`minimalist` 互补提示词），评估自洽一致性比率并进行全流程 MoA 综合聚合，触发 `moa/self-consistency-expand` 事件。
+
 ### 6. Live Canvas 一键预览（可选）
 若同一 profile 中安装了 `@goodandready/dsh-live-canvas`，`dsh-moa` 会将提升后的 HTML 文件推送到 Live Canvas 的 REST 契约（`POST /dsh-live-canvas/api/preview`，由同一 harness webServer 提供服务），并在回答中附上一键预览链接（`/dsh-live-canvas/sandbox/<id>`）。未安装该插件时此步骤静默跳过——日志无报错，也不会出现死链接。
 
