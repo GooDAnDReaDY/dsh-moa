@@ -54,6 +54,8 @@ Single-model AI generation often suffers from blind spots, single-perspective bi
 11. **Interactive Workbench (File Scoring 1–10, User Pick & Mix, Top-Model Glue & Judge Re-Check)**: Judge scores each candidate file (1–10) with pros and cons. Users can mix and match files across proposals in the WebUI. The turn's top-performing reference model harmonizes cross-file imports and contracts, followed by a final judge re-audit before promotion. Companion integration with [`dsh-time-machine`](https://github.com/goodandready/dsh-time-machine) for safe pre-promotion rollback checkpoints.
 12. **Adversarial White-Hat Security Fuzzing Gate (#302)**: Red Team security audit scanning candidate code for SQLi, XSS, Command Injection, Path Traversal, ReDoS, and Prototype Pollution with blocking `SECURITY_VETO`.
 13. **Chain-of-Verification (CoVe) Fact-Checking Gate for Code (#314)**: Independent pre-judge verification formulating factual API questions, validating modules and functions against standard library and project manifests to eliminate hallucinated methods.
+14. **Runtime CPU & Memory Profiler Gate (#315)**: Sandboxed micro-benchmarking of candidate execution duration, ops/sec throughput, and heap usage with hard timeout protection to select algorithmically optimal code.
+15. **Mutation Testing Gate for Candidate Tests (#316)**: Injects AST-level fault mutations to compute Mutation Score (killed vs survived mutants), weeding out tautological assertions and fake test suites.
 
 ---
 
