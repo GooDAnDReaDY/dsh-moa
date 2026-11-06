@@ -210,6 +210,17 @@
       'workbench.promoted_ok': '✅ Harmonized deliverable promoted to workspace root!',
       'workbench.pros': 'Pros:',
       'workbench.cons': 'Cons:',
+      'aggregator.self_consistency_title': '🎲 Self-Consistency Temperature Sampling (Single-Model Diversity)',
+      'aggregator.self_consistency_desc': 'Expands a single reference model into multiple parallel samples with varied temperatures and personas, bringing MoA benefits to single-model setups.',
+      'aggregator.self_consistency_samples': 'Samples:',
+      'aggregator.escalation_title': '⚖️ Dynamic Consensus Threshold & Judge Escalation',
+      'aggregator.escalation_desc': 'Detects divergence across candidates. When consensus is weak, automatically upgrades to a senior flagship judge or convenes a 3-judge panel.',
+      'aggregator.escalation_policy': 'Escalation Policy:',
+      'aggregator.escalation_policy_single': 'Standard Single Judge (No Escalation)',
+      'aggregator.escalation_policy_upgrade': 'Auto-Upgrade to Senior Judge on Divergence',
+      'aggregator.escalation_policy_council': 'Convene 3-Judge Majority Council on Divergence',
+      'aggregator.escalation_threshold': 'Divergence Threshold:',
+      'aggregator.escalation_judge_label': 'Senior Judge:',
     }
 
 
