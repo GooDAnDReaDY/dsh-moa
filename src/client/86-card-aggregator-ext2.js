@@ -36,6 +36,44 @@
                 )
               ),
 
+              /* Ecosystem Context (#321) & Consensus Knowledge Graph (#322) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: currentPreset.enable_ecosystem_context !== false,
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, enable_ecosystem_context: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.ecosystem_title') || '🌐 Context Lens & LLM Wiki Ecosystem Injection'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.ecosystem_desc') || 'Enriches candidate generation with AST symbol graphs and architectural invariants (graceful autonomous fallback).'
+                ),
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500, marginTop: 6 } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: currentPreset.sync_with_memory_brain !== false,
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, sync_with_memory_brain: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.knowledge_title') || '🧠 Long-Term Consensus Knowledge Graph'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.knowledge_desc') || 'Persists consensus decisions to ~/.dsh/moa/knowledge.json and syncs with dsh-memory-brain to prevent recurring debates.'
+                )
+              ),
+
               /* Multi-Turn Context & Diff Pruning (#176) */
               React.createElement(
                 'div',

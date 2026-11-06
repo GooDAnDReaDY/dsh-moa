@@ -263,6 +263,10 @@
       'aggregator.benchmark_desc': '针对标准基准编码问题校准模型集成相对于单个基线模型的准确率、延迟与成本。',
       'aggregator.pr_review_title': '🤖 PR 与 Webhook 共识审查机器人模式',
       'aggregator.pr_review_desc': '为 Gitea/GitHub PR 提供全自动多模型协同代码审查与去重阻断缺陷识别。',
+      'aggregator.ecosystem_title': '🌐 Context Lens 与 LLM Wiki 生态上下文注入',
+      'aggregator.ecosystem_desc': '利用 AST 符号图谱与架构不变量强化候选生成（支持优雅自主降级）。',
+      'aggregator.knowledge_title': '🧠 长期共识知识图谱 (Memory-Brain)',
+      'aggregator.knowledge_desc': '将共识决策保存至 ~/.dsh/moa/knowledge.json 并与 dsh-memory-brain 同步以防止重复争议。',
     }
 
 
