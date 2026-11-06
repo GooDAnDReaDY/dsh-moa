@@ -233,6 +233,10 @@
       'aggregator.profiler_gate_desc': 'Runs isolated micro-benchmarks measuring execution latency, throughput (ops/sec), and heap memory usage.',
       'aggregator.mutation_gate_title': '🧬 Runtime Mutation Testing Gate for Candidate Tests',
       'aggregator.mutation_gate_desc': 'Injects synthetic faults into candidate code to test test-suite robustness, eliminating tautological and weak tests.',
+      'aggregator.privacy_gate_title': '🛡️ Hybrid Private Edge MoA (Local Edge Proposers + Cloud Judge)',
+      'aggregator.privacy_gate_desc': 'Scans and redacts proprietary secrets, local paths, and private network IPs before forwarding proposals to external cloud judges.',
+      'aggregator.speculative_gate_title': '⚡ Heterogeneous Speculative Decoding (Local Draft + Cloud Verifier)',
+      'aggregator.speculative_gate_desc': 'Lightweight local edge model generates high-speed token drafts verified and completed in one fast pass by the cloud model.',
     }
 
 

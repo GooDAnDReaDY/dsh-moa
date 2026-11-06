@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.78 (2026-11-06)
+
+### Features
+- **Hybrid Private Edge MoA & Cloud Judge Sanitizer (#306)**: Added `lib/pipeline/privacy-sanitizer.js`, `sanitizeSensitiveText`, `sanitizeCandidatesForCloudJudge`, `formatPrivacyDirective`, and `hybrid_edge_privacy_enabled`, `cloud_judge_sanitization_enabled`, `redact_paths`, `redact_secrets`, `redact_ips` preset settings. Scrubs internal absolute file paths (`/home/...`, `C:\Users\...`), private network IP addresses (`192.168.x.x`, `10.x.x.x`), API secrets (`sk-...`, JWTs, Bearer tokens, private keys), and personal emails before forwarding prompts or candidate proposals to external Cloud Judges, while preserving pristine originals locally for safe workspace promotion. Emits `moa/privacy-sanitized` Cordis events.
+- **Heterogeneous Speculative Decoding with Local Draft & Cloud Verifier (#317)**: Added `lib/pipeline/speculative-verifier.js`, `estimateTokens`, `runSpeculativeVerification`, `createSpeculativeCallLlm`, and `speculative_draft_enabled`, `speculative_block_size` (default: `256`) preset options. Employs a rapid local edge model (e.g. Qwen 2.5 Coder 3B/7B via Ollama/MiniPC) to generate an initial high-throughput token draft block, which a powerful cloud verifier model validates, patches, and completes in a single fast pass. Accelerates response latency by 2–3x, measures effective tokens/sec throughput and speedup factors, and emits `moa/speculative-draft` Cordis events.
+- **Client WebUI Controls & Localizations (#306, #317)**: Added interactive configuration controls for Hybrid Private Edge MoA and Heterogeneous Speculative Decoding in `src/client/86-card-aggregator-ext2.js` with complete English, Chinese, and Russian localization.
+
 ## 0.2.77 (2026-11-06)
 
 ### Features

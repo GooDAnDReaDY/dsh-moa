@@ -340,6 +340,50 @@
                 )
               ),
 
+              /* Hybrid Edge Privacy Gate (#306) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 4 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: 'var(--dsw-alias-label-primary)', cursor: 'pointer' } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.hybrid_edge_privacy_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, hybrid_edge_privacy_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.privacy_gate_title') || '🛡️ Hybrid Private Edge MoA (Local Edge Proposers + Cloud Judge)'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.privacy_gate_desc') || 'Scans and redacts proprietary secrets, local paths, and private network IPs before forwarding proposals to external cloud judges.'
+                )
+              ),
+
+              /* Heterogeneous Speculative Decoding (#317) */
+              React.createElement(
+                'div',
+                { style: { display: 'flex', flexDirection: 'column', gap: 4 } },
+                React.createElement(
+                  'label',
+                  { style: { display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: 'var(--dsw-alias-label-primary)', cursor: 'pointer' } },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: Boolean(currentPreset.speculative_draft_enabled),
+                    onChange: (e) => updateCurrentPreset((p) => ({ ...p, speculative_draft_enabled: e.target.checked })),
+                    style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' },
+                  }),
+                  t('aggregator.speculative_gate_title') || '⚡ Heterogeneous Speculative Decoding (Local Draft + Cloud Verifier)'
+                ),
+                React.createElement(
+                  'div',
+                  { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } },
+                  t('aggregator.speculative_gate_desc') || 'Lightweight local edge model generates high-speed token drafts verified and completed in one fast pass by the cloud model.'
+                )
+              ),
+
               /* Fallback Judges Chain */
               React.createElement(
                 'div',

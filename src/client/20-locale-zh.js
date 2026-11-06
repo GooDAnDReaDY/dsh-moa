@@ -233,6 +233,10 @@
       'aggregator.profiler_gate_desc': '在隔离沙箱中运行微基准测试，精确度量执行延迟、吞吐量 (ops/sec) 和堆内存分配。',
       'aggregator.mutation_gate_title': '🧬 候选测试套件运行时变异测试关卡',
       'aggregator.mutation_gate_desc': '向代码注入合成故障并验证测试的捕获能力，剔除同义反复与无效的虚假测试。',
+      'aggregator.privacy_gate_title': '🛡️ 混合隐私边缘 MoA (本地生成 + 云端裁判)',
+      'aggregator.privacy_gate_desc': '在将候选提案发送给外部云端裁判之前，扫描并脱敏专有密钥、本地绝对路径与私有网络 IP。',
+      'aggregator.speculative_gate_title': '⚡ 异构投机解码 (本地草稿 + 云端验证)',
+      'aggregator.speculative_gate_desc': '轻量级本地边缘模型生成高速草稿，由强大的云端模型一次性快速验证并完善。',
     }
 
 
