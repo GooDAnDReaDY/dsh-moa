@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.86 (2026-11-07)
+
+### Security & Hardening
+- **Preflight and Security Audit Hardening (#338)**:
+  - Eliminated bare empty catch blocks across `lib/services.js` with documented exception handlers preventing silent failures and satisfying preflight static analysis.
+  - Hardened Cordis service resolution (`service(ctx, name)`, `getWebServer(ctx)`, `getWebServerPort(ctx)`) against context proxy traps in un-injected and test mock environments.
+  - Verified full route authorization (`assertAuthorizedRequest` and `isSafeWriteRequest`) across all mutating API endpoints.
+  - Verified line budgets (all source files <= 600 lines) and bundle size constraints (client bundle < 256 KiB).
+  - Achieved 100% preflight pass (`FAIL=0`) and verified all 551 unit and integration tests passing.
+
 ## 0.2.79 (2026-11-06)
 
 ### Features
