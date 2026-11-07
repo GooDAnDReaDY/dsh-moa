@@ -271,6 +271,12 @@
       'aggregator.multi_stream_desc': 'Streams parallel candidate tokens in real-time split columns with TTFT and tok/s speed metrics.',
       'aggregator.ast_heatmap_title': '🌈 AST Consensus Heatmap in Code Diff',
       'aggregator.ast_heatmap_desc': 'Visualizes line-by-line consensus agreement across models with interactive contested block resolution.',
+      'aggregator.arena_title': '⚔️ Blind Battle Arena & Human Jury Mode',
+      'aggregator.arena_desc': 'Anonymizes candidate models as Option A/B/C for blind human voting with local ELO leaderboard ranking.',
+      'aggregator.mixer_title': '🧩 Interactive Drag-and-Drop Block Mixer',
+      'aggregator.mixer_desc': 'Enables discrete AST/markdown block extraction and manual composition across candidates with judge reconciliation.',
+      'aggregator.timeline_title': '⏳ Historical Consensus Decision Timeline & Time-Travel',
+      'aggregator.timeline_desc': 'Captures granular phase snapshots across debate and synthesis stages with interactive rewind and branch forking.',
     }
 
 

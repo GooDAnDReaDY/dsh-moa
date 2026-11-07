@@ -271,6 +271,12 @@
       'aggregator.multi_stream_desc': '在分屏多列中并行流式渲染候选模型输出，并实时显示 TTFT 与 tok/s 速率。',
       'aggregator.ast_heatmap_title': '🌈 代码差异 AST 共识热力图',
       'aggregator.ast_heatmap_desc': '逐行可视化多模型代码共识度，并提供争议代码块交互式候选切换选择器。',
+      'aggregator.arena_title': '⚔️ 盲选竞技场与人工评审模式',
+      'aggregator.arena_desc': '将候选模型匿名显示为选项A/B/C进行人工盲测投票，并在本地ELO排行榜记录胜率。',
+      'aggregator.mixer_title': '🧩 交互式拖拽区块混合器',
+      'aggregator.mixer_desc': '支持从各候选方案提取离散语法/代码块并手动重组拼接，由仲裁模型消除衔接生硬。',
+      'aggregator.timeline_title': '⏳ 历史共识决策时间轴与分支复刻',
+      'aggregator.timeline_desc': '按阶段记录辩论与合成的快照，支持时间回溯对比与分支复刻。',
     }
 
 

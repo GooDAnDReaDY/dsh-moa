@@ -353,6 +353,13 @@ dsh-moa:
 | `/dsh-moa/cache` | `GET` | Returns semantic cache stats, hit/miss counters, and saved token metrics |
 | `/dsh-moa/cache` | `POST` | Purges cached candidate generations with optional olderThanMs filter |
 | `/api/dsh-moa/update` | `POST` | One-click plugin updater from npm with safe-write verification |
+| `/dsh-moa/stream/:id` | `GET` | SSE stream for multi-column candidate generation (#295) |
+| `/dsh-moa/ast-heatmap` | `POST` | AST multi-candidate consensus scoring & contested block resolution (#297) |
+| `/dsh-moa/arena/leaderboard` | `GET` | Human jury Battle Arena ELO leaderboard (#294) |
+| `/dsh-moa/arena/vote` | `POST` | Records human blind vote and updates pairwise ELO ratings (#294) |
+| `/dsh-moa/mixer/stitch` | `POST` | Assembles and generates judge directive for operator-selected blocks (#296) |
+| `/dsh-moa/timeline/:id` | `GET` | Historical stage-by-stage consensus snapshots (#320) |
+| `/dsh-moa/timeline/fork` | `POST` | Forks execution session from an intermediate decision point (#320) |
 
 ---
 
