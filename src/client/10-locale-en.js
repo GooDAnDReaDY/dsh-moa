@@ -267,6 +267,10 @@
       'aggregator.ecosystem_desc': 'Enriches candidate generation with AST symbol graphs and architectural invariants (graceful autonomous fallback).',
       'aggregator.knowledge_title': '🧠 Long-Term Consensus Knowledge Graph',
       'aggregator.knowledge_desc': 'Persists consensus decisions to ~/.dsh/moa/knowledge.json and syncs with dsh-memory-brain to prevent recurring debates.',
+      'aggregator.multi_stream_title': '⚡ Multi-Column Live Candidate Streaming',
+      'aggregator.multi_stream_desc': 'Streams parallel candidate tokens in real-time split columns with TTFT and tok/s speed metrics.',
+      'aggregator.ast_heatmap_title': '🌈 AST Consensus Heatmap in Code Diff',
+      'aggregator.ast_heatmap_desc': 'Visualizes line-by-line consensus agreement across models with interactive contested block resolution.',
     }
 
 
