@@ -74,6 +74,20 @@
                 )
               ),
 
+              /* Multi-Column Streaming (#295) & AST Heatmap (#297) */
+              React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 12px', background: 'var(--dsw-alias-bg-layer-2)', borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)', marginTop: 8 } },
+                React.createElement('label', { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 } },
+                  React.createElement('input', { type: 'checkbox', checked: currentPreset.multi_column_stream_enabled !== false, onChange: (e) => updateCurrentPreset((p) => ({ ...p, multi_column_stream_enabled: e.target.checked })), style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' } }),
+                  t('aggregator.multi_stream_title') || '⚡ Multi-Column Live Candidate Streaming'
+                ),
+                React.createElement('div', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } }, t('aggregator.multi_stream_desc') || 'Streams parallel candidate tokens in real-time split columns with TTFT and tok/s speed metrics.'),
+                React.createElement('label', { style: { display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500, marginTop: 6 } },
+                  React.createElement('input', { type: 'checkbox', checked: currentPreset.ast_heatmap_enabled !== false, onChange: (e) => updateCurrentPreset((p) => ({ ...p, ast_heatmap_enabled: e.target.checked })), style: { accentColor: 'var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary))', cursor: 'pointer' } }),
+                  t('aggregator.ast_heatmap_title') || '🌈 AST Consensus Heatmap in Code Diff'
+                ),
+                React.createElement('div', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', marginLeft: 22 } }, t('aggregator.ast_heatmap_desc') || 'Visualizes line-by-line consensus agreement across models with interactive contested block resolution.')
+              ),
+
               /* Multi-Turn Context & Diff Pruning (#176) */
               React.createElement(
                 'div',

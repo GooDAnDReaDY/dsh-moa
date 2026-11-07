@@ -267,6 +267,10 @@
       'aggregator.ecosystem_desc': '利用 AST 符号图谱与架构不变量强化候选生成（支持优雅自主降级）。',
       'aggregator.knowledge_title': '🧠 长期共识知识图谱 (Memory-Brain)',
       'aggregator.knowledge_desc': '将共识决策保存至 ~/.dsh/moa/knowledge.json 并与 dsh-memory-brain 同步以防止重复争议。',
+      'aggregator.multi_stream_title': '⚡ 多列候选模型实时流式传输',
+      'aggregator.multi_stream_desc': '在分屏多列中并行流式渲染候选模型输出，并实时显示 TTFT 与 tok/s 速率。',
+      'aggregator.ast_heatmap_title': '🌈 代码差异 AST 共识热力图',
+      'aggregator.ast_heatmap_desc': '逐行可视化多模型代码共识度，并提供争议代码块交互式候选切换选择器。',
     }
 
 
