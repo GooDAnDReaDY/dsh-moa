@@ -214,6 +214,10 @@ If `@goodandready/dsh-live-canvas` is installed in the same profile, `dsh-moa` p
 
 ---
 
+## 🖼️ Visual verification
+
+![dsh-moa visual verification](media/visual-verification.png)
+
 ## 📦 Installation
 
 Install into your DeepSeek Harness web profile:

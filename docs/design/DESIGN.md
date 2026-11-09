@@ -351,3 +351,72 @@
      - 4 новых тестовых файла (14 специализированных тестов), полный тестовый набор вырос до 412 тестов со 100% PASS.
      - Префлайт `dsh-plugin-preflight` пройден с `FAIL=0 WARN=3`.
 
+
+## Route Policy / Политика маршрутов
+
+Все HTTP API маршруты регистрируются через `lib/routes/*.js` и `lib/updater.js`. Маршруты сгруппированы по функциональным областям с обязательной fail-closed проверкой аутентификации `assertAuthorizedRequest(req, res, ctx)` и валидацией контекста записи `isSafeWriteRequest(req)` для всех мутирующих запросов.
+
+| Маршрут | Метод | Авторизация (`assertAuthorizedRequest`) | Проверка записи (`isSafeWriteRequest` / `isTrustedUpdateRequest`) | Назначение |
+|---|---|---|---|---|
+| `/api/dsh-moa/update` | `GET`, `HEAD` | N/A (Status check) | `isLoopback` | Проверка наличия новой версии в реестре npm |
+| `/api/dsh-moa/update` | `POST` | N/A | `isTrustedUpdateRequest` (loopback / safe-origin) | Установка точной версии из npm через pnpm |
+| `/dsh-moa/presets` | `GET` | ✅ Обязательна | N/A | Получение списка сконфигурированных пресетов |
+| `/dsh-moa/presets` | `POST`, `PUT` | ✅ Обязательна | ✅ Fail-closed | Сохранение/обновление конфигурации пресетов |
+| `/dsh-moa/presets/reset` | `POST` | ✅ Обязательна | ✅ Fail-closed | Сброс настроек пресета к значениям по умолчанию |
+| `/dsh-moa/presets/export` | `GET` | ✅ Обязательна | N/A | Экспорт пресетов в JSON-формате |
+| `/dsh-moa/presets/import` | `POST` | ✅ Обязательна | ✅ Fail-closed | Импорт пресетов из JSON |
+| `/dsh-moa/history` | `GET` | ✅ Обязательна | N/A | Список последних выполненных сессий MoA |
+| `/dsh-moa/runs/:id` | `GET` | ✅ Обязательна | N/A | Детальный отчет по конкретной сессии |
+| `/dsh-moa/runs/:id/workbench` | `GET` | ✅ Обязательна | N/A | Получение состояния интерактивного верстака |
+| `/dsh-moa/runs/:id/workbench/assemble` | `POST` | ✅ Обязательна | ✅ Fail-closed | Ручная сборка и сведение фрагментов решений |
+| `/dsh-moa/promote` | `POST` | ✅ Обязательна | ✅ Fail-closed | Продвижение кода победителя в рабочую область |
+| `/dsh-moa/diff` | `GET` | ✅ Обязательна | N/A | Вычисление и просмотр построчного diff |
+| `/dsh-moa/pipeline/run` | `POST` | ✅ Обязательна | ✅ Fail-closed | Запуск конвейера MoA с параметрами из UI |
+| `/dsh-moa/preferences` | `GET` | ✅ Обязательна | N/A | Чтение предпочтений разработчика |
+| `/dsh-moa/preferences` | `POST`, `PATCH` | ✅ Обязательна | ✅ Fail-closed | Сохранение/обновление предпочтений разработчика |
+| `/dsh-moa/preferences` | `DELETE` | ✅ Обязательна | ✅ Fail-closed | Сброс предпочтений разработчика |
+| `/dsh-moa/cache` | `GET` | ✅ Обязательна | N/A | Статистика семантического кэша генераций |
+| `/dsh-moa/cache/clear` | `POST` | ✅ Обязательна | ✅ Fail-closed | Очистка семантического кэша |
+| `/dsh-moa/benchmark/run` | `POST` | ✅ Обязательна | ✅ Fail-closed | Запуск регрессионного тестового бенчмарка |
+| `/dsh-moa/arena/leaderboard` | `GET` | ✅ Обязательна | N/A | Чтение ELO-лидерборда моделей в Blind Arena |
+| `/dsh-moa/arena/anonymize` | `POST` | ✅ Обязательна | ✅ Fail-closed | Анонимизация кандидатов в слепой арене |
+| `/dsh-moa/arena/reveal` | `POST` | ✅ Обязательна | ✅ Fail-closed | Раскрытие реальных моделей после судейства |
+| `/dsh-moa/arena/vote` | `POST` | ✅ Обязательна | ✅ Fail-closed | Учет голоса человека и пересчет рейтинга ELO |
+| `/dsh-moa/mixer/parse` | `POST` | ✅ Обязательна | ✅ Fail-closed | Парсинг markdown/кода на смысловые блоки |
+| `/dsh-moa/mixer/stitch` | `POST` | ✅ Обязательна | ✅ Fail-closed | Сшивка и сглаживание выбранных блоков |
+| `/dsh-moa/timeline/sessions` | `GET` | ✅ Обязательна | N/A | Список записанных сессий таймлайна консенсуса |
+| `/dsh-moa/timeline/:id` | `GET` | ✅ Обязательна | N/A | Детализированные этапы консенсуса по сессии |
+| `/dsh-moa/timeline/record` | `POST` | ✅ Обязательна | ✅ Fail-closed | Запись снимка эволюции решения в таймлайн |
+| `/dsh-moa/timeline/fork` | `POST` | ✅ Обязательна | ✅ Fail-closed | Ветвление пайплайна с промежуточного шага |
+| `/dsh-moa/stream/status` | `GET` | ✅ Обязательна | N/A | Статус многоколоночного потокового вывода |
+| `/dsh-moa/stream/start` | `POST` | ✅ Обязательна | ✅ Fail-closed | Инициализация многоколоночной сессии генерации |
+| `/dsh-moa/heatmap/ast` | `POST` | ✅ Обязательна | ✅ Fail-closed | Анализ синтаксических блоков и построение тепловой карты |
+| `/dsh-moa/heatmap/consensus` | `POST` | ✅ Обязательна | ✅ Fail-closed | Расчет консенсуса по блокам кода кандидатов |
+
+## What is published / Что публикуется (Publication Scope)
+
+Строгое разграничение продуктовых артефактов и внутренних проектных материалов гарантирует соблюдение квот размера пакета DSH Store (< 256 KiB) и исключает утечку внутренней проектной документации.
+
+### Состав пакета npm (`package.json.files` allowlist)
+- `lib/` — собранные runtime-модули хоста и сжатый клиентский бандл `lib/client.js` (< 256 KiB);
+- `cordis.patch.yml` — слой конфигурации профиля DSH;
+- `README.md` — каноническая пользовательская документация на английском языке со встроенным visual verification скриншотом;
+- `README.ru.md` — равнозначная документация на русском языке;
+- `README.zh.md` — равнозначная документация на китайском языке;
+- `LICENSE` — лицензия MIT;
+- `media/visual-verification.png` — backing-asset визуального свидетельства интерфейса для отображения в npm/DSH/GitHub;
+- `package.json` — манифест пакета с метаданными.
+
+### Зеркало GitHub (`scripts/publish-github.sh` allowlist)
+- Состав пакета npm (все файлы выше);
+- `CHANGELOG.md` — официальная история релизов плагина;
+- `.gitignore` — правила исключения временных файлов;
+- `docs/design/DESIGN.md` — публичный дизайн-контракт проекта.
+
+### Запрещено к публикации (остается строго в Gitea)
+- `AGENTS.md`, `index.md`, `deploy.sh`;
+- `.gitea/`, `.worktrees/`, `.planning/`, `docs/plans/`;
+- Тестовые комплекты `test/`, dev-скрипты `scripts/`;
+- Временные артефакты `*.tgz`, кэши, архивы и дампы.
+
+*Дата последней ревизии состава:* `2026-11-09` (Релиз v0.2.86).
