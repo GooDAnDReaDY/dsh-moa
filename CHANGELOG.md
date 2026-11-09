@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.87 (2026-11-09)
+
+### Documentation & Standards
+- **Design Contract Route Policy & Publication Scope (#341)**: Added mandatory «Route Policy» (complete audit of 34 REST API endpoints with auth/write verification status) and «Publication Scope» tables to `docs/design/DESIGN.md` conforming to `project-deep-audit` and `project-design-contract`.
+- **Production Visual Verification Evidence (#344)**: Generated crisp dual-column DSH native dark theme visual evidence `media/visual-verification.png` (105 KiB, < 256 KiB limit) and embedded into `README.md` under `## 🖼️ Visual verification`, added to `package.json.files` backing assets.
+
+### Internationalization & Hardening
+- **Canonical English Backend Strings (#342)**: Replaced hardcoded Russian labels (`Вариант A/B`) in `lib/pipeline/battle-arena.js` with canonical English `Candidate A/B` and localized entropy diagnostic warnings in `lib/moa-uncertainty.js` per `dsh-plugin-authoring` specification.
+- **Ecosystem Localization Sync (#602)**: Logged translation task in `goodandready/dsh-russian-lang` for Release 12 WebUI components (Human Jury Battle Arena, Block Mixer, Decision Timeline).
+
+### Code Quality & Simplification
+- **Ponytail Dead Export Elimination (#343)**: Removed unused exported constants `COMPANION_REPOS` in `lib/pipeline/ecosystem-context.js` and `DEFAULT_KNOWLEDGE_FILE` in `lib/pipeline/knowledge-graph.js`.
+
 ## 0.2.86 (2026-11-07)
 
 ### Security & Hardening
