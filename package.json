@@ -16,7 +16,8 @@
     "README.md",
     "README.ru.md",
     "README.zh.md",
-    "LICENSE"
+    "LICENSE",
+    "media/visual-verification.png"
   ],
   "scripts": {
     "test": "node scripts/build-client.mjs --check && node --import ./test/_setup.mjs --test test/*.test.mjs",
