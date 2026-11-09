@@ -34,8 +34,8 @@ test('Issue #294: Candidate anonymization and reveal flow in Blind Battle Arena'
 
   const anonymized = anonymizeCandidates(rawCandidates, sessionId)
   assert.equal(anonymized.length, 2)
-  assert.equal(anonymized[0].label, 'Вариант A')
-  assert.equal(anonymized[1].label, 'Вариант B')
+  assert.equal(anonymized[0].label, 'Candidate A')
+  assert.equal(anonymized[1].label, 'Candidate B')
   assert.equal(anonymized[0].isAnonymized, true)
   assert.equal(anonymized[0].originalModel, undefined)
 
@@ -57,7 +57,7 @@ test('Issue #294: Recording votes updates persistent ELO ratings and leaderboard
 
     const voteRes = recordBattleVote({
       sessionId,
-      winnerId: 'Вариант A',
+      winnerId: 'Candidate A',
       notes: 'Model A was cleaner',
       customPath: tmpFile
     })
