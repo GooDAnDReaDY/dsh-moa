@@ -1,5 +1,8 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import {
   buildRebuttalPrompt,
   parseRebuttalResponse,
@@ -100,29 +103,37 @@ export function binarySearch(arr, target) {
       { index: 2, label: 'Model B', text: 'console.log("initial B");', provider: 'test', model: 'mock-b' },
     ]
 
-    const result = await runRebuttalDebatePhase({
-      candidates,
-      userPrompt: 'Write console log program',
-      preset: {
-        rebuttal_debate_enabled: true,
-        rebuttal_rounds: 2,
-      },
-      callLlm: mockCallLlm,
-      ctx: mockCtx,
-      runId: 'test-run-debate',
-    })
+    const testCwd = fs.mkdtempSync(path.join(os.tmpdir(), 'dsh-debate-test-'))
+    const uniqueRunId = `test-run-debate-${Date.now()}-${Math.random().toString(36).slice(2)}`
 
-    assert.equal(result.ok, true)
-    assert.equal(result.rounds.length, 2)
-    assert.ok(result.totalCritiques > 0)
-    assert.ok(result.debateDirective.includes('Debate Round 1'))
-    assert.ok(result.debateDirective.includes('Debate Round 2'))
-    assert.ok(result.updatedCandidates[0].text.includes('console.log("refined v2");'))
+    try {
+      const result = await runRebuttalDebatePhase({
+        candidates,
+        userPrompt: 'Write console log program',
+        preset: {
+          rebuttal_debate_enabled: true,
+          rebuttal_rounds: 2,
+        },
+        callLlm: mockCallLlm,
+        ctx: mockCtx,
+        runId: uniqueRunId,
+        cwd: testCwd,
+      })
 
-    const debateEvents = events.filter((e) => e.evt === MOA_EVENTS.DEBATE_ROUND)
-    assert.equal(debateEvents.length, 2)
-    assert.equal(debateEvents[0].payload.roundNumber, 1)
-    assert.equal(debateEvents[1].payload.roundNumber, 2)
+      assert.equal(result.ok, true)
+      assert.equal(result.rounds.length, 2)
+      assert.ok(result.totalCritiques > 0)
+      assert.ok(result.debateDirective.includes('Debate Round 1'))
+      assert.ok(result.debateDirective.includes('Debate Round 2'))
+      assert.ok(result.updatedCandidates[0].text.includes('console.log("refined v2");'))
+
+      const debateEvents = events.filter((e) => e.evt === MOA_EVENTS.DEBATE_ROUND)
+      assert.equal(debateEvents.length, 2)
+      assert.equal(debateEvents[0].payload.roundNumber, 1)
+      assert.equal(debateEvents[1].payload.roundNumber, 2)
+    } finally {
+      try { fs.rmSync(testCwd, { recursive: true, force: true }) } catch {}
+    }
   })
 
   it('runRebuttalDebatePhase: skips cleanly when disabled or insufficient candidates', async () => {
