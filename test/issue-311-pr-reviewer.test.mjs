@@ -18,7 +18,8 @@ describe('Issue #311: Pull Request & Webhook Consensus Reviewer Bot Mode', () =>
     assert.equal(verifyWebhookSignature(payload, validSig, secret), true)
     assert.equal(verifyWebhookSignature(payload, 'sha256=invalid-signature-hash', secret), false)
     assert.equal(verifyWebhookSignature(payload, '', secret), false)
-    assert.equal(verifyWebhookSignature(payload, '', ''), true, 'Empty secret allows test payload')
+    assert.equal(verifyWebhookSignature(payload, '', ''), false, 'Empty secret fails closed')
+    assert.equal(verifyWebhookSignature(payload, validSig, ''), false, 'Missing secret fails closed')
   })
 
   it('parseDiffSummary: accurately parses files changed, additions, deletions, and hunks', () => {

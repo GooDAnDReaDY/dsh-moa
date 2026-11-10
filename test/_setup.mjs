@@ -14,3 +14,4 @@ process.env.DSH_STORAGE_DIR = path.join(tempDsh, 'storages')
 process.env.DSH_CATALOG_FILE = path.join(tempDsh, 'storages', 'dsh-moa-catalog.json')
 process.env.NODE_ENV = 'test'
 process.env.DSH_TEST = '1'
+process.env.DSH_TRUSTED_HOSTS = 'app.test'
