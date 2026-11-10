@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.2.88 (2026-11-10)
+
+### Bug Fixes & Security Hardening
+- **Benchmark & Autonomous PR Review Webhook Fixes (#349)**:
+  - Replaced direct `ctx.config` property access in `lib/routes/benchmark.js` with dynamic `deps.live()` resolver, fixing Cordis un-injected context exception and kernel 400 response.
+  - Implemented fail-closed webhook signature verification in `lib/pipeline/pr-reviewer.js` (empty secret rejects with 403).
+  - Enforced `pr_review_bot_enabled` gate and configured repository verification (`pr_review_allowed_repos`) before triggering multi-model PR consensus.
+- **DNS Rebinding Protection for Loopback Endpoints (#351)**:
+  - Added strict `Host` header validation (`isTrustedLocalHost`, `hostNameOf`) to `getReadRejectionStatus` in `lib/access.js` and `isSafeWriteRequest` / `isTrustedUpdateRequest` in `lib/updater.js`.
+  - Rejects foreign Host headers on loopback sockets with HTTP 403, neutralizing DNS rebinding attacks against read and mutation endpoints.
+- **Silent Catch Elimination (#352)**:
+  - Replaced all 9 bare `catch (_e) {}` blocks across `lib/commands.js`, `lib/routes/presets.js`, `lib/pipeline/ecosystem-context.js`, `lib/pipeline/multi-stream.js`, `lib/pipeline/knowledge-graph.js`, and `lib/moa-model-validator.js` with structured `bestEffort` calls.
+  - Preset validation errors during GET and PUT are now cleanly captured and logged rather than silently dropped.
+- **Dead Export Wiring & Pipeline Integration (#353)**:
+  - Integrated `isVisualUiTask` into `lib/pipeline/runner.js` to automatically activate multimodal visual consensus when UI markup or frontend tasks are detected.
+  - Connected `resetRuntimeCacheStats` into `POST /dsh-moa/cache` clear handler in `lib/routes/cache.js`.
+
+### Build & Tooling
+- **Reproducible Fresh Clone & Clean Lockfile (#350)**:
+  - Added `@deepseek-ai/schemastery`, `@deepseek-ai/cordis`, and core DSH packages to `devDependencies` in `package.json`.
+  - Upgraded vulnerable `zod 4.6.5` to `4.6.7` via npm package overrides.
+  - Synchronized `package-lock.json` and purged outdated `pnpm-lock.yaml`, enabling clean, zero-failure `npm ci && npm test`.
+  - Hardened `test/issue-298-rebuttal-debate.test.mjs` with isolated temporary workspace and unique runId to eliminate parallel test race conditions.
+
 ## 0.2.87 (2026-11-09)
 
 ### Documentation & Standards
