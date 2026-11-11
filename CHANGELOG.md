@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.89 (2026-11-11)
+
+### Packaging, Client Chunks & Reliability
+- **Repository & Packaging Hygiene (#355, #356)**:
+  - Tracked internal governance/deploy files (`AGENTS.md`, `index.md`, `deploy.sh`) in Gitea alongside `docs/design/DESIGN.md` while excluding them from `git archive` (`.gitattributes export-ignore`), `npm` (`package.json.files`), and GitHub (`scripts/publish-github.sh`).
+  - Removed legacy release `*.tgz` tarballs from repository root, documented external packing (`npm pack --pack-destination /tmp`) in `AGENTS.md`, and integrated `scripts/pack-check.mjs` into `npm test` (fails on root `*.tgz` or any packed file > `262,144` bytes, warns at >= `256,000` bytes).
+- **Client Bundle Splitting & Headroom Recovery (#357)**:
+  - Extracted `CandidateDiffSection` and `InteractiveWorkbenchSection` into lazy chunk `lib/client.panels.js` (`29,134` bytes, loaded on demand via `require.async('./client.panels.js')` + `React.Suspense`).
+  - Extracted Simplified Chinese dictionary (`zh`) into lazy chunk `lib/client.zh.js` (`32,783` bytes, loaded on demand via `require.async('./client.zh.js')`).
+  - Reduced synchronous entrypoint `lib/client.js` from 97.6% of the DSH Store quota to `196,865` bytes (`65,279` bytes headroom). Updated `docs/design/DESIGN.md`.
+- **Silent Rejection Elimination & Pricing Catalog Observability (#358)**:
+  - Replaced silent `.catch(() => {})` handlers in `lib/pricing.js`, `lib/moa-stream.js`, `lib/history.js`, `lib/moa-swarm.js` (and client hooks/panels) with structured logging / `bestEffort`.
+  - Added `getCatalogStatus()` in `lib/pricing.js` exposing `stale`, `lastFetchedAt`, `lastError`, `lastErrorAt`, and `modelCount`, surfaced via `GET /dsh-moa/status` and new `GET /dsh-moa/health`.
+  - Expanded `dsh-plugin-preflight` check #1 detector to flag `.catch(() => {})` patterns in `lib/`.
+
 ## 0.2.88 (2026-11-10)
 
 ### Bug Fixes & Security Hardening
