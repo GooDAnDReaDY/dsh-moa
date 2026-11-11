@@ -6,28 +6,31 @@ import { formatMoAResponse } from '../lib/moa-parser.js'
 import { isRefinementTask } from '../lib/file-workspace.js'
 import { isBroadPromptRequiringQuestions } from '../lib/moa-prompts.js'
 
-test('localization: lib/client.js defines full zh dictionary with complete key parity to en', () => {
+test('localization: lib/client.zh.js defines full zh dictionary with complete key parity to en', () => {
   const clientPath = path.resolve('lib/client.js')
+  const zhChunkPath = path.resolve('lib/client.zh.js')
   const clientContent = fs.readFileSync(clientPath, 'utf-8')
+  const zhContent = fs.readFileSync(zhChunkPath, 'utf-8')
 
-  // Extract en dict
+  // Extract en dict from main bundle
   const enMatch = /const en = \{([\s\S]*?)\n    \}/.exec(clientContent)
   assert.ok(enMatch, 'Must find en dictionary in lib/client.js')
   const enKeys = [...enMatch[1].matchAll(/['"]([a-zA-Z0-9_.-]+)['"]\s*:/g)].map((m) => m[1])
   assert.ok(enKeys.length >= 40, `en dictionary must have >= 40 keys (found ${enKeys.length})`)
 
-  // Extract zh dict
-  const zhMatch = /const zh = \{([\s\S]*?)\n    \}/.exec(clientContent)
-  assert.ok(zhMatch, 'Must find zh dictionary in lib/client.js')
+  // Extract zh dict from lazy zh chunk
+  const zhMatch = /const zh = \{([\s\S]*?)\n    \}/.exec(zhContent)
+  assert.ok(zhMatch, 'Must find zh dictionary in lib/client.zh.js')
   const zhKeys = [...zhMatch[1].matchAll(/['"]([a-zA-Z0-9_.-]+)['"]\s*:/g)].map((m) => m[1])
 
   // Verify all en keys exist in zh
   const missingInZh = enKeys.filter((k) => !zhKeys.includes(k))
   assert.deepEqual(missingInZh, [], 'All keys in en must exist in zh dictionary')
 
-  // Verify registration in exports.apply
+  // Verify synchronous en registration and lazy zh chunk loading in exports.apply
   assert.ok(clientContent.includes("addLocale('en', en)") || clientContent.includes('addLocale("en", en)'))
-  assert.ok(clientContent.includes("addLocale('zh', zh)") || clientContent.includes('addLocale("zh", zh)'))
+  assert.match(clientContent, /require\.async\(['"]\.\/client\.zh\.js['"]\)/, 'client.js lazy-loads ./client.zh.js')
+  assert.ok(clientContent.includes("addLocale('zh', mod.zh)") || clientContent.includes('addLocale("zh", mod.zh)'))
 })
 
 test('formatMoAResponse: renders canonical English output', () => {

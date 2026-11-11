@@ -183,3 +183,44 @@ test('client bundle contains no references to allModels', () => {
   const clientSrc = fs.readFileSync(clientPath, 'utf8')
   assert.equal(clientSrc.includes('allModels'), false, 'lib/client.js contains no reference to allModels')
 })
+
+
+test('lazy client chunks load and expose expected exports under __ModuleLoader__', () => {
+  for (const chunkInfo of [
+    { file: 'lib/client.panels.js', chunk: 'client.panels.js', needsReact: true, keys: ['CandidateDiffSection', 'InteractiveWorkbenchSection'] },
+    { file: 'lib/client.zh.js', chunk: 'client.zh.js', needsReact: false, keys: ['zh'] },
+  ]) {
+    const chunkPath = path.join(root, chunkInfo.file)
+    assert.ok(fs.existsSync(chunkPath), `${chunkInfo.file} exists`)
+    const src = fs.readFileSync(chunkPath, 'utf8')
+    let loaded = null
+    const fakeReact = {
+      createElement: () => ({}),
+      useState: (v) => [typeof v === 'function' ? v() : v, () => {}],
+      useEffect: () => {},
+      useCallback: (f) => f,
+      useMemo: (f) => f(),
+    }
+    const ctx = vm.createContext({
+      window: {
+        __ModuleLoader__: {
+          load: ({ id, chunk, factory }) => {
+            assert.equal(id, '@goodandready/dsh-moa')
+            assert.equal(chunk, chunkInfo.chunk)
+            loaded = factory((name) => {
+              if (chunkInfo.needsReact && name === 'react') return fakeReact
+              throw new Error(`Unexpected chunk require: ${name}`)
+            })
+          },
+        },
+      },
+      console,
+      fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }),
+    })
+    new vm.Script(src).runInContext(ctx)
+    assert.ok(loaded, `${chunkInfo.file} exported module`)
+    for (const k of chunkInfo.keys) {
+      assert.ok(loaded[k], `${chunkInfo.file} exports ${k}`)
+    }
+  }
+})

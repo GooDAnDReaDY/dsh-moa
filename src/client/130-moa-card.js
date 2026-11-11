@@ -3,6 +3,9 @@
       const state = useMoASettings(props)
       const page = !!(props && props.view === 'page')
       const [open, setOpen] = React.useState(!!page)
+      React.useEffect(() => {
+        if (typeof ensureZhIfNeeded === 'function') ensureZhIfNeeded()
+      }, [])
 
       // Row seat (plugins.row.config): the host page draws title/icon/crumb and the
       // padding, so the summary is a one-liner and the page drops our card chrome.

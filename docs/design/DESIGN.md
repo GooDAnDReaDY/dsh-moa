@@ -352,6 +352,20 @@
      - Префлайт `dsh-plugin-preflight` пройден с `FAIL=0 WARN=3`.
 
 
+- 2026-11-11 — Завершение аудита #355–#358 (гигиена репозитория и упаковки, ленивое разбиение клиентского бандла, детекция тихих `.catch` и наблюдаемость прайсинга):
+  1. **Отслеживание проектных управляющих файлов (#355)**: `AGENTS.md`, `index.md` и `deploy.sh` исключены из `.gitignore` и взяты под контроль версий в Gitea при сохранении запрета на попадание в релизные архивы через `.gitattributes` (`export-ignore`), `package.json.files` и `scripts/publish-github.sh`.
+  2. **Контроль артефактов сборки и квот упаковки (#356)**: Все 16 локальных `.tgz` удалены из корня репозитория; правило упаковки во внешний каталог (`npm pack --pack-destination /tmp`) зафиксировано в `AGENTS.md`; скрипт `scripts/pack-check.mjs` интегрирован в `npm test` (блокирует корневые `*.tgz` и файлы > 262 144 байт, предупреждает при >= 256 000 байт).
+  3. **Разбиение клиентского бандла на ленивые чанки (#357)**: Из основного `lib/client.js` вынесены редкие тяжёлые панели (`src/client-panels/` -> `lib/client.panels.js`, **29 134 Б**, загрузка по требованию через `require.async('./client.panels.js')` + `React.Suspense`) и словарь `zh` (`src/client-zh/` -> `lib/client.zh.js`, **32 783 Б**, загрузка через `require.async('./client.zh.js')` при китайской локали). Размер основного `lib/client.js` снижен до **196 865 байт** (запас **65 279 байт** до лимита DSH Store 262 144 Б).
+  4. **Устранение тихих `.catch(() => {})` и телеметрия устаревшего прайсинга (#358)**: Ошибки в `lib/pricing.js`, `lib/moa-stream.js`, `lib/history.js` и `lib/moa-swarm.js` переведены на структурированное логирование (`bestEffort` / `logger.warn`); `getCatalogStatus()` фиксирует `stale`, `lastError`, `lastErrorAt` и публикуется через `GET /dsh-moa/status` и `GET /dsh-moa/health`. Детектор `preflight.sh` расширен для обнаружения `.catch(() => {})`.
+
+## Client Bundle & Lazy Chunks
+
+| Чанк | Назначение | Размер | Запас до лимита (262 144 Б) | Способ загрузки |
+|---|---|---|---|---|
+| `lib/client.js` | Карточка настроек, `en`-словарь, `/` триггер, ленивые обёртки | 196 865 Б | 65 279 Б (24.9%) | Синхронный entrypoint (`./client`) |
+| `lib/client.panels.js` | `CandidateDiffSection`, `InteractiveWorkbenchSection` | 29 134 Б | 233 010 Б | Ленивый `require.async('./client.panels.js')` + `React.Suspense` |
+| `lib/client.zh.js` | Словарь упрощённого китайского (`zh`) | 32 783 Б | 229 361 Б | Ленивый `require.async('./client.zh.js')` при локали `zh` |
+
 ## Route Policy / Политика маршрутов
 
 Все HTTP API маршруты регистрируются через `lib/routes/*.js` и `lib/updater.js`. Маршруты сгруппированы по функциональным областям с обязательной fail-closed проверкой аутентификации `assertAuthorizedRequest(req, res, ctx)` и валидацией контекста записи `isSafeWriteRequest(req)` для всех мутирующих запросов.
@@ -360,6 +374,8 @@
 |---|---|---|---|---|
 | `/api/dsh-moa/update` | `GET`, `HEAD` | N/A (Status check) | `isLoopback` | Проверка наличия новой версии в реестре npm |
 | `/api/dsh-moa/update` | `POST` | N/A | `isTrustedUpdateRequest` (loopback / safe-origin) | Установка точной версии из npm через pnpm |
+| `/dsh-moa/status` | `GET` | ✅ Обязательна | N/A | Статус плагина, пресетов и актуальность кэша прайсинга (`pricing`) |
+| `/dsh-moa/health` | `GET` | ✅ Обязательна | N/A | Состояние здоровья (`healthy`/`degraded`) и ошибки обновления прайсинга (`pricingStale`) |
 | `/dsh-moa/presets` | `GET` | ✅ Обязательна | N/A | Получение списка сконфигурированных пресетов |
 | `/dsh-moa/presets` | `POST`, `PUT` | ✅ Обязательна | ✅ Fail-closed | Сохранение/обновление конфигурации пресетов |
 | `/dsh-moa/presets/reset` | `POST` | ✅ Обязательна | ✅ Fail-closed | Сброс настроек пресета к значениям по умолчанию |
@@ -398,7 +414,7 @@
 Строгое разграничение продуктовых артефактов и внутренних проектных материалов гарантирует соблюдение квот размера пакета DSH Store (< 256 KiB) и исключает утечку внутренней проектной документации.
 
 ### Состав пакета npm (`package.json.files` allowlist)
-- `lib/` — собранные runtime-модули хоста и сжатый клиентский бандл `lib/client.js` (< 256 KiB);
+- `lib/` — собранные runtime-модули хоста, основной бандл `lib/client.js` (~197 КБ) и ленивые чанки `lib/client.panels.js` (~29 КБ), `lib/client.zh.js` (~33 КБ) (каждый < 256 KiB);
 - `cordis.patch.yml` — слой конфигурации профиля DSH;
 - `README.md` — каноническая пользовательская документация на английском языке со встроенным visual verification скриншотом;
 - `README.ru.md` — равнозначная документация на русском языке;
@@ -414,9 +430,9 @@
 - `docs/design/DESIGN.md` — публичный дизайн-контракт проекта.
 
 ### Запрещено к публикации (остается строго в Gitea)
-- `AGENTS.md`, `index.md`, `deploy.sh`;
+- `AGENTS.md`, `index.md`, `deploy.sh` (отслеживаются в Gitea, исключены из архивов через `.gitattributes` `export-ignore`);
 - `.gitea/`, `.worktrees/`, `.planning/`, `docs/plans/`;
 - Тестовые комплекты `test/`, dev-скрипты `scripts/`;
 - Временные артефакты `*.tgz`, кэши, архивы и дампы.
 
-*Дата последней ревизии состава:* `2026-11-09` (Релиз v0.2.86).
+*Дата последней ревизии состава:* `2026-11-11` (Аудит #355–#358).

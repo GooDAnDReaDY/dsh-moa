@@ -24,7 +24,9 @@
               }
             }
           })
-          .catch(() => {})
+          .catch((err) => {
+            console.warn('[dsh-moa] Workbench history fetch failed:', err)
+          })
       }, [])
 
       React.useEffect(() => {

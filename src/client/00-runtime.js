@@ -26,4 +26,5 @@ window.__ModuleLoader__.load({
     const SUBTITLE = 'Ensemble parallel candidate generation with judge synthesis via /moa.'
 
     let rootCtx = null
+    let ensureZhIfNeeded = null
 

@@ -90,3 +90,24 @@
         ) : null
       )
     }
+
+    function lazyPanel(name) {
+      if (typeof React.lazy !== 'function' || !React.Suspense) {
+        return function UnavailableLazyPanel() {
+          return null
+        }
+      }
+      const Component = React.lazy(() => {
+        if (typeof require !== 'function' || typeof require.async !== 'function') {
+          return Promise.resolve({ default: () => null })
+        }
+        return require.async('./client.panels.js').then((mod) => ({
+          default: (mod && mod[name]) || (() => null),
+        }))
+      })
+      return function LazyPanel(props) {
+        return React.createElement(React.Suspense, { fallback: null }, React.createElement(Component, props))
+      }
+    }
+    const CandidateDiffSection = lazyPanel('CandidateDiffSection')
+    const InteractiveWorkbenchSection = lazyPanel('InteractiveWorkbenchSection')

@@ -16,8 +16,46 @@
 
       if (typeof ctx.effect === 'function') {
         ctx.effect(() => {
-          const undo = [addLocale('en', en), addLocale('zh', zh)]
+          const undo = [addLocale('en', en)]
+          let alive = true
+          let zhRequested = false
+
+          const wantsZh = () => {
+            try {
+              const snap = ctx.locale && typeof ctx.locale.getSnapshot === 'function'
+                ? ctx.locale.getSnapshot()
+                : (ctx.locale && ctx.locale.snapshot)
+              const active = snap && snap.active
+              if (active && /^zh/i.test(String(active))) return true
+              if (typeof document !== 'undefined' && document.documentElement && /^zh/i.test(String(document.documentElement.lang || ''))) return true
+              if (typeof navigator !== 'undefined' && /^zh/i.test(String(navigator.language || ''))) return true
+              return false
+            } catch {
+              return false
+            }
+          }
+
+          ensureZhIfNeeded = () => {
+            if (!alive || zhRequested || typeof require.async !== 'function') return
+            if (!wantsZh()) return
+            zhRequested = true
+            Promise.resolve()
+              .then(() => require.async('./client.zh.js'))
+              .then((mod) => {
+                if (!alive || !mod || !mod.zh) return
+                undo.push(addLocale('zh', mod.zh))
+              })
+              .catch((err) => {
+                zhRequested = false
+                console.warn('[dsh-moa] Failed to load zh locale chunk:', err)
+              })
+          }
+
+          ensureZhIfNeeded()
+
           return () => {
+            alive = false
+            ensureZhIfNeeded = null
             for (const off of undo) {
               if (typeof off === 'function') {
                 try { off() } catch (offErr) { /* unsubscribe best-effort */ }
@@ -124,4 +162,3 @@
     return module.exports
   },
 })
-
