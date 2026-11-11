@@ -1,9 +1,6 @@
 .worktrees/
 node_modules
 *.tgz
-AGENTS.md
-index.md
-deploy.sh
 docs/plans/
 docs/README.*.md
 task_plan.md

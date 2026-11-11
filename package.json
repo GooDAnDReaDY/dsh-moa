@@ -20,8 +20,9 @@
     "media/visual-verification.png"
   ],
   "scripts": {
-    "test": "node scripts/build-client.mjs --check && node --import ./test/_setup.mjs --test test/*.test.mjs",
-    "build:client": "node scripts/build-client.mjs"
+    "test": "node scripts/build-client.mjs --check && node scripts/pack-check.mjs && node --import ./test/_setup.mjs --test test/*.test.mjs",
+    "build:client": "node scripts/build-client.mjs",
+    "pack:check": "node scripts/pack-check.mjs"
   },
   "keywords": [
     "dsh",

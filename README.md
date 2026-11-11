@@ -344,7 +344,8 @@ dsh-moa:
 
 | Endpoint | Method | Description |
 |:---|:---|:---|
-| `/dsh-moa/status` | `GET` | Health/enablement snapshot used by the settings card status chip |
+| `/dsh-moa/status` | `GET` | Health/enablement & pricing freshness snapshot used by the settings card status chip |
+| `/dsh-moa/health` | `GET` | Dedicated health endpoint reporting `healthy`/`degraded` state and stale pricing details |
 | `/dsh-moa/presets` | `GET` | Returns the configured MoA presets and default preset |
 | `/dsh-moa/presets` | `POST` | Replaces presets/default preset/enabled after schema validation (400 on invalid payload) |
 | `/dsh-moa/models` | `GET` | Lists models available for candidate/judge slots |

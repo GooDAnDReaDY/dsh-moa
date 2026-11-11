@@ -226,7 +226,7 @@ test('Block 5 (#173, #174): useSyncExternalStore cached snapshot and updater suc
 // ── ISSUE #175 & #176: Model Pickers & en/zh Localization Parity ────────
 test('Block 5 (#175, #176): 100% en/zh dictionary parity and model pickers in client.js', () => {
   const enPath = path.resolve(import.meta.dirname, '../src/client/10-locale-en.js')
-  const zhPath = path.resolve(import.meta.dirname, '../src/client/20-locale-zh.js')
+  const zhPath = path.resolve(import.meta.dirname, '../src/client-zh/20-locale-zh.js')
   const clientPath = path.resolve(import.meta.dirname, '../lib/client.js')
 
   const enContent = fs.readFileSync(enPath, 'utf8')

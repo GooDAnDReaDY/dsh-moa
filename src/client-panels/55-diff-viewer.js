@@ -20,7 +20,9 @@
               setHistoryRuns(data.runs)
             }
           })
-          .catch(() => {})
+          .catch((err) => {
+            console.warn('[dsh-moa] Diff history fetch failed:', err)
+          })
       }, [])
 
       const selectedRun = historyRuns.find((r) => r.id === selectedRunId)

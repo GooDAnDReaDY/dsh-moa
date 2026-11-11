@@ -1,0 +1,9 @@
+# Normalize shell scripts
+*.sh text eol=lf
+
+# Exclude internal agent/project governance & deploy files from git archive
+AGENTS.md export-ignore
+index.md export-ignore
+deploy.sh export-ignore
+docs/plans/ export-ignore
+.gitea/ export-ignore

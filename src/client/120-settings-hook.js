@@ -137,7 +137,9 @@
               setLeaderboard(data.models.slice(0, 10))
             }
           })
-          .catch(() => {})
+          .catch((err) => {
+            console.warn('[dsh-moa] Leaderboard fetch failed:', err)
+          })
 
         fetch('/dsh-moa/history?limit=100', { cache: 'no-store' })
           .then((r) => r.json())
@@ -201,7 +203,9 @@
               setLeaderboard(data.models.slice(0, 10))
             }
           })
-          .catch(() => {})
+          .catch((err) => {
+            console.warn('[dsh-moa] Leaderboard fetch failed:', err)
+          })
       }, [leaderboardPresetFilter])
 
       const handleSave = () => {

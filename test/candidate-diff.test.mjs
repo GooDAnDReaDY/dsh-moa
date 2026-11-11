@@ -65,8 +65,12 @@ test('readCandidateFiles: correctly reads files from isolated candidate workspac
 
 test('client bundle includes CandidateDiffSection and diff controls', () => {
   const clientPath = path.resolve('lib/client.js')
-  const content = fsSync.readFileSync(clientPath, 'utf8')
-  assert.ok(content.includes('CandidateDiffSection'), 'client.js contains CandidateDiffSection')
-  assert.ok(content.includes('moa-diff-controls'), 'client.js contains moa-diff-controls')
-  assert.ok(content.includes('/dsh-moa/diff'), 'client.js fetches from /dsh-moa/diff')
+  const panelsPath = path.resolve('lib/client.panels.js')
+  const clientContent = fsSync.readFileSync(clientPath, 'utf8')
+  const panelsContent = fsSync.readFileSync(panelsPath, 'utf8')
+  assert.match(clientContent, /require\.async\(['"]\.\/client\.panels\.js['"]\)/, 'client.js lazy-loads client.panels.js')
+  assert.match(clientContent, /lazyPanel\(['"]CandidateDiffSection['"]\)/, 'client.js wires lazy CandidateDiffSection')
+  assert.ok(panelsContent.includes('CandidateDiffSection'), 'client.panels.js contains CandidateDiffSection')
+  assert.ok(panelsContent.includes('moa-diff-controls'), 'client.panels.js contains moa-diff-controls')
+  assert.ok(panelsContent.includes('/dsh-moa/diff'), 'client.panels.js fetches from /dsh-moa/diff')
 })
