@@ -198,7 +198,7 @@ test('Issue #257: getReadRejectionStatus blocks cross-site requests with 403', (
   assert.equal(getReadRejectionStatus(req), 403)
 })
 
-test('Issue #257: getReadRejectionStatus blocks forwarded remote requests carrying only injected proxy cookies', () => {
+test('Issue #257: getReadRejectionStatus blocks forwarded remote requests when unauthenticated', () => {
   const loopbackCookie = cookieNameForAuthority('127.0.0.1:3080') + '=v1.proxy.sig'
   const reqForwarded = {
     headers: {
@@ -208,9 +208,12 @@ test('Issue #257: getReadRejectionStatus blocks forwarded remote requests carryi
     },
     socket: { remoteAddress: '127.0.0.1' },
   }
-  // Even if connection service would admit (due to proxy loopback cookie), access guard rejects with 401
-  const ctxAdmit = { connection: { requestRejection: () => undefined } }
-  assert.equal(getReadRejectionStatus(reqForwarded, ctxAdmit), 401)
+  // When connection service rejects unauthenticated caller, returns 401
+  const ctxReject = { connection: { requestRejection: () => 401 } }
+  assert.equal(getReadRejectionStatus(reqForwarded, ctxReject), 401)
+
+  // When connection service is missing for forwarded remote, fails closed with 401
+  assert.equal(getReadRejectionStatus(reqForwarded, null), 401)
 })
 
 test('Issue #257: getReadRejectionStatus admits forwarded remote requests with authentic client session', () => {

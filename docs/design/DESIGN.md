@@ -358,6 +358,18 @@
   3. **Разбиение клиентского бандла на ленивые чанки (#357)**: Из основного `lib/client.js` вынесены редкие тяжёлые панели (`src/client-panels/` -> `lib/client.panels.js`, **29 134 Б**, загрузка по требованию через `require.async('./client.panels.js')` + `React.Suspense`) и словарь `zh` (`src/client-zh/` -> `lib/client.zh.js`, **32 783 Б**, загрузка через `require.async('./client.zh.js')` при китайской локали). Размер основного `lib/client.js` снижен до **196 865 байт** (запас **65 279 байт** до лимита DSH Store 262 144 Б).
   4. **Устранение тихих `.catch(() => {})` и телеметрия устаревшего прайсинга (#358)**: Ошибки в `lib/pricing.js`, `lib/moa-stream.js`, `lib/history.js` и `lib/moa-swarm.js` переведены на структурированное логирование (`bestEffort` / `logger.warn`); `getCatalogStatus()` фиксирует `stale`, `lastError`, `lastErrorAt` и публикуется через `GET /dsh-moa/status` и `GET /dsh-moa/health`. Детектор `preflight.sh` расширен для обнаружения `.catch(() => {})`.
 
+- 2026-11-12 — Восстановление аутентификации LANMode для браузера на DSH 0.2.2-rc.2 (v0.2.89, Gitea Issue #361):
+  1. **Делегирование проверки подлинности сессии сервису connection (`lib/access.js`, Issue #361)**:
+     - Устранена ложная блокировка HTTP 401 при открытии настроек MoA (`/dsh-moa/presets`, `/dsh-moa/status`, `/dsh-moa/models`, `/dsh-moa/diff`) через LANMode.
+     - В DSH LANMode обратный прокси перенаправляет запросы браузера к upstream authority `127.0.0.1:3080`, передавая валидный HMAC-подписанный cookie ядра `dsh-auth-<hash('127.0.0.1:3080')>` и заголовок `X-Forwarded-For`.
+     - Прежняя эвристика `hasClientCredentials` выполнялась до обращения к ядровому сервису `connection.requestRejection(req)` и ошибочно расценивала loopback-named cookie как инжектированную прокси-куку, возвращая 401 до проверки подписи.
+     - Функция `getReadRejectionStatus` реорганизована: авторитетная криптографическая проверка HMAC выполняется через `connection.requestRejection(req)`. Если сервис одобряет сессию (`undefined`), запрос допускается; если отклоняет с кодом 401 — возвращается 401.
+     - Сохранена строгая защита от CSRF (`sec-fetch-site: cross-site`, проверка совпадения Origin и Host -> 403), защита от DNS-rebinding (валидация доверенного Host -> 403), fail-closed блокировка неаутентифицированных удалённых/проксированных запросов (401) и допуск прямых локальных CLI/health вызовов без сессионных кук.
+     - Все мутирующие маршруты по-прежнему безусловно защищены через `isSafeWriteRequest` (только прямой loopback и same-origin).
+  2. **Регрессионный тестовый набор (`test/issue-361-lanmode-auth.test.mjs`, Issue #361)**:
+     - Добавлен тестовый набор из 9 тестов, проверяющий: допуск аутентифицированных браузерных сессий LANMode, отказ неаутентифицированным сессиям, блокировку CSRF и DNS-rebinding, fail-closed поведение без connection service, допуск прямых loopback CLI вызовов и защиту пишущих эндпоинтов.
+     - Актуализирован `test/audit-issue-257.test.mjs`. Полный набор тестов расширен до 574 тестов со 100% прохождением.
+
 ## Client Bundle & Lazy Chunks
 
 | Чанк | Назначение | Размер | Запас до лимита (262 144 Б) | Способ загрузки |
