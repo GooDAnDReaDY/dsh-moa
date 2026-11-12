@@ -3,6 +3,12 @@
 ## 0.2.89 (2026-11-11)
 
 ### Packaging, Client Chunks & Reliability
+- **LANMode Browser Authentication in MoA Endpoints (#361)**:
+  - Fixed false-positive HTTP 401 rejection on `/dsh-moa/presets`, `/dsh-moa/status`, `/dsh-moa/models`, `/dsh-moa/diff` when accessed via LANMode browser.
+  - Delegated cryptographic HMAC session verification directly to DSH kernel `connection.requestRejection(req)` in `lib/access.js` before client credential heuristics, correctly admitting LANMode proxies targeting loopback authority (`127.0.0.1:3080`).
+  - Preserved fail-closed defenses: cross-site CSRF blocked with HTTP 403 (`sec-fetch-site: cross-site`, mismatched Origin), spoofed/untrusted Host headers blocked with HTTP 403 (DNS-rebinding protection), unauthenticated LAN/forwarded callers blocked with HTTP 401, and mutating endpoints strictly gated by loopback same-origin `isSafeWriteRequest`.
+  - Added dedicated regression suite `test/issue-361-lanmode-auth.test.mjs` (9 tests) and updated `test/audit-issue-257.test.mjs`.
+
 - **Repository & Packaging Hygiene (#355, #356)**:
   - Tracked internal governance/deploy files (`AGENTS.md`, `index.md`, `deploy.sh`) in Gitea alongside `docs/design/DESIGN.md` while excluding them from `git archive` (`.gitattributes export-ignore`), `npm` (`package.json.files`), and GitHub (`scripts/publish-github.sh`).
   - Removed legacy release `*.tgz` tarballs from repository root, documented external packing (`npm pack --pack-destination /tmp`) in `AGENTS.md`, and integrated `scripts/pack-check.mjs` into `npm test` (fails on root `*.tgz` or any packed file > `262,144` bytes, warns at >= `256,000` bytes).
