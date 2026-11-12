@@ -270,7 +270,8 @@ dsh-moa:
 
 | 端点 | 方法 | 说明 |
 |:---|:---|:---|
-| `/dsh-moa/status` | `GET` | 供设置卡片状态徽章使用的健康/启用状态快照 |
+| `/dsh-moa/status` | `GET` | 供设置卡片状态徽章使用的健康/启用与价格表新鲜度快照 |
+| `/dsh-moa/health` | `GET` | 专用健康检查端点，报告 `healthy`/`degraded` 状态与价格表更新错误 |
 | `/dsh-moa/presets` | `GET` | 返回已配置的 MoA 预设与默认预设 |
 | `/dsh-moa/presets` | `POST` | 经 schema 校验后替换预设/默认预设/enabled（非法载荷返回 400） |
 | `/dsh-moa/models` | `GET` | 列出可用于候选/裁判槽位的模型 |
