@@ -18,7 +18,29 @@ import {
   executeTestGateForCandidates,
 } from '../lib/moa-test-gate.js'
 
-test('security (#159): assertPathContained blocks symlink escapes for files and directories', async () => {
+// Creating symlinks on Windows needs SeCreateSymbolicLinkPrivilege (admin) or
+// Developer Mode. Without it the escape attempts cannot even be constructed, so
+// the containment assertions are unobservable rather than failing.
+function symlinksAvailable() {
+  if (process.platform !== 'win32') return true
+  const probeDir = fsSync.mkdtempSync(path.join(os.tmpdir(), 'moa-symlink-probe-'))
+  try {
+    fsSync.writeFileSync(path.join(probeDir, 'target'), 'x')
+    fsSync.symlinkSync(path.join(probeDir, 'target'), path.join(probeDir, 'link'))
+    return true
+  } catch {
+    return false
+  } finally {
+    fsSync.rmSync(probeDir, { recursive: true, force: true })
+  }
+}
+
+const SYMLINKS = symlinksAvailable()
+const symlinkSkip = SYMLINKS
+  ? false
+  : 'symlink creation requires SeCreateSymbolicLinkPrivilege on Windows (#371)'
+
+test('security (#159): assertPathContained blocks symlink escapes for files and directories', { skip: symlinkSkip }, async () => {
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'moa-symlink-test-'))
   try {
     const workspace = path.join(tmpDir, 'workspace')
@@ -53,7 +75,7 @@ test('security (#159): assertPathContained blocks symlink escapes for files and 
   }
 })
 
-test('security (#159): writeCandidateWorkspace blocks writes through symlinks escaping workspace', async () => {
+test('security (#159): writeCandidateWorkspace blocks writes through symlinks escaping workspace', { skip: symlinkSkip }, async () => {
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'moa-symlink-write-'))
   try {
     const outside = path.join(tmpDir, 'outside')
@@ -80,7 +102,7 @@ test('security (#159): writeCandidateWorkspace blocks writes through symlinks es
   }
 })
 
-test('security (#159): readCandidateFiles and promoteCandidateWorkspace ignore / reject symlinks escaping boundaries', async () => {
+test('security (#159): readCandidateFiles and promoteCandidateWorkspace ignore / reject symlinks escaping boundaries', { skip: symlinkSkip }, async () => {
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'moa-symlink-promote-'))
   try {
     const outside = path.join(tmpDir, 'outside')

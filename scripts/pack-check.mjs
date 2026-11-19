@@ -33,12 +33,23 @@ export function runPackCheck({ cwd = process.cwd(), warnLimit = WARN_LIMIT, bloc
     throw new Error(`[pack:check] Untracked release tarballs found in source root: ${strayTarballs.join(', ')}. Pack outside checkout via "npm pack --pack-destination /tmp".`)
   }
 
-  const npmBin = process.platform === 'win32' ? 'npm.cmd' : 'npm'
-  const jsonStr = execFn(npmBin, ['pack', '--dry-run', '--json', '--ignore-scripts'], {
-    cwd,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-  })
+  const isWin = process.platform === 'win32'
+  const packArgs = ['pack', '--dry-run', '--json', '--ignore-scripts']
+  // Windows resolves npm through npm.cmd, which Node refuses to spawn without a
+  // shell (EINVAL). The argument list is fixed literals, so joining it into a
+  // single command string avoids passing an args array alongside shell: true.
+  const jsonStr = isWin
+    ? execFn(`npm.cmd ${packArgs.join(' ')}`, {
+      cwd,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      shell: true,
+    })
+    : execFn('npm', packArgs, {
+      cwd,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
 
   const parsed = JSON.parse(jsonStr)
   let pkg = parsed

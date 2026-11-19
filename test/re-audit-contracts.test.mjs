@@ -26,6 +26,26 @@ import { registerMoaRoutes } from '../lib/routes.js'
 const fence = String.fromCharCode(96).repeat(3)
 const file = (name, content) => `${fence}js file="${name}"\n${content}\n${fence}`
 
+// Symlink creation on Windows requires SeCreateSymbolicLinkPrivilege (admin) or
+// Developer Mode; without it the escape scenario cannot be constructed (#371).
+function symlinksAvailable() {
+  if (process.platform !== 'win32') return true
+  const probeDir = fsSync.mkdtempSync(path.join(os.tmpdir(), 'moa-symlink-probe-'))
+  try {
+    fsSync.writeFileSync(path.join(probeDir, 'target'), 'x')
+    fsSync.symlinkSync(path.join(probeDir, 'target'), path.join(probeDir, 'link'))
+    return true
+  } catch {
+    return false
+  } finally {
+    fsSync.rmSync(probeDir, { recursive: true, force: true })
+  }
+}
+
+const symlinkSkip = symlinksAvailable()
+  ? false
+  : 'symlink creation requires SeCreateSymbolicLinkPrivilege on Windows (#371)'
+
 test('#156: cancellation during checkpoint blocks file promotion write', async () => {
   const tmpDir = fsSync.mkdtempSync(path.join(os.tmpdir(), 'moa-156-'))
   try {
@@ -421,7 +441,7 @@ test('#201: fast mode checkpoint failure propagates error and does not return ok
   }
 })
 
-test('#202: pure candidate folder resolution does not mutate or unlink external .moa symlink on read', async () => {
+test('#202: pure candidate folder resolution does not mutate or unlink external .moa symlink on read', { skip: symlinkSkip }, async () => {
   const tmpDir = fsSync.mkdtempSync(path.join(os.tmpdir(), 'moa-202-'))
   const outsideDir = fsSync.mkdtempSync(path.join(os.tmpdir(), 'moa-202-outside-'))
   try {

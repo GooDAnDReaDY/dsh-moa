@@ -358,7 +358,9 @@ try {
       candidateIndex: 2,
       testCommand: 'node probe.cjs',
     })
-    assert.match(resFence.output, /ERR_ACCESS_DENIED/)
+    // Denial comes from the fence guard when an OS sandbox is available, and
+    // from the Node permission model otherwise; both mean the call was blocked.
+    assert.match(resFence.output, /ERR_ACCESS_DENIED|Access to this API has been restricted/i)
     assert.ok(!resFence.output.includes('UNEXPECTED_PASS'))
   } finally {
     await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {})

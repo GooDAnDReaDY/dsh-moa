@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { join } from 'node:path'
+import { join, normalize } from 'node:path'
 import { tmpdir } from 'node:os'
 import { writeFileSync, unlinkSync } from 'node:fs'
 import {
@@ -135,11 +135,11 @@ test('pricing: getDefaultCacheFile resolves cleanly without duplicate .dsh when 
   try {
     process.env.DSH_HOME = '/custom/home/.dsh'
     const cachePath = getDefaultCacheFile()
-    assert.equal(cachePath, '/custom/home/.dsh/storages/dsh-moa-catalog.json')
+    assert.equal(cachePath, normalize('/custom/home/.dsh/storages/dsh-moa-catalog.json'))
 
     process.env.DSH_HOME = '/custom/home'
     const cachePathUser = getDefaultCacheFile()
-    assert.equal(cachePathUser, '/custom/home/.dsh/storages/dsh-moa-catalog.json')
+    assert.equal(cachePathUser, normalize('/custom/home/.dsh/storages/dsh-moa-catalog.json'))
   } finally {
     if (origDshHome !== undefined) process.env.DSH_HOME = origDshHome; else delete process.env.DSH_HOME
     if (origCatalog !== undefined) process.env.DSH_CATALOG_FILE = origCatalog; else delete process.env.DSH_CATALOG_FILE
