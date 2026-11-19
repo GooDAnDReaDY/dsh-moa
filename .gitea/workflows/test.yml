@@ -1,0 +1,20 @@
+# CI for dsh-moa (#371). Inert until a Gitea Actions runner is registered on
+# this instance (issue #385 tracks the runner decision); once a Linux runner
+# exists, this workflow runs lint + the full test suite on every push/PR to main.
+name: test
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
