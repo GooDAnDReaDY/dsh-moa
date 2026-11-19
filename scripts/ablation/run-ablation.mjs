@@ -50,6 +50,7 @@ function parseArgs(argv) {
     timeoutMs: 60000,
     priceIn: null,
     priceOut: null,
+    ollamaNative: false,
     selftest: false,
     notes: '',
   }
@@ -70,6 +71,7 @@ function parseArgs(argv) {
     else if (a === '--timeout-ms') args.timeoutMs = Number(next())
     else if (a === '--price-in') args.priceIn = Number(next())
     else if (a === '--price-out') args.priceOut = Number(next())
+    else if (a === '--ollama-native') args.ollamaNative = true
     else if (a === '--notes') args.notes = next()
     else if (a === '--selftest') args.selftest = true
     else throw new Error(`Unknown argument: ${a}`)
@@ -132,46 +134,88 @@ const JUDGE_DIRECTIVE = [
 
 function extractCodeBlock(text) {
   if (!text || typeof text !== 'string') return null
-  const fence = text.match(/```(?:javascript|js)?\s*\n([\s\S]*?)\n```/i)
+  // Reasoning models may emit <think>...</think> before the answer; the answer
+  // block is everything after the last closed think section.
+  const stripped = text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim()
+  const source = stripped || text
+  const fence = source.match(/```(?:javascript|js)?\s*\n([\s\S]*?)\n```/i)
   if (fence && fence[1]) return fence[1]
-  const bare = text.trim()
+  const bare = source.trim()
   return bare.startsWith('```') ? null : bare
 }
 
 async function callModel(args, apiKey, messages) {
-  const body = JSON.stringify({
-    model: args.model,
-    messages,
-    temperature: args.temperature,
-    max_tokens: args.maxTokens,
-  })
   const ctrl = new AbortController()
   const timer = setTimeout(() => ctrl.abort(), args.timeoutMs)
   timer.unref?.()
   try {
-    const res = await fetch(args.providerUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body,
-      signal: ctrl.signal,
-    })
-    if (!res.ok) {
-      const text = await res.text().catch(() => '')
-      throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`)
+    let res
+    let parsed
+    if (args.ollamaNative) {
+      // Native Ollama /api/chat: supports think:false for reasoning models
+      // (qwen3 etc.), whose OpenAI-compatible endpoint otherwise spends the
+      // whole completion budget on thinking and returns empty content.
+      const body = JSON.stringify({
+        model: args.model,
+        messages,
+        stream: false,
+        think: false,
+        options: {
+          temperature: args.temperature,
+          num_predict: args.maxTokens,
+        },
+      })
+      res = await fetch(args.providerUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body,
+        signal: ctrl.signal,
+      })
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`)
+      }
+      const json = await res.json()
+      parsed = {
+        content: json?.message?.content ?? '',
+        promptTokens: json?.prompt_eval_count ?? 0,
+        completionTokens: json?.eval_count ?? 0,
+        costUsd: null,
+      }
+    } else {
+      const body = JSON.stringify({
+        model: args.model,
+        messages,
+        temperature: args.temperature,
+        max_tokens: args.maxTokens,
+      })
+      res = await fetch(args.providerUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body,
+        signal: ctrl.signal,
+      })
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`)
+      }
+      const json = await res.json()
+      const content = json?.choices?.[0]?.message?.content ?? ''
+      const usage = json?.usage ?? {}
+      parsed = {
+        content,
+        promptTokens: usage.prompt_tokens || usage.input_tokens || 0,
+        completionTokens: usage.completion_tokens || usage.output_tokens || 0,
+        costUsd: usage.total_cost ?? null,
+      }
     }
-    const json = await res.json()
-    const content = json?.choices?.[0]?.message?.content ?? ''
-    const usage = json?.usage ?? {}
-    return {
-      content,
-      promptTokens: usage.prompt_tokens || usage.input_tokens || 0,
-      completionTokens: usage.completion_tokens || usage.output_tokens || 0,
-      costUsd: usage.total_cost ?? null,
-      latencyMs: 0,
-    }
+    return { ...parsed, latencyMs: 0 }
   } finally {
     clearTimeout(timer)
   }
@@ -348,11 +392,12 @@ async function main() {
     console.error('[run-ablation] --model is required (e.g. --model openai/gpt-4o-mini)')
     process.exit(1)
   }
-  const apiKey = process.env[args.apiKeyEnv]
+  const apiKey = args.ollamaNative ? 'local' : process.env[args.apiKeyEnv]
   if (!apiKey) {
     console.error(
       `[run-ablation] Missing API key: export ${args.apiKeyEnv}=<key> (or pass --api-key-env NAME).\n` +
-      'Measurements call a paid model API - this run requires the owner-provided key/budget (#367).',
+      'For a zero-cost local run use --ollama-native with a local Ollama endpoint.\n' +
+      'Cloud measurements call a paid model API - they require the owner-provided key/budget (#367).',
     )
     process.exit(1)
   }
