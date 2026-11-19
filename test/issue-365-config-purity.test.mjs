@@ -181,3 +181,76 @@ test('Issue #365: POST /dsh-moa/presets applies preset-scoped keys to the target
     await fs.rm(tmp, { recursive: true, force: true })
   }
 })
+
+test('Issue #365 migration: sanitizeToSchemaKeys strips legacy top-level flags', async () => {
+  const { sanitizeToSchemaKeys, schemaFieldNames } = await import('../lib/moa-schema.js')
+  const legacy = {
+    enabled: false,
+    default_preset: 'fast',
+    // legacy 0.2.89 top-level preset flags that must not reach settings.replace
+    interactive_workbench_enabled: true,
+    test_gate_enabled: true,
+    knowledge_path: '/old/path',
+    prices: {},
+    presets: [{ name: 'default' }],
+  }
+  const clean = sanitizeToSchemaKeys(legacy)
+  assert.deepEqual(Object.keys(clean).sort(), ['default_preset', 'enabled', 'presets', 'prices'])
+  assert.equal(clean.enabled, false)
+  // schemaFieldNames covers both real schemastery and the stub
+  const names = schemaFieldNames(Config)
+  assert.ok(names.has('enabled') && names.has('presets'))
+  assert.equal(names.has('test_gate_enabled'), false)
+})
+
+test('Issue #365 migration: saveConfig persists only schema-declared keys (host contract)', async () => {
+  const { apply } = await import('../lib/index.js')
+  const replaced = []
+  const mockSettings = {
+    replace: async (ns, payload) => { replaced.push({ ns, payload }) },
+    configure: () => () => {},
+  }
+  const routes = {}
+  const ctx = {
+    webServer: { port: 3000, register: (route) => { routes[route.path] = route; return () => {} } },
+    effect: (fn) => fn(),
+    on: () => () => {},
+    inject: (deps, cb) => {
+      if (deps.includes('settings')) cb({ settings: mockSettings, effect: ctx.effect })
+    },
+  }
+  // initial config as stored by 0.2.89: legacy top-level preset flags present
+  const initialConfig = {
+    enabled: true,
+    default_preset: 'default',
+    interactive_workbench_enabled: true,
+    test_gate_enabled: true,
+    presets: [{ name: 'default', test_gate_enabled: true }],
+  }
+  apply(ctx, initialConfig)
+
+  const presetsRoute = routes['/dsh-moa/presets']
+  assert.ok(presetsRoute, 'presets route exists')
+
+  let code = 0
+  const payload = Buffer.from(JSON.stringify({ enabled: true, default_preset: 'default' }))
+  const req = {
+    method: 'POST',
+    socket: { remoteAddress: '127.0.0.1' },
+    headers: { host: 'localhost:3000' },
+    on: (evt, handler) => {
+      if (evt === 'data') handler(payload)
+      if (evt === 'end') handler()
+    },
+  }
+  const res = { writeHead: (c) => { code = c }, end: () => {} }
+  await presetsRoute.handler(req, res)
+  assert.equal(code, 200)
+  assert.equal(replaced.length, 1)
+  assert.equal(replaced[0].ns, 'dsh-moa')
+  const value = replaced[0].payload
+  assert.equal('interactive_workbench_enabled' in value, false, 'legacy key must not reach settings.replace')
+  assert.equal('test_gate_enabled' in value, false, 'legacy key must not reach settings.replace')
+  assert.equal(value.enabled, true)
+  assert.ok(Array.isArray(value.presets))
+})
