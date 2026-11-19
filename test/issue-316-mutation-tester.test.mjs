@@ -58,7 +58,9 @@ test('auditCandidateMutations: weak tautological test suite allows mutants to su
 
   const report = auditCandidateMutations(weakCode, { minMutationScore: 0.70, maxMutants: 3 })
   assert.equal(report.passed, false)
-  assert.equal(report.mutationScore, 0)
+  // With #369 masking the mutant budget is not wasted on the "true" in the comment,
+  // so the third slot reaches assert.ok(true) itself and is killed there.
+  assert.ok(report.mutationScore < 70, `score ${report.mutationScore} must fail the 70% gate`)
   assert.ok(report.survivedCount > 0)
   assert.match(report.summary, /WEAK TESTS/)
 })
