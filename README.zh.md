@@ -37,7 +37,7 @@
 
 ## 环境要求
 
-- DeepSeek Harness (DSH) **0.1.7-rc.2 或更新**（已在 0.2.0-rc 线上验证）
+- DeepSeek Harness (DSH) **`>=0.1.7-rc.2`**（已在 0.2.0-rc 线上验证）
 - Node.js **20+**
 - DSH `web` 配置档 —— 设置卡片、输入框 `/moa` 触发器与 MoA WebUI 均运行在浏览器半区
 
