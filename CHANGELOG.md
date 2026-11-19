@@ -1,8 +1,62 @@
 # Changelog
 
+## 0.2.90 (2026-11-19)
+
+### Cross-Platform Correctness & Settings Ownership
+- **Canonical POSIX Path Normalization in Workbench (#363)**:
+  - Added `normalizeRelativePath()` in `lib/workspace/security.js`: the canonical POSIX form of a workspace-relative path, independent of `process.platform`.
+  - `parseFileScores` and `assembleWorkbenchSelection` (write and read sides) now share this single normalization, so judge-returned `src/auth.ts` matches candidate sandbox keys on every platform.
+  - Fixed the Windows-only failure where `path.normalize` produced `src\auth.ts`, dropping `MOA_FILE_SCORES` matches and breaking the Interactive Workbench "Pick & Mix" flow.
+
+- **Test-Gate Path Scanner no longer treats HTTP route literals as host paths (#364)**:
+  - New `isHostAbsolutePath()` in `lib/moa-sandbox.js`: a token is a host filesystem path only when it is a Windows drive path or a POSIX path rooted at a known system directory; a bare leading slash is no longer an "absolute path" on any platform.
+  - `scanPathTokensForLeak` and the generated fence code share this helper instead of branching on `process.platform`; `/health`, `/users/me`, `/api/v1/...` literals no longer fail the gate on Windows.
+  - Closed an acceptance gap: `/etc/passwd`, `/etc/shadow`, `/etc/group`, `/etc/gshadow`, `/etc/sudoers` no longer pass the `SAFE_SYS_DIRS` whitelist (new `SENSITIVE_SYSTEM_FILES` guard in both the scanner and the fence code).
+
+- **Single Owner for Preset Flags - Config Slimmed, TUI Writes Into the Active Preset (#365)**:
+  - `Config` reduced to the 13 actually-consumed global keys (`enabled`, `default_preset`, `smart_routing_*`, `prices`, `presets`, `pr_review_*`, ecosystem toggles); `PresetSchema` is the single source of truth for preset flags.
+  - TUI preset toggles (Test Execution Gate, Interactive Workbench, Ask Clarifying Questions, Uncertainty Scoring) now write into the active preset (`presets[<index>].<flag>`) instead of dead top-level keys - TUI writes now actually influence the pipeline.
+  - `POST /dsh-moa/presets` applies preset-scoped top-level keys to the target preset and rejects unknown keys with HTTP 400 instead of silently dropping them.
+
+- **Eleven Built-in Presets and Working Smart Routing (#366)**:
+  - Added eight shipped presets matching the router intent classes: `code-review`, `security-audit`, `bug-hunter`, `refactor-cleanup`, `frontend-ui`, `deep-architect`, `math-logic`, `creative-brainstorm` - each with meaningful parameters (peer critique, blind evaluation, security gate, adversarial TDD, visual MoA, self-consistency, temperatures).
+  - The `fast-audit` intent rule now targets the existing `fast` preset; smart routing resolves every intent class to a real shipped preset with `isAutoRouted: true`.
+  - README / README.ru / README.zh preset tables list the actual shipped presets; regression tests pin documentation to the shipped list.
+
+### Honest Quality Gates
+- **Mutation Testing Gate masks literals and comments (#369)**:
+  - `buildMutableCodeMask()` excludes line/block comments, string and template literals (including interpolations and escapes) from mutation sites; `generateMutants` applies operators only to fully mutable matches, so `"true story"` is never mutated.
+  - The mutant budget is no longer wasted on comment noise; the gate scope is documented as lexical-level operator inversion, not AST analysis.
+
+- **Runtime Profiler resolves the entrypoint explicitly (#369)**:
+  - Accepts `options.entrypointName`, `export default`, canonical names (`main`/`solve`/`run`/`handler`/`benchmark`), or a single declared top-level function; ambiguous multi-function candidates are skipped with a reason instead of benchmarking an arbitrary "last declared" function.
+  - Skipped candidates carry no measurement and never compete for `fastestCandidate`; the directive reports the skip.
+
+- **Security Fuzzer directive states its heuristic nature (#369)**:
+  - Directives explicitly mark the scan as static pattern-based heuristic ("review leads, not measurements"); a clean scan is documented as "not a proof of security".
+
+### Judge Prompt Budget & Telemetry
+- **Directive budget for judge prompts (#370)**:
+  - New `lib/pipeline/directive-budget.js`: gate procedure text is capped at clamp(15% of candidate payload, 4k..24k chars); directives are included by priority (blocking correctness signals first), never split mid-directive, and user judge criteria are mandatory.
+  - Shared gate directives are assembled once and every judge prompt receives each directive exactly once; Stage 7 `fileScoringDirective` carries only synthesis-unique directives.
+  - Telemetry: new `moa/directive-budget` event per stage and `directiveTelemetry` (included/omitted, chars, token estimate) exposed via `GET /dsh-moa/status`.
+
+### Testing & Packaging
+- **Platform-aware test skips and unit-only entry (#371)**:
+  - Explicit skips with reasons and issue references for POSIX-shell, symlink-privilege and POSIX-mode-bit scenarios; Windows Node deny-output text accepted in the #260 assertion; path assertions use `path.join`/`normalize` instead of POSIX separator literals.
+  - New `npm run test:unit` runs unit tests without the esbuild build check; `scripts/pack-check.mjs` spawns `npm.cmd` through a shell on Windows (EINVAL fix).
+- Test fixtures anonymized (`testuser` instead of owner username) per publication anonymity rules.
+
+
 ## 0.2.89 (2026-11-11)
 
 ### Packaging, Client Chunks & Reliability
+- **LANMode Browser Authentication in MoA Endpoints (#361)**:
+  - Fixed false-positive HTTP 401 rejection on `/dsh-moa/presets`, `/dsh-moa/status`, `/dsh-moa/models`, `/dsh-moa/diff` when accessed via LANMode browser.
+  - Delegated cryptographic HMAC session verification directly to DSH kernel `connection.requestRejection(req)` in `lib/access.js` before client credential heuristics, correctly admitting LANMode proxies targeting loopback authority (`127.0.0.1:3080`).
+  - Preserved fail-closed defenses: cross-site CSRF blocked with HTTP 403 (`sec-fetch-site: cross-site`, mismatched Origin), spoofed/untrusted Host headers blocked with HTTP 403 (DNS-rebinding protection), unauthenticated LAN/forwarded callers blocked with HTTP 401, and mutating endpoints strictly gated by loopback same-origin `isSafeWriteRequest`.
+  - Added dedicated regression suite `test/issue-361-lanmode-auth.test.mjs` (9 tests) and updated `test/audit-issue-257.test.mjs`.
+
 - **Repository & Packaging Hygiene (#355, #356)**:
   - Tracked internal governance/deploy files (`AGENTS.md`, `index.md`, `deploy.sh`) in Gitea alongside `docs/design/DESIGN.md` while excluding them from `git archive` (`.gitattributes export-ignore`), `npm` (`package.json.files`), and GitHub (`scripts/publish-github.sh`).
   - Removed legacy release `*.tgz` tarballs from repository root, documented external packing (`npm pack --pack-destination /tmp`) in `AGENTS.md`, and integrated `scripts/pack-check.mjs` into `npm test` (fails on root `*.tgz` or any packed file > `262,144` bytes, warns at >= `256,000` bytes).

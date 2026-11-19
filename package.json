@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-moa",
-  "version": "0.2.89",
+  "version": "0.2.90",
   "description": "Mixture of Agents (MoA) plugin for DeepSeek Harness with /moa slash command",
   "type": "module",
   "main": "lib/index.js",
@@ -21,6 +21,7 @@
   ],
   "scripts": {
     "test": "node scripts/build-client.mjs --check && node scripts/pack-check.mjs && node --import ./test/_setup.mjs --test test/*.test.mjs",
+    "test:unit": "node --import ./test/_setup.mjs --test test/*.test.mjs",
     "build:client": "node scripts/build-client.mjs",
     "pack:check": "node scripts/pack-check.mjs"
   },
@@ -81,5 +82,9 @@
   },
   "overrides": {
     "zod": "^4.6.7"
+  },
+  "engines": {
+    "node": ">=20",
+    "dsh": ">=0.1.7-rc.2"
   }
 }

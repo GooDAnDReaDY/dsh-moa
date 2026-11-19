@@ -35,6 +35,12 @@
 
 ---
 
+## 环境要求
+
+- DeepSeek Harness (DSH) **`>=0.1.7-rc.2`**（已在 0.2.0-rc 线上验证）
+- Node.js **20+**
+- DSH `web` 配置档 —— 设置卡片、输入框 `/moa` 触发器与 MoA WebUI 均运行在浏览器半区
+
 ## ⚡ 概述与解决的核心痛点
 
 在面对复杂的软件工程任务时，单一模型生成往往容易受到视角盲区、架构幻觉以及生成质量不稳定的限制。当用户输入模糊或缺乏技术细节的提示词时，单一模型容易做出主观假设，生成未经充分验证的单体代码。
@@ -150,7 +156,7 @@ graph TD
 在 `设置 → 插件 → Mixture of Agents` 中可视化配置模型：
 * 配置顾问模型列表（快速生成多样化构想）。
 * 配置裁判模型（强推理模型进行严谨审查）。
-* 自定义命名预设 (`default`, `fast`, `deep-reasoning`)、裁判评审准则与温度。
+* 自定义命名预设（默认内置 11 个：`default`, `fast`, `deep-reasoning`, `code-review`, `security-audit`, `bug-hunter`, `refactor-cleanup`, `frontend-ui`, `deep-architect`, `math-logic`, `creative-brainstorm`），支持裁判评审准则与温度等全部 `PresetSchema` 参数。
 * 启用/停用 MoA 开关并查看真实的主机状态徽章；遥测网格展示总运行次数与平均运行成本。
 
 ### 7. 候选方案差异对比器 (Candidate Diff Viewer)
