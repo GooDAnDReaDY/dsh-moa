@@ -21,7 +21,7 @@ test('DSH 0.1.7 Config: all editable fields declare volatile metadata without en
   assert.equal(parsed.enabled, true)
   assert.equal(parsed.default_preset, 'default')
   assert.ok(Array.isArray(parsed.presets))
-  assert.equal(parsed.presets.length, 11)
+  assert.equal(parsed.presets.length, 13)
 })
 
 test('DSH 0.1.7 settings policy: registers settings.configure({ auto: false }) and never calls legacy settings.register', () => {
