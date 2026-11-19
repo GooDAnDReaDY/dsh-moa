@@ -13,6 +13,7 @@ import {
   parseJudgeReCheckVerdict,
   assembleWorkbenchSelection,
 } from '../lib/moa-workbench.js'
+import { normalizeRelativePath } from '../lib/workspace/security.js'
 import { PresetSchema } from '../lib/moa-schema.js'
 import { writeCandidateWorkspace } from '../lib/file-workspace.js'
 import { recordMoaRunAsync, invalidateHistoryCache } from '../lib/history.js'
@@ -402,6 +403,91 @@ test('Issue #263: /dsh-moa/runs route handles Cordis-like proxy throwing on un-i
     assert.equal(resBody.runId, runId)
     assert.equal(resBody.candidates.length, 1)
     assert.equal(resBody.candidates[0].files[0].relativePath, 'src/main.ts')
+  } finally {
+    await fs.rm(tmpDir, { recursive: true, force: true })
+  }
+})
+
+test('Issue #363: normalizeRelativePath always returns canonical POSIX form regardless of platform', () => {
+  // Backslash separators (native Windows form) collapse to POSIX
+  assert.equal(normalizeRelativePath('src\\auth.ts'), 'src/auth.ts')
+  assert.equal(normalizeRelativePath('src\\nested\\dir\\app.js'), 'src/nested/dir/app.js')
+  // Redundant segments are removed without platform-specific separators
+  assert.equal(normalizeRelativePath('./src/auth.ts'), 'src/auth.ts')
+  assert.equal(normalizeRelativePath('src//auth.ts'), 'src/auth.ts')
+  assert.equal(normalizeRelativePath('src/./auth.ts'), 'src/auth.ts')
+  // Leading slashes are stripped (judge output sometimes emits them)
+  assert.equal(normalizeRelativePath('/src/auth.ts'), 'src/auth.ts')
+  // Already-clean paths pass through unchanged
+  assert.equal(normalizeRelativePath('src/auth.ts'), 'src/auth.ts')
+  assert.equal(normalizeRelativePath('index.html'), 'index.html')
+  // Invalid input normalizes to empty string
+  assert.equal(normalizeRelativePath(''), '')
+  assert.equal(normalizeRelativePath(null), '')
+})
+
+test('Issue #363: parseFileScores returns POSIX relativePath keys on any platform', () => {
+  const judgeText = `
+<!-- MOA_FILE_SCORES_START -->
+[
+  {"candidate": 1, "file": "src\\\\auth.ts", "score": 9, "pros": "P", "cons": "C"},
+  {"candidate": 2, "file": "src/routes.ts", "score": 8, "pros": "P", "cons": "C"}
+]
+<!-- MOA_FILE_SCORES_END -->
+`
+  const result = parseFileScores(judgeText)
+  assert.equal(result.scores.length, 2)
+  // Even a Windows-native path in judge output is stored in POSIX contract form
+  assert.equal(result.scores[0].relativePath, 'src/auth.ts')
+  assert.equal(result.scores[1].relativePath, 'src/routes.ts')
+  assert.ok(result.byFile['src/auth.ts'], 'byFile must be indexed by POSIX path')
+  assert.ok(result.byFile['src/routes.ts'], 'byFile must be indexed by POSIX path')
+})
+
+test('Issue #363: parseFileScores matches candidate files under platform-native separators', () => {
+  const candidates = [
+    { index: 1, label: 'Model A', files: ['src/unscored.ts'] },
+  ]
+  const result = parseFileScores('', candidates)
+  assert.equal(result.scores.length, 1)
+  assert.equal(result.scores[0].relativePath, 'src/unscored.ts')
+})
+
+test('Issue #363: assembleWorkbenchSelection resolves Windows-form selection paths', async () => {
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'moa-issue-363-'))
+  const runId = 'test-issue-363-run'
+
+  try {
+    await writeCandidateWorkspace(tmpDir, 1, [
+      { relativePath: 'src/auth.ts', content: 'export const auth = () => "jwt-token"' },
+    ], { runId })
+
+    await recordMoaRunAsync({
+      id: runId,
+      cwd: tmpDir,
+      prompt: 'Build auth',
+      preset: 'default',
+      candidates: [
+        { index: 1, provider: 'p1', model: 'm1', label: 'Candidate 1', files: ['src/auth.ts'] },
+      ],
+      winnerIndex: 1,
+      aggregator: { provider: 'pj', model: 'mj' },
+    }, path.join(tmpDir, 'history.jsonl'))
+    invalidateHistoryCache()
+
+    const assembleRes = await assembleWorkbenchSelection({
+      runId,
+      cwd: tmpDir,
+      // Windows-native separator in the stored selection must resolve to the POSIX key
+      selections: [{ candidateIndex: 1, file: 'src\\auth.ts' }],
+      instructions: 'keep as is',
+      callLlm: async () => 'VERDICT: PASSED\nAUDIT_SCORE: 9\nAUDIT_NOTES: OK',
+      judgeSlot: { provider: 'pj', model: 'mj' },
+      options: { autoPromote: false },
+    })
+
+    assert.equal(assembleRes.ok, true)
+    assert.equal(assembleRes.selectedCount, 1)
   } finally {
     await fs.rm(tmpDir, { recursive: true, force: true })
   }
