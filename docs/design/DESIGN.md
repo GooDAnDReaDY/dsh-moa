@@ -384,46 +384,34 @@
 
 ## Route Policy / Политика маршрутов
 
-Все HTTP API маршруты регистрируются через `lib/routes/*.js` и `lib/updater.js`. Маршруты сгруппированы по функциональным областям с обязательной fail-closed проверкой аутентификации `assertAuthorizedRequest(req, res, ctx)` и валидацией контекста записи `isSafeWriteRequest(req)` для всех мутирующих запросов.
+Все HTTP API маршруты регистрируются через `lib/routes/*.js` и `lib/updater.js` (one-click updater). Мутирующие запросы требуют fail-closed проверки записи `isSafeWriteRequest(req)` / `isTrustedUpdateRequest`; все маршруты закрывает аутентификация `assertAuthorizedRequest(req, res, ctx)`. Сверено с фактическими регистрациям, 2026-11-19 (audit post-merge #372).
 
-| Маршрут | Метод | Авторизация (`assertAuthorizedRequest`) | Проверка записи (`isSafeWriteRequest` / `isTrustedUpdateRequest`) | Назначение |
-|---|---|---|---|---|
-| `/api/dsh-moa/update` | `GET`, `HEAD` | N/A (Status check) | `isLoopback` | Проверка наличия новой версии в реестре npm |
-| `/api/dsh-moa/update` | `POST` | N/A | `isTrustedUpdateRequest` (loopback / safe-origin) | Установка точной версии из npm через pnpm |
-| `/dsh-moa/status` | `GET` | ✅ Обязательна | N/A | Статус плагина, пресетов и актуальность кэша прайсинга (`pricing`) |
-| `/dsh-moa/health` | `GET` | ✅ Обязательна | N/A | Состояние здоровья (`healthy`/`degraded`) и ошибки обновления прайсинга (`pricingStale`) |
-| `/dsh-moa/presets` | `GET` | ✅ Обязательна | N/A | Получение списка сконфигурированных пресетов |
-| `/dsh-moa/presets` | `POST`, `PUT` | ✅ Обязательна | ✅ Fail-closed | Сохранение/обновление конфигурации пресетов |
-| `/dsh-moa/presets/reset` | `POST` | ✅ Обязательна | ✅ Fail-closed | Сброс настроек пресета к значениям по умолчанию |
-| `/dsh-moa/presets/export` | `GET` | ✅ Обязательна | N/A | Экспорт пресетов в JSON-формате |
-| `/dsh-moa/presets/import` | `POST` | ✅ Обязательна | ✅ Fail-closed | Импорт пресетов из JSON |
-| `/dsh-moa/history` | `GET` | ✅ Обязательна | N/A | Список последних выполненных сессий MoA |
-| `/dsh-moa/runs/:id` | `GET` | ✅ Обязательна | N/A | Детальный отчет по конкретной сессии |
-| `/dsh-moa/runs/:id/workbench` | `GET` | ✅ Обязательна | N/A | Получение состояния интерактивного верстака |
-| `/dsh-moa/runs/:id/workbench/assemble` | `POST` | ✅ Обязательна | ✅ Fail-closed | Ручная сборка и сведение фрагментов решений |
-| `/dsh-moa/promote` | `POST` | ✅ Обязательна | ✅ Fail-closed | Продвижение кода победителя в рабочую область |
-| `/dsh-moa/diff` | `GET` | ✅ Обязательна | N/A | Вычисление и просмотр построчного diff |
-| `/dsh-moa/pipeline/run` | `POST` | ✅ Обязательна | ✅ Fail-closed | Запуск конвейера MoA с параметрами из UI |
-| `/dsh-moa/preferences` | `GET` | ✅ Обязательна | N/A | Чтение предпочтений разработчика |
-| `/dsh-moa/preferences` | `POST`, `PATCH` | ✅ Обязательна | ✅ Fail-closed | Сохранение/обновление предпочтений разработчика |
-| `/dsh-moa/preferences` | `DELETE` | ✅ Обязательна | ✅ Fail-closed | Сброс предпочтений разработчика |
-| `/dsh-moa/cache` | `GET` | ✅ Обязательна | N/A | Статистика семантического кэша генераций |
-| `/dsh-moa/cache/clear` | `POST` | ✅ Обязательна | ✅ Fail-closed | Очистка семантического кэша |
-| `/dsh-moa/benchmark/run` | `POST` | ✅ Обязательна | ✅ Fail-closed | Запуск регрессионного тестового бенчмарка |
-| `/dsh-moa/arena/leaderboard` | `GET` | ✅ Обязательна | N/A | Чтение ELO-лидерборда моделей в Blind Arena |
-| `/dsh-moa/arena/anonymize` | `POST` | ✅ Обязательна | ✅ Fail-closed | Анонимизация кандидатов в слепой арене |
-| `/dsh-moa/arena/reveal` | `POST` | ✅ Обязательна | ✅ Fail-closed | Раскрытие реальных моделей после судейства |
-| `/dsh-moa/arena/vote` | `POST` | ✅ Обязательна | ✅ Fail-closed | Учет голоса человека и пересчет рейтинга ELO |
-| `/dsh-moa/mixer/parse` | `POST` | ✅ Обязательна | ✅ Fail-closed | Парсинг markdown/кода на смысловые блоки |
-| `/dsh-moa/mixer/stitch` | `POST` | ✅ Обязательна | ✅ Fail-closed | Сшивка и сглаживание выбранных блоков |
-| `/dsh-moa/timeline/sessions` | `GET` | ✅ Обязательна | N/A | Список записанных сессий таймлайна консенсуса |
-| `/dsh-moa/timeline/:id` | `GET` | ✅ Обязательна | N/A | Детализированные этапы консенсуса по сессии |
-| `/dsh-moa/timeline/record` | `POST` | ✅ Обязательна | ✅ Fail-closed | Запись снимка эволюции решения в таймлайн |
-| `/dsh-moa/timeline/fork` | `POST` | ✅ Обязательна | ✅ Fail-closed | Ветвление пайплайна с промежуточного шага |
-| `/dsh-moa/stream/status` | `GET` | ✅ Обязательна | N/A | Статус многоколоночного потокового вывода |
-| `/dsh-moa/stream/start` | `POST` | ✅ Обязательна | ✅ Fail-closed | Инициализация многоколоночной сессии генерации |
-| `/dsh-moa/heatmap/ast` | `POST` | ✅ Обязательна | ✅ Fail-closed | Анализ синтаксических блоков и построение тепловой карты |
-| `/dsh-moa/heatmap/consensus` | `POST` | ✅ Обязательна | ✅ Fail-closed | Расчет консенсуса по блокам кода кандидатов |
+| Регистрация | kind | Методы | Авторизация | Проверка записи | Назначение |
+|---|---|---|---|---|---|
+| `/dsh-moa/status` | exact | `GET` | ✅ | N/A | Статус плагина, пресетов, кэш прайсинга, телеметрия директив (`directiveTelemetry`) |
+| `/dsh-moa/health` | exact | `GET` | ✅ | N/A | Состояние здоровья и ошибки обновления прайсинга |
+| `/dsh-moa/models` | exact | `GET` | ✅ | N/A | Доступные модели провайдеров (кэш 60 c) |
+| `/dsh-moa/presets` | exact | `GET`, `POST`, `PUT` | ✅ | ✅ POST/PUT | Чтение и сохранение конфигурации пресетов (пресетные ключи применяются к целевому пресету, неизвестные ключи → 400) |
+| `/dsh-moa/route-preset` | exact | `POST` | ✅ | ✅ | Резолв пресета для промпта (smart routing) |
+| `/dsh-moa/run` | exact | `POST` | ✅ | ✅ | Запуск конвейера MoA из UI |
+| `/dsh-moa/promote` | exact | `POST` | ✅ | ✅ | Продвижение кода победителя в рабочую область |
+| `/dsh-moa/diff` | exact | `GET` | ✅ | N/A | Построчный diff кандидатов |
+| `/dsh-moa/runs/…` | prefix | `GET`, `POST` | ✅ | ✅ POST (assemble) | История прогонов, workbench, сборка Pick & Mix |
+| `/dsh-moa/history` | exact | `GET` | ✅ | N/A | Список сессий MoA |
+| `/dsh-moa/history/export` | exact | `GET` | ✅ | N/A | Экспорт телеметрии CSV/JSON |
+| `/dsh-moa/leaderboard` | exact | `GET` | ✅ | N/A | Лидерборд моделей |
+| `/dsh-moa/preferences` | exact | `GET`, `POST`, `PATCH`, `DELETE` | ✅ | ✅ POST/PATCH/DELETE | Предпочтения разработчика |
+| `/dsh-moa/preferences/…` | prefix | `GET`, `POST`, `PATCH`, `DELETE` | ✅ | ✅ | Точечные операции над предпочтениями |
+| `/dsh-moa/cache` | exact | `GET`, `POST` | ✅ | ✅ POST | Статистика/очистка семантического кэша |
+| `/dsh-moa/benchmark` | exact | `POST` | ✅ | ✅ | Регрессионный benchmark-прогон |
+| `/dsh-moa/webhook/pr` | exact | `POST` | ✅ | Signature (fail-closed) | Webhook PR-review бота (HMAC, `pr_review_*`) |
+| `/dsh-moa/ast-heatmap` | exact | `POST` | ✅ | ✅ | Тепловая карта синтаксических блоков |
+| `/dsh-moa/ast-heatmap/apply` | exact | `POST` | ✅ | ✅ | Применение склейки по тепловой карте |
+| `/dsh-moa/arena…` | prefix | `GET`, `POST` | ✅ | ✅ POST | Blind Arena: leaderboard/anonymize/reveal/vote |
+| `/dsh-moa/mixer…` | prefix | `POST` | ✅ | ✅ | Блочный микшер: parse/stitch |
+| `/dsh-moa/stream…` | prefix | `GET`, `POST` | ✅ | ✅ POST | Многоколоночный потоковый вывод |
+| `/dsh-moa/timeline…` | prefix | `GET`, `POST` | ✅ | ✅ POST | Таймлайн консенсуса: sessions/:id/record/fork |
+| `/api/dsh-moa/update` | — | `GET`, `HEAD`, `POST` | GET: N/A | `isTrustedUpdateRequest` (loopback/safe-origin) | One-click обновление плагина |
 
 ## What is published / Что публикуется (Publication Scope)
 
