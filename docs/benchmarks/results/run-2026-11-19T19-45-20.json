@@ -1,0 +1,152 @@
+{
+  "at": "2026-11-19T19:45:36.924Z",
+  "model": "deepseek-chat",
+  "notes": "cycle 2: DeepSeek V3 (deepseek-chat), cost ~$0.10-0.15 approved",
+  "configs": [
+    {
+      "config": "baseline-single",
+      "description": "Single model answers directly (baseline)",
+      "tasks": 12,
+      "passRate": 1,
+      "tokensTotal": 4068,
+      "costUsdTotal": null,
+      "latencyP50Ms": 1144,
+      "latencyP95Ms": 1764,
+      "records": [
+        {
+          "taskId": "clamp-robust",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 109,
+          "completionTokens": 157,
+          "latencyMs": 1284,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "deep-get",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 135,
+          "completionTokens": 183,
+          "latencyMs": 1079,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "roman-numerals",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 121,
+          "completionTokens": 436,
+          "latencyMs": 1764,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "balanced-brackets",
+          "passed": true,
+          "testsTotal": 2,
+          "testsPassed": 2,
+          "promptTokens": 87,
+          "completionTokens": 124,
+          "latencyMs": 897,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "group-by",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 161,
+          "completionTokens": 191,
+          "latencyMs": 1144,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "merge-intervals",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 107,
+          "completionTokens": 183,
+          "latencyMs": 1014,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "word-frequency",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 117,
+          "completionTokens": 304,
+          "latencyMs": 1357,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "async-debounce",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 132,
+          "completionTokens": 185,
+          "latencyMs": 1211,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "lru-cache",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 141,
+          "completionTokens": 199,
+          "latencyMs": 1113,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "csv-line-parse",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 119,
+          "completionTokens": 397,
+          "latencyMs": 1735,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "binary-search-insert",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 110,
+          "completionTokens": 95,
+          "latencyMs": 998,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "retry-with-backoff",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 130,
+          "completionTokens": 145,
+          "latencyMs": 1022,
+          "costUsd": null,
+          "error": null
+        }
+      ]
+    }
+  ],
+  "rawFile": "run-2026-11-19T19-45-20.json"
+}

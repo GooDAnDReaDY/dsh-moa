@@ -51,6 +51,7 @@ function parseArgs(argv) {
     priceIn: null,
     priceOut: null,
     ollamaNative: false,
+    extraHeaders: [],
     selftest: false,
     notes: '',
   }
@@ -72,6 +73,7 @@ function parseArgs(argv) {
     else if (a === '--price-in') args.priceIn = Number(next())
     else if (a === '--price-out') args.priceOut = Number(next())
     else if (a === '--ollama-native') args.ollamaNative = true
+    else if (a === '--extra-header') args.extraHeaders.push(next())
     else if (a === '--notes') args.notes = next()
     else if (a === '--selftest') args.selftest = true
     else throw new Error(`Unknown argument: ${a}`)
@@ -145,6 +147,13 @@ function extractCodeBlock(text) {
 }
 
 async function callModel(args, apiKey, messages) {
+  const extraHeaders = Object.fromEntries(
+    (args.extraHeaders || []).map((h) => {
+      const idx = h.indexOf('=')
+      if (idx <= 0) throw new Error(`--extra-header must be NAME=VALUE, got: ${h}`)
+      return [h.slice(0, idx).trim(), h.slice(idx + 1)]
+    }),
+  )
   const ctrl = new AbortController()
   const timer = setTimeout(() => ctrl.abort(), args.timeoutMs)
   timer.unref?.()
@@ -170,6 +179,7 @@ async function callModel(args, apiKey, messages) {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
+          ...extraHeaders,
         },
         body,
         signal: ctrl.signal,
@@ -197,6 +207,7 @@ async function callModel(args, apiKey, messages) {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
+          ...extraHeaders,
         },
         body,
         signal: ctrl.signal,
@@ -223,7 +234,22 @@ async function callModel(args, apiKey, messages) {
 
 async function callWithTiming(args, apiKey, messages) {
   const t0 = process.hrtime.bigint()
-  const out = await callModel(args, apiKey, messages)
+  // Hosted free tiers rate-limit; retry transient errors with a short backoff
+  // so a 144-call sweep survives a 429 burst.
+  let out
+  let lastErr
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      out = await callModel(args, apiKey, messages)
+      lastErr = null
+      break
+    } catch (err) {
+      lastErr = err
+      const transient = /HTTP (429|5\d\d)/.test(err?.message || '')
+      if (!transient || attempt === 2) throw err
+      await new Promise((r) => setTimeout(r, 15000 * (attempt + 1)))
+    }
+  }
   out.latencyMs = Number((process.hrtime.bigint() - t0) / 1_000_000n)
   return out
 }

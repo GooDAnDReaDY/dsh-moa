@@ -1,0 +1,152 @@
+{
+  "at": "2026-11-19T19:48:44.239Z",
+  "model": "deepseek-chat",
+  "notes": "cycle 2: DeepSeek V3 (deepseek-chat), cost ~$0.10-0.15 approved",
+  "configs": [
+    {
+      "config": "moa-gates-syntax",
+      "description": "2 candidates + syntax/discipline gate directives + judge synthesis",
+      "tasks": 12,
+      "passRate": 1,
+      "tokensTotal": 10567,
+      "costUsdTotal": null,
+      "latencyP50Ms": 2532,
+      "latencyP95Ms": 4648,
+      "records": [
+        {
+          "taskId": "clamp-robust",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 356,
+          "completionTokens": 336,
+          "latencyMs": 2340,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "deep-get",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 408,
+          "completionTokens": 569,
+          "latencyMs": 3143,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "roman-numerals",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 380,
+          "completionTokens": 761,
+          "latencyMs": 3176,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "balanced-brackets",
+          "passed": true,
+          "testsTotal": 2,
+          "testsPassed": 2,
+          "promptTokens": 312,
+          "completionTokens": 322,
+          "latencyMs": 1955,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "group-by",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 460,
+          "completionTokens": 395,
+          "latencyMs": 2460,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "merge-intervals",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 352,
+          "completionTokens": 507,
+          "latencyMs": 2834,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "word-frequency",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 372,
+          "completionTokens": 513,
+          "latencyMs": 2532,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "async-debounce",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 402,
+          "completionTokens": 427,
+          "latencyMs": 2489,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "lru-cache",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 420,
+          "completionTokens": 407,
+          "latencyMs": 2413,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "csv-line-parse",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 376,
+          "completionTokens": 1050,
+          "latencyMs": 4648,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "binary-search-insert",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 358,
+          "completionTokens": 307,
+          "latencyMs": 2706,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "retry-with-backoff",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 398,
+          "completionTokens": 379,
+          "latencyMs": 2188,
+          "costUsd": null,
+          "error": null
+        }
+      ]
+    }
+  ],
+  "rawFile": "run-2026-11-19T19-47-54.json"
+}
