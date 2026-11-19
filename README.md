@@ -37,7 +37,7 @@
 
 ## Requirements
 
-- DeepSeek Harness (DSH) **0.1.7-rc.2 or newer** (tested against the 0.2.0-rc line)
+- DeepSeek Harness (DSH) **`>=0.1.7-rc.2`** (tested against the 0.2.0-rc line)
 - Node.js **20+**
 - A DSH `web` profile — the settings card, `/moa` composer trigger and MoA WebUI surfaces run in the browser half
 
