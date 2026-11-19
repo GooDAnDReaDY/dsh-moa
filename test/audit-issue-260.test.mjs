@@ -147,8 +147,10 @@ test('#260: PoC exploit — candidate spawning child_process with stripped NODE_
 
     // Must be blocked because without OS sandbox, child_process execution is forbidden
     assert.equal(res.passed, false, 'Exploit must not pass')
+    // Windows Node word differs; accept any deny phrasing (#371)
     assert.ok(
-      res.output.includes('ERR_ACCESS_DENIED') || res.output.includes('Access denied'),
+      res.output.includes('ERR_ACCESS_DENIED') || res.output.includes('Access denied')
+        || /Access to this API has been restricted/i.test(res.output),
       'Output must indicate access denied: ' + res.output
     )
   } finally {

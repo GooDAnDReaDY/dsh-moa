@@ -96,7 +96,7 @@ test('history: getDefaultHistoryDir resolves cleanly when DSH_HOME ends with .ds
 
     process.env.DSH_HOME = '/custom/home'
     const hDirUser = getDefaultHistoryDir()
-    assert.equal(hDirUser, '/custom/home/.dsh')
+    assert.equal(hDirUser, path.join('/custom/home', '.dsh'))
   } finally {
     if (origDshHome !== undefined) process.env.DSH_HOME = origDshHome; else delete process.env.DSH_HOME
     if (origDshHistory !== undefined) process.env.DSH_HISTORY_DIR = origDshHistory; else delete process.env.DSH_HISTORY_DIR

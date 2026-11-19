@@ -230,22 +230,25 @@ Restart your DeepSeek Harness instance and refresh the browser.
 
 ---
 
-## ⚡ 10 Specialized Built-in Presets & Candidate Personas
+## ⚡ Built-in Presets & Candidate Personas
 
-v0.2.13 introduces 10 ready-to-use presets engineered for real-world software workflows:
+Eleven presets ship by default. **Smart Routing** classifies the prompt (keywords or an optional LLM router) and selects one of these presets automatically:
 
-| Preset Name | Purpose | Default Aggregator | Peer Critique | Blind Eval |
+| Preset Name | Purpose | Default Aggregator | Clarifying Questions | Token Budget |
 | :--- | :--- | :--- | :---: | :---: |
-| `default` | Balanced multi-model generation | `<provider>:<model>` | Optional | Off |
-| `code-review` | Thorough peer review & vulnerability detection | `<provider>:<model>` | On | On |
-| `fast-audit` | Ultra-fast single-model audit (Fast Mode) | `<provider>:<model>` | Off | Off |
-| `deep-architect` | Distributed systems & complex architectures | `<provider>:<model>` | On | Off |
-| `bug-hunter` | Root cause discovery & adversarial edge cases | `<provider>:<model>` | On | Off |
-| `refactor-cleanup` | Dead-code pruning & standard-library simplicity | `<provider>:<model>` | Off | Off |
-| `frontend-ui` | High-fidelity responsive web interfaces | `<provider>:<model>` | Off | Off |
-| `security-audit` | Zero-trust threat analysis & sanitization | `<provider>:<model>` | On | On |
-| `math-logic` | Deterministic algorithmic proofs & math logic | `<provider>:<model>` | On | Off |
-| `creative-brainstorm`| Divergent lateral thinking & ideation | `<provider>:<model>` | Off | Off |
+| `default` | Balanced multi-model generation | `<provider>:<model>` | On | 4096 |
+| `fast` | Single-candidate Fast Mode for quick tasks | `<provider>:<model>` | Off | 4096 |
+| `deep-reasoning` | Architect + critic pair for hard problems | `<provider>:<model>` | On | 8192 |
+| `code-review` | Peer-reviewed code review with blind evaluation | `<provider>:<model>` | On | 4096 |
+| `security-audit` | Zero-trust threat analysis with security gate | `<provider>:<model>` | On | 4096 |
+| `bug-hunter` | Root-cause discovery with adversarial TDD | `<provider>:<model>` | Off | 4096 |
+| `refactor-cleanup` | Dead-code pruning and standard-library simplicity | `<provider>:<model>` | Off | 4096 |
+| `frontend-ui` | High-fidelity responsive web interfaces with visual MoA | `<provider>:<model>` | Off | 8192 |
+| `deep-architect` | Distributed systems & complex architecture design | `<provider>:<model>` | On | 8192 |
+| `math-logic` | Deterministic proofs with self-consistency sampling | `<provider>:<model>` | Off | 8192 |
+| `creative-brainstorm` | Divergent lateral thinking with high-temperature candidates | `<provider>:<model>` | Off | 4096 |
+
+Add your own presets in the settings card — every parameter in `PresetSchema` is available per preset.
 
 ### Candidate Personas (`role_persona`)
 Assign archetypal engineering mentalities to individual candidate slots to ensure genuine perspective divergence:

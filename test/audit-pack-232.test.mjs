@@ -11,6 +11,13 @@ import { calcSynthesisPromptTokens } from '../lib/moa-budget.js'
 
 const oct = (s) => [...Buffer.from(s)].map((n) => '\\' + n.toString(8).padStart(3, '0')).join('')
 
+// This scenario drives a POSIX shell script through `sh` and `base64 -d`; neither
+// is guaranteed on Windows, where the gate reports a command-not-found rather
+// than a policy decision (#371).
+const posixShellSkip = process.platform === 'win32'
+  ? 'requires a POSIX shell (`sh`) and `base64 -d`, unavailable on Windows (#371)'
+  : false
+
 // ── ISSUE #161: Filesystem isolation against computed octal/hex evasion ──
 
 test('#161: Test Gate blocks native shell script from reading outside sandbox via octal path', async () => {
@@ -110,7 +117,7 @@ test('#225: Test Gate allows safe HTTP route literals like /run/user without fal
   await fs.rm(tmp, { recursive: true, force: true }).catch(() => {})
 })
 
-test('#225: Test Gate allows safe data base64 decoding without false positives', async () => {
+test('#225: Test Gate allows safe data base64 decoding without false positives', { skip: posixShellSkip }, async () => {
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'moa-225-b64-'))
   const cwd = path.join(tmp, 'sandbox')
   await fs.mkdir(cwd, { recursive: true })

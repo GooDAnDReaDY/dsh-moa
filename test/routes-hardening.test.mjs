@@ -283,7 +283,13 @@ test('Issue #66: POST /dsh-moa/run rate limiter rejects rapid subsequent calls w
   assert.match(second.json?.error, /rate limit/i)
 })
 
-test('Issue #74: collectProjectContext records error details when file read fails', async () => {
+// The scenario relies on mode 0o000 making a file unreadable, which Windows does
+// not honor: ACLs, not POSIX mode bits, gate read access there (#371).
+const unreadableFilesSkip = process.platform === 'win32'
+  ? 'mode 0o000 does not deny reads on Windows; requires POSIX permissions (#371)'
+  : false
+
+test('Issue #74: collectProjectContext records error details when file read fails', { skip: unreadableFilesSkip }, async () => {
   const { collectProjectContext } = await import('../lib/file-workspace.js')
   const os = await import('node:os')
   const fs = await import('node:fs/promises')
