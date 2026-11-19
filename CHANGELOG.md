@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.2.91 (2026-11-19)
+
+### Measured Quality Profiles & Ablation
+- **fast / balanced / deep quality profiles (#368)**:
+  - Three shipped quality profiles backed by the first full ablation measurement (#367, DeepSeek V3, 12 tasks x 4 configurations).
+  - `balanced` (new): two candidates + judge with peer critique OFF by default - the measurement showed peer critique regressed pass-rate (91.7% vs 100% baseline; the critic broke a correct solution).
+  - `deep` (new): three candidates + security gate, 8192 tokens; peer critique and heavy gates remain expert opt-in per the same measurement.
+  - `fast` (existing) confirmed as the single-candidate baseline-tier profile.
+  - Profiles ship as ordinary presets (13 by default) selectable in the settings card; expert flags remain per-preset overrides.
+
+- **Ablation infrastructure and first measurement (#367)**:
+  - `scripts/ablation/` - 12-task seed set with objective validators (fixed `node --test` harnesses against the candidate `impl.js`; substring checks are impossible by construction), runner with configuration matrix (`baseline-single` / `moa-2-judge` / `moa-2-critique` / `moa-gates-syntax`), pass-rate / tokens / cost / latency metrics, results aggregated in `docs/benchmarks/RESULTS.md` with raw JSON per run.
+  - Discriminability guards run on every `npm test` in both directions: canonical correct implementations must pass every validator, empty implementations must fail - harness drift blocks CI instead of skewing a measurement.
+  - First measurement executed: DeepSeek V3, 144 calls (~$0.14): baseline-single 100% (339 tokens/task), moa-2-judge 100% (660), moa-2-critique 91.7% (peer critique regressed a correct solution), moa-gates-syntax 100% (880). Decision block in RESULTS.md.
+  - Runner hardening: `--extra-header` (provider session headers), `--ollama-native` (native `/api/chat` with `think:false` for reasoning models), 3-attempt backoff retry on HTTP 429/5xx, `NODE_TEST_CONTEXT` sanitization so nested test-runner contexts cannot neuter validators.
+
+### Test & Tooling Hygiene
+- **eslint no-undef coverage (#374)**: flat `eslint.config.mjs` with scoped platform globals (server lib, generated client bundles, tests, scripts); `eslint .` wired into `npm test`; `npm run lint` standalone. Whole tree lints clean.
+- **Test-seam documentation (#373)**: `hasClientCredentials` and `resetMemoryCatalog` marked `@test-seam` with reasons - the dead-export scan no longer flags them as accidental dead code.
+
+
 ## 0.2.90 (2026-11-19)
 
 ### Cross-Platform Correctness & Settings Ownership
