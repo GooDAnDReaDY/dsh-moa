@@ -35,6 +35,12 @@
 
 ---
 
+## Requirements
+
+- DeepSeek Harness (DSH) **0.1.7-rc.2 or newer** (tested against the 0.2.0-rc line)
+- Node.js **20+**
+- A DSH `web` profile — the settings card, `/moa` composer trigger and MoA WebUI surfaces run in the browser half
+
 ## ⚡ Overview & The Problem
 
 Single-model AI generation often suffers from blind spots, single-perspective biases, hallucinated architectural choices, and inconsistent code quality on challenging engineering tasks. When prompted with ambiguous or complex specifications, a single model may make premature assumptions and produce monolithic, unvetted implementations.
