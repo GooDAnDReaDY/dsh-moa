@@ -1,0 +1,152 @@
+{
+  "at": "2026-11-19T19:47:49.784Z",
+  "model": "deepseek-chat",
+  "notes": "cycle 2: DeepSeek V3 (deepseek-chat), cost ~$0.10-0.15 approved",
+  "configs": [
+    {
+      "config": "moa-2-critique",
+      "description": "2 candidates + peer critique round + judge synthesis",
+      "tasks": 12,
+      "passRate": 0.917,
+      "tokensTotal": 8066,
+      "costUsdTotal": null,
+      "latencyP50Ms": 2385,
+      "latencyP95Ms": 4186,
+      "records": [
+        {
+          "taskId": "clamp-robust",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 218,
+          "completionTokens": 347,
+          "latencyMs": 2371,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "deep-get",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 270,
+          "completionTokens": 360,
+          "latencyMs": 2132,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "roman-numerals",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 242,
+          "completionTokens": 718,
+          "latencyMs": 3086,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "balanced-brackets",
+          "passed": true,
+          "testsTotal": 2,
+          "testsPassed": 2,
+          "promptTokens": 174,
+          "completionTokens": 248,
+          "latencyMs": 1867,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "group-by",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 322,
+          "completionTokens": 338,
+          "latencyMs": 2526,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "merge-intervals",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 214,
+          "completionTokens": 393,
+          "latencyMs": 2385,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "word-frequency",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 234,
+          "completionTokens": 501,
+          "latencyMs": 2565,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "async-debounce",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 264,
+          "completionTokens": 369,
+          "latencyMs": 2113,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "lru-cache",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 282,
+          "completionTokens": 388,
+          "latencyMs": 2338,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "csv-line-parse",
+          "passed": false,
+          "testsTotal": 4,
+          "testsPassed": 3,
+          "promptTokens": 238,
+          "completionTokens": 801,
+          "latencyMs": 4186,
+          "costUsd": null,
+          "error": "✖ plain fields with trimming (3.336067ms) | ✖ failing tests: | ✖ plain fields with trimming (3.336067ms)"
+        },
+        {
+          "taskId": "binary-search-insert",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 220,
+          "completionTokens": 190,
+          "latencyMs": 1724,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "retry-with-backoff",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 260,
+          "completionTokens": 475,
+          "latencyMs": 2474,
+          "costUsd": null,
+          "error": null
+        }
+      ]
+    }
+  ],
+  "rawFile": "run-2026-11-19T19-46-32.json"
+}
