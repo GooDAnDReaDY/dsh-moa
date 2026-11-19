@@ -17,9 +17,9 @@ test('sanitizeSensitiveText: redacts API keys, Bearer tokens, and JWTs', () => {
 })
 
 test('sanitizeSensitiveText: redacts Unix and Windows absolute home paths into relative workspace paths', () => {
-  const input = 'Read /home/vadim/secret-vault/keys.txt or C:\\Users\\admin\\Documents\\vault.json'
+  const input = 'Read /home/testuser/secret-vault/keys.txt or C:\\Users\\admin\\Documents\\vault.json'
   const res = sanitizeSensitiveText(input)
-  assert.ok(!res.sanitizedText.includes('/home/vadim'))
+  assert.ok(!res.sanitizedText.includes('/home/testuser'))
   assert.ok(!res.sanitizedText.includes('C:\\Users\\admin'))
   assert.ok(res.sanitizedText.includes('/workspace/secret-vault/keys.txt'))
   assert.ok(res.sanitizedText.includes('C:\\workspace\\Documents\\vault.json'))

@@ -158,7 +158,7 @@ test('no hardcoded machine paths or credentials in tracked source files', () => 
   ]
 
   const forbiddenPatterns = [
-    /\/home\/vadim/,
+    /\/home\/testuser/,
     /192\.168\./,
     /localhost:2222/,
     /codex_migrate/,

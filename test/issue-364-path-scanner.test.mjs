@@ -7,7 +7,7 @@ import { isHostAbsolutePath, scanPathTokensForLeak, generateFenceCode } from '..
 
 test('Issue #364: isHostAbsolutePath classifies filesystem paths independently of host platform', () => {
   // Windows drive paths are always host filesystem paths
-  assert.equal(isHostAbsolutePath('C:\\Users\\vadim\\secrets.txt'), true)
+  assert.equal(isHostAbsolutePath('C:\\Users\\testuser\\secrets.txt'), true)
   assert.equal(isHostAbsolutePath('C:/temp/build.log'), true)
   assert.equal(isHostAbsolutePath('d:\\x'), true)
 
@@ -16,7 +16,7 @@ test('Issue #364: isHostAbsolutePath classifies filesystem paths independently o
   assert.equal(isHostAbsolutePath('/home/user/.ssh/id_rsa'), true)
   assert.equal(isHostAbsolutePath('/root/.npmrc'), true)
   assert.equal(isHostAbsolutePath('/var/log/app.log'), true)
-  assert.equal(isHostAbsolutePath('/Users/vadim/notes.txt'), true)
+  assert.equal(isHostAbsolutePath('/Users/testuser/notes.txt'), true)
 
   // A bare leading slash is NOT enough: route literals are not filesystem paths
   assert.equal(isHostAbsolutePath('/health'), false)
@@ -59,8 +59,8 @@ test('Issue #364: scanPathTokensForLeak still blocks host filesystem escapes on 
     // Windows drive paths are host paths via isHostAbsolutePath; the scanner
     // blocks them where the OS resolves them as drive paths (win32). On POSIX
     // the same token is just a sandbox-relative filename and stays allowed.
-    const winPathText = "fs.readFileSync('C:\\Users\\vadim\\secrets.txt')"
-    assert.equal(isHostAbsolutePath('C:\\Users\\vadim\\secrets.txt'), true)
+    const winPathText = "fs.readFileSync('C:\\Users\\testuser\\secrets.txt')"
+    assert.equal(isHostAbsolutePath('C:\\Users\\testuser\\secrets.txt'), true)
     if (process.platform === 'win32') {
       assert.notEqual(scanPathTokensForLeak(winPathText, [tmpDir], tmpDir), null)
     } else {
