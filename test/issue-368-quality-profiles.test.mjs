@@ -49,7 +49,7 @@ test('#368: profiles are selectable - names registered in the shipped preset lis
   for (const p of ['fast', 'balanced', 'deep']) {
     assert.ok(names.includes(p), `profile "${p}" must be a selectable shipped preset`)
   }
-  assert.equal(names.length, 13, 'thirteen presets ship by default')
+  assert.equal(names.length, 14, "fourteen presets ship by default")
 })
 
 test('#368: README documents the measured profiles', () => {

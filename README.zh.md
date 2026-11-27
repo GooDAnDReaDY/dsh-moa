@@ -156,7 +156,7 @@ graph TD
 在 `设置 → 插件 → Mixture of Agents` 中可视化配置模型：
 * 配置顾问模型列表（快速生成多样化构想）。
 * 配置裁判模型（强推理模型进行严谨审查）。
-* 自定义命名预设（默认内置 13 个：`default`, `fast`, `deep-reasoning`, `balanced`（双候选+评审，按实测关闭同行评审）, `deep`（三候选+安全关卡，同行评审可手动开启）, `code-review`, `security-audit`, `bug-hunter`, `refactor-cleanup`, `frontend-ui`, `deep-architect`, `math-logic`, `creative-brainstorm`），支持裁判评审准则与温度等全部 `PresetSchema` 参数。
+* 自定义命名预设（默认内置 14 个：`default`, `fast`, `deep-reasoning`, `auto`（按实测任务复杂度自动升级到 fast/balanced/deep）, `balanced`（双候选+评审，按实测关闭同行评审）, `deep`（三候选+安全关卡，同行评审可手动开启）, `code-review`, `security-audit`, `bug-hunter`, `refactor-cleanup`, `frontend-ui`, `deep-architect`, `math-logic`, `creative-brainstorm`），支持裁判评审准则与温度等全部 `PresetSchema` 参数。
 * 启用/停用 MoA 开关并查看真实的主机状态徽章；遥测网格展示总运行次数与平均运行成本。
 
 ### 7. 候选方案差异对比器 (Candidate Diff Viewer)
