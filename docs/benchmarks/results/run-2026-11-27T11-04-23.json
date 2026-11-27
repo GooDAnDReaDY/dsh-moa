@@ -1,0 +1,108 @@
+{
+  "at": "2026-11-27T11:05:44.791Z",
+  "model": "deepseek-chat",
+  "notes": "issue #388: multi-file set from real project history (8 tasks)",
+  "configs": [
+    {
+      "config": "moa-2-critique-guarded",
+      "description": "2 candidates + guarded critique (#387): refined variants compete, originals preserved",
+      "tasks": 8,
+      "passRate": 0.5,
+      "tokensTotal": 9221,
+      "costUsdTotal": null,
+      "latencyP50Ms": 4169,
+      "latencyP95Ms": 13529,
+      "records": [
+        {
+          "taskId": "mf-posix-path-normalize",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 226,
+          "completionTokens": 689,
+          "latencyMs": 4360,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "mf-route-literal-classify",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 278,
+          "completionTokens": 729,
+          "latencyMs": 4169,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "mf-account-files-guard",
+          "passed": false,
+          "testsTotal": 3,
+          "testsPassed": 2,
+          "promptTokens": 258,
+          "completionTokens": 1140,
+          "latencyMs": 4716,
+          "costUsd": null,
+          "error": "✖ non-sensitive safe system dirs remain allowed (0.497061ms) | ✖ failing tests: | ✖ non-sensitive safe system dirs remain allowed (0.497061ms)"
+        },
+        {
+          "taskId": "mf-schema-key-strip",
+          "passed": false,
+          "testsTotal": 2,
+          "testsPassed": 1,
+          "promptTokens": 218,
+          "completionTokens": 330,
+          "latencyMs": 2231,
+          "costUsd": null,
+          "error": "✖ strips legacy undeclared keys (1.246804ms) | ✖ failing tests: | ✖ strips legacy undeclared keys (1.246804ms)"
+        },
+        {
+          "taskId": "mf-entrypoint-resolution",
+          "passed": false,
+          "testsTotal": 4,
+          "testsPassed": 3,
+          "promptTokens": 236,
+          "completionTokens": 501,
+          "latencyMs": 2567,
+          "costUsd": null,
+          "error": "✖ canonical names outrank order (0.568918ms) | ✖ failing tests: | ✖ canonical names outrank order (0.568918ms)"
+        },
+        {
+          "taskId": "mf-literal-mask",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 318,
+          "completionTokens": 3127,
+          "latencyMs": 13529,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "mf-directive-budget",
+          "passed": false,
+          "testsTotal": 3,
+          "testsPassed": 1,
+          "promptTokens": 208,
+          "completionTokens": 365,
+          "latencyMs": 2204,
+          "costUsd": null,
+          "error": "✖ mid-size scales by fraction (0.479898ms) | ✖ clamps to max (0.155658ms) | ✖ failing tests:"
+        },
+        {
+          "taskId": "mf-auto-thresholds",
+          "passed": true,
+          "testsTotal": 2,
+          "testsPassed": 2,
+          "promptTokens": 210,
+          "completionTokens": 388,
+          "latencyMs": 2374,
+          "costUsd": null,
+          "error": null
+        }
+      ]
+    }
+  ],
+  "rawFile": "run-2026-11-27T11-04-23.json"
+}

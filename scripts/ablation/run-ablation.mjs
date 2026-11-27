@@ -31,6 +31,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { TASKS, getTasks } from './tasks.mjs'
+import { TASKS_MULTIFILE, getMultifileTasks } from './tasks-multifile.mjs'
 import { runHarness, extractAllFileBlocks } from './harness.mjs'
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
@@ -52,6 +53,7 @@ function parseArgs(argv) {
     priceOut: null,
     ollamaNative: false,
     extraHeaders: [],
+    set: 'compact',
     selftest: false,
     notes: '',
   }
@@ -74,6 +76,7 @@ function parseArgs(argv) {
     else if (a === '--price-out') args.priceOut = Number(next())
     else if (a === '--ollama-native') args.ollamaNative = true
     else if (a === '--extra-header') args.extraHeaders.push(next())
+    else if (a === '--set') args.set = next()
     else if (a === '--notes') args.notes = next()
     else if (a === '--selftest') args.selftest = true
     else throw new Error(`Unknown argument: ${a}`)
@@ -434,7 +437,10 @@ async function main() {
     process.exit(1)
   }
 
-  const tasks = getTasks(args.tasks)
+  const taskSource = args.set === 'multifile' ? getMultifileTasks
+    : args.set === 'all' ? (ids) => [...getTasks(ids), ...getMultifileTasks(ids)]
+    : getTasks
+  const tasks = taskSource(args.tasks)
   process.stdout.write(`[run-ablation] tasks: ${tasks.map((t) => t.id).join(', ')}\n`)
 
   if (args.selftest) {
