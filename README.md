@@ -238,12 +238,13 @@ Restart your DeepSeek Harness instance and refresh the browser.
 
 ## ⚡ Built-in Presets & Candidate Personas
 
-Thirteen presets ship by default. **Smart Routing** classifies the prompt (keywords or an optional LLM router) and selects one of these presets automatically:
+Fourteen presets ship by default. `auto` escalates to fast/balanced/deep by measured task complexity (#389). **Smart Routing** classifies the prompt (keywords or an optional LLM router) and selects one of these presets automatically:
 
 | Preset Name | Purpose | Default Aggregator | Clarifying Questions | Token Budget |
 | :--- | :--- | :--- | :---: | :---: |
 | `default` | Balanced multi-model generation | `<provider>:<model>` | On | 4096 |
 | `fast` | Single-candidate Fast Mode for quick tasks | `<provider>:<model>` | Off | 4096 |
+| `auto` | Complexity-driven escalation to fast/balanced/deep | `<provider>:<model>` | On | auto |
 | `balanced` | Two candidates + judge, peer critique off by measurement | `<provider>:<model>` | On | 4096 |
 | `deep` | Three candidates + security gate for hard multi-part problems | `<provider>:<model>` | On | 8192 |
 | `deep-reasoning` | Architect + critic pair for hard problems | `<provider>:<model>` | On | 8192 |

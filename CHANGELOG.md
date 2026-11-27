@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.2.92 (2026-11-27)
+
+### Cycle 3: Guarded Critique, Multi-file Ablation, Auto Profile
+- **Guarded peer critique (#387)**:
+  - `critique_guard_mode: 'compete' | 'strict'` (default compete): the refined answer is never allowed to destroy the original - it becomes an additional candidate (distinct sandbox, `(critiqued)` label, own usage accounting) and the judge picks between the pair.
+  - Verified by the ablation: guarded critique restores the seed-set pass-rate to **100%** (unguarded critique regressed it to 91.7% - the critic broke a correct solution) at nearly identical cost (692 vs 672 tokens/task).
+  - `strict` mode: syntax-broken refinements rejected outright; a refined variant failing the test gate the original passed is dropped after the run.
+- **Multi-file ablation tasks from real project history (#388)**:
+  - 8 tasks with real issue origins (#363/#364/#365/#369/#370/#389): repro context before the fix, prompt with the defect, fixed `node --test` harness against the submitted files (multi-file candidates with traversal-safe block extraction).
+  - First multi-file measurement (DeepSeek V3, 72 calls): baseline 62.5%, moa-2-judge 62.5% (identical failure set), critique-guarded 50%. Honest decision block: same-model ensembles do not pay on this set with a strong model - ensemble value requires slot diversity (different models/roles), tracked as the follow-up measurement.
+  - Canonical implementations live as real files under `scripts/ablation/canonical/`; discriminability guards cover the multi-file set in both directions on every `npm test`.
+- **Auto profile (#389)**:
+  - `estimateTaskComplexity(prompt)`: deterministic bounded score (spec length, file mentions, multi-step structure, hard-engineering markers, ambiguity).
+  - The `auto` preset (14 presets by default) escalates to `fast`/`balanced`/`deep` through the measured thresholds (< 0.35 / <= 0.7 / > 0.7); explicit presets always win; the decision (score + signals) is logged and attached to the run context.
+- Runner: `--set compact|multifile|all` (default compact), `--extra-header`, retry with backoff on HTTP 429/5xx, `NODE_TEST_CONTEXT` sanitization.
+
+### Dev hygiene (carried from 0.2.91 cycle)
+- #374: eslint flat config (no-undef) wired into `npm test`.
+- #373: `@test-seam` documentation for `hasClientCredentials` / `resetMemoryCatalog`.
+
+
 ## 0.2.91 (2026-11-19)
 
 ### Measured Quality Profiles & Ablation
