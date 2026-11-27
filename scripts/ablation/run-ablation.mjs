@@ -31,7 +31,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { TASKS, getTasks } from './tasks.mjs'
-import { runHarness } from './harness.mjs'
+import { TASKS_MULTIFILE, getMultifileTasks } from './tasks-multifile.mjs'
+import { runHarness, extractAllFileBlocks } from './harness.mjs'
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 const RESULTS_DIR = path.join(REPO_ROOT, 'docs', 'benchmarks')
@@ -52,6 +53,7 @@ function parseArgs(argv) {
     priceOut: null,
     ollamaNative: false,
     extraHeaders: [],
+    set: 'compact',
     selftest: false,
     notes: '',
   }
@@ -74,6 +76,7 @@ function parseArgs(argv) {
     else if (a === '--price-out') args.priceOut = Number(next())
     else if (a === '--ollama-native') args.ollamaNative = true
     else if (a === '--extra-header') args.extraHeaders.push(next())
+    else if (a === '--set') args.set = next()
     else if (a === '--notes') args.notes = next()
     else if (a === '--selftest') args.selftest = true
     else throw new Error(`Unknown argument: ${a}`)
@@ -109,6 +112,14 @@ const CONFIGURATIONS = {
     judge: true,
     peerCritique: false,
     gates: true,
+  },
+  'moa-2-critique-guarded': {
+    description: '2 candidates + guarded critique (#387): refined variants compete, originals preserved',
+    candidates: 2,
+    judge: true,
+    peerCritique: true,
+    guardedCritique: true,
+    gates: false,
   },
 }
 
@@ -291,13 +302,30 @@ async function evaluateConfig(args, apiKey, tasks, cfgName) {
 
     let workingTexts = candidates.map((c) => c.content)
     if (cfg.peerCritique) {
-      for (let i = 0; i < candidates.length; i++) {
-        const others = workingTexts.filter((_, j) => j !== i).join('\n\n---\n\n')
-        const crit = await callWithTiming(args, apiKey, [
-          { role: 'user', content: `${PEER_CRITIQUE_DIRECTIVE}\n\nTask:\n${taskDef.prompt}\n\nCandidate to review:\n${others || candidates[i].content}` },
-        ])
-        candidates[i].critiqueTokens = crit.promptTokens + crit.completionTokens
-        workingTexts[i] = crit.content
+      if (cfg.guardedCritique) {
+        // Guarded critique (#387): refined variants COMPETE - the judge sees
+        // originals AND refined variants as separate numbered candidates; a
+        // broken refinement can no longer destroy a correct original.
+        const guarded = []
+        for (let i = 0; i < candidates.length; i++) {
+          const others = workingTexts.filter((_, j) => j !== i).join('\n\n---\n\n')
+          const crit = await callWithTiming(args, apiKey, [
+            { role: 'user', content: `${PEER_CRITIQUE_DIRECTIVE}\n\nTask:\n${taskDef.prompt}\n\nCandidate to review:\n${others || candidates[i].content}` },
+          ])
+          candidates[i].critiqueTokens = crit.promptTokens + crit.completionTokens
+          guarded.push(workingTexts[i])
+          guarded.push(crit.content)
+        }
+        workingTexts = guarded
+      } else {
+        for (let i = 0; i < candidates.length; i++) {
+          const others = workingTexts.filter((_, j) => j !== i).join('\n\n---\n\n')
+          const crit = await callWithTiming(args, apiKey, [
+            { role: 'user', content: `${PEER_CRITIQUE_DIRECTIVE}\n\nTask:\n${taskDef.prompt}\n\nCandidate to review:\n${others || candidates[i].content}` },
+          ])
+          candidates[i].critiqueTokens = crit.promptTokens + crit.completionTokens
+          workingTexts[i] = crit.content
+        }
       }
     }
 
@@ -310,7 +338,11 @@ async function evaluateConfig(args, apiKey, tasks, cfgName) {
       finalText = judged.content
     }
 
-    const impl = extractCodeBlock(finalText)
+    // Multi-file tasks (#388): a candidate answer may declare several file
+    // blocks; each is written at its declared relative path.
+    const impl = taskDef.contextFiles
+      ? extractAllFileBlocks(finalText)
+      : extractCodeBlock(finalText)
     const verdict = runHarness(taskDef, impl)
     const promptTokens = candidates.reduce((acc, c) => acc + c.promptTokens, 0)
     const completionTokens = candidates.reduce((acc, c) => acc + c.completionTokens, 0)
@@ -405,7 +437,10 @@ async function main() {
     process.exit(1)
   }
 
-  const tasks = getTasks(args.tasks)
+  const taskSource = args.set === 'multifile' ? getMultifileTasks
+    : args.set === 'all' ? (ids) => [...getTasks(ids), ...getMultifileTasks(ids)]
+    : getTasks
+  const tasks = taskSource(args.tasks)
   process.stdout.write(`[run-ablation] tasks: ${tasks.map((t) => t.id).join(', ')}\n`)
 
   if (args.selftest) {

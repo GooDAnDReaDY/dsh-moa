@@ -1,0 +1,108 @@
+{
+  "at": "2026-11-27T11:03:18.819Z",
+  "model": "deepseek-chat",
+  "notes": "issue #388: multi-file set from real project history (8 tasks)",
+  "configs": [
+    {
+      "config": "baseline-single",
+      "description": "Single model answers directly (baseline)",
+      "tasks": 8,
+      "passRate": 0.625,
+      "tokensTotal": 4636,
+      "costUsdTotal": null,
+      "latencyP50Ms": 1691,
+      "latencyP95Ms": 5298,
+      "records": [
+        {
+          "taskId": "mf-posix-path-normalize",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 113,
+          "completionTokens": 449,
+          "latencyMs": 3214,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "mf-route-literal-classify",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 139,
+          "completionTokens": 278,
+          "latencyMs": 1273,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "mf-account-files-guard",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 129,
+          "completionTokens": 690,
+          "latencyMs": 2638,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "mf-schema-key-strip",
+          "passed": false,
+          "testsTotal": 2,
+          "testsPassed": 1,
+          "promptTokens": 109,
+          "completionTokens": 180,
+          "latencyMs": 1405,
+          "costUsd": null,
+          "error": "✖ strips legacy undeclared keys (1.218731ms) | ✖ failing tests: | ✖ strips legacy undeclared keys (1.218731ms)"
+        },
+        {
+          "taskId": "mf-entrypoint-resolution",
+          "passed": false,
+          "testsTotal": 4,
+          "testsPassed": 3,
+          "promptTokens": 118,
+          "completionTokens": 303,
+          "latencyMs": 1607,
+          "costUsd": null,
+          "error": "✖ canonical names outrank order (0.496108ms) | ✖ failing tests: | ✖ canonical names outrank order (0.496108ms)"
+        },
+        {
+          "taskId": "mf-literal-mask",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 159,
+          "completionTokens": 1419,
+          "latencyMs": 5298,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "mf-directive-budget",
+          "passed": false,
+          "testsTotal": 3,
+          "testsPassed": 0,
+          "promptTokens": 104,
+          "completionTokens": 152,
+          "latencyMs": 1080,
+          "costUsd": null,
+          "error": "✖ scales with candidate size and clamps to min (0.795391ms) | ✖ mid-size scales by fraction (0.130669ms) | ✖ clamps to max (0.114469ms)"
+        },
+        {
+          "taskId": "mf-auto-thresholds",
+          "passed": true,
+          "testsTotal": 2,
+          "testsPassed": 2,
+          "promptTokens": 105,
+          "completionTokens": 189,
+          "latencyMs": 1691,
+          "costUsd": null,
+          "error": null
+        }
+      ]
+    }
+  ],
+  "rawFile": "run-2026-11-27T11-03-00.json"
+}

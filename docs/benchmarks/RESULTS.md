@@ -105,3 +105,68 @@ _Raw measurements: docs/benchmarks/results/run-2026-11-19T19-47-54.json_
 3. Профиль `balanced` = 2 кандидата + судья (+100% токенов за рост устойчивости на слабых/средних моделях и диверсификацию подходов; на seed-наборе не хуже baseline).
 4. Профиль `deep` = полный набор гейтов + multi-judge — для сложных многофайловых задач, где baseline недостаточен (вне покрытия seed-набора); критика и тяжёлые гейты — opt-in флагами.
 5. Ограничение замера честно зафиксировано: seed-набор — компактные одиночные задачи; вывод «MoA не добавляет pass-rate» применим к этому классу, для многофайловых реальных задач (#367 план) нужен расширенный набор.
+## Run 2026-11-27T10:49:21.208Z — model `deepseek-chat`
+
+> issue #387 AC: guarded critique on the seed set (compare: unguarded critique regressed to 91.7% in cycle 2)
+
+| Configuration | Tasks | Pass-rate | Tokens | Cost USD | Latency p50 (ms) | p95 (ms) |
+|---|---:|---:|---:|---:|---:|---:|
+| `moa-2-critique-guarded` — 2 candidates + guarded critique (#387): refined variants compete, originals preserved | 12 | 100.0% | 8301 | n/a | 2398 | 3166 |
+
+_Raw measurements: docs/benchmarks/results/run-2026-11-27T10-48-05.json_
+
+
+### Guarded critique verification (#387, 2026-11-27, DeepSeek V3, 12 tasks)
+
+| Configuration | Pass-rate | Tokens/task | Вывод |
+|---|---:|---:|---|
+| `moa-2-critique` (unguarded, cycle 2) | 91.7% | 672 | критик сломал корректное решение |
+| `moa-2-critique-guarded` (#387: refined variants compete) | **100.0%** | 692 | **регрессия устранена**, цена почти та же |
+
+Вывод: предохранитель «оригинал никогда не теряется, исправление конкурирует» возвращает pass-rate критики к baseline при сопоставимой цене. Критику можно включать безопасно.
+## Run 2026-11-27T11:03:18.819Z — model `deepseek-chat`
+
+> issue #388: multi-file set from real project history (8 tasks)
+
+| Configuration | Tasks | Pass-rate | Tokens | Cost USD | Latency p50 (ms) | p95 (ms) |
+|---|---:|---:|---:|---:|---:|---:|
+| `baseline-single` — Single model answers directly (baseline) | 8 | 62.5% | 4636 | n/a | 1691 | 5298 |
+
+_Raw measurements: docs/benchmarks/results/run-2026-11-27T11-03-00.json_
+
+## Run 2026-11-27T11:04:18.592Z — model `deepseek-chat`
+
+> issue #388: multi-file set from real project history (8 tasks)
+
+| Configuration | Tasks | Pass-rate | Tokens | Cost USD | Latency p50 (ms) | p95 (ms) |
+|---|---:|---:|---:|---:|---:|---:|
+| `moa-2-judge` — 2 candidates + judge synthesis | 8 | 62.5% | 9952 | n/a | 4183 | 12416 |
+
+_Raw measurements: docs/benchmarks/results/run-2026-11-27T11-03-23.json_
+
+## Run 2026-11-27T11:05:44.791Z — model `deepseek-chat`
+
+> issue #388: multi-file set from real project history (8 tasks)
+
+| Configuration | Tasks | Pass-rate | Tokens | Cost USD | Latency p50 (ms) | p95 (ms) |
+|---|---:|---:|---:|---:|---:|---:|
+| `moa-2-critique-guarded` — 2 candidates + guarded critique (#387): refined variants compete, originals preserved | 8 | 50.0% | 9221 | n/a | 4169 | 13529 |
+
+_Raw measurements: docs/benchmarks/results/run-2026-11-27T11-04-23.json_
+
+
+### Multi-file measurement (#388, 2026-11-27, DeepSeek V3, 8 tasks x 3 configs, 72 calls)
+
+| Configuration | Pass-rate | Tokens/task | p50 | Failed tasks |
+|---|---:|---:|---:|---|
+| `baseline-single` | **62.5%** | 580 | 1.7 s | schema-key-strip, entrypoint-resolution, directive-budget |
+| `moa-2-judge` | 62.5% | 1244 | 4.2 s | те же три задачи |
+| `moa-2-critique-guarded` | **50.0%** | 1153 | 4.2 s | + account-files-guard |
+
+**Принятые решения (честные, по данным):**
+1. Многофайловые задачи объективно сложнее (baseline 62.5% против 100% на компактных) — пространство для ансамбля существует.
+2. **Текущая архитектура MoA не реализует это пространство**: moa-2-judge повторил ровно те же ошибки (62.5%, тот же набор провалов), critique-guarded ухудшил до 50% (варианты-конкуренты разбавляют выбор даже при сохранении оригиналов). Ценность ансамбля требует diversity-механизмов (разные роли/модели/подходы), а не дублирования решений.
+3. Для сильных моделей (класс DeepSeek V3) рациональный дефолт — одиночная модель; профили balanced/deep остаются для слабых/средних моделей и многоэтапных задач (их польза проверяется на слабых моделях — отдельный замер).
+4. Следующий измеримый шаг для ценности MoA: diversity через РАЗНЫЕ модели в слотах (не одинаковый deepseek-chat), т.к. одинаковые кандидаты дают коррелированные ошибки.
+
+Ограничения: один модель-провайдер на всех слотах (коррелированные ошибки); 8 задач — малый класс; multi-file промпты содержат полный контекст (не дельту).
