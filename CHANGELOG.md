@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.93 (2026-11-27)
+
+### Fixed: pricing catalog self-healing (#391)
+- Found on production during the 0.2.92 smoke: a transient timeout in the startup pricing fetch left `/dsh-moa/health` degraded (`pricingStale: true`) until the NEXT restart, even though OpenRouter was reachable.
+- `triggerPricingRefresh()`: throttled stale-aware refresh entry point. Failures schedule a retry with growing backoff (5 min -> hourly cap, unref'd); success resets the backoff and clears pending retries.
+- `GET /dsh-moa/status` triggers the throttled refresh when the catalog is stale, so any status poll after a transient outage self-heals without a restart.
+- Tests: retry schedule + recovery, staleness clearing, status-route trigger wiring.
+
+
 ## 0.2.92 (2026-11-27)
 
 ### Cycle 3: Guarded Critique, Multi-file Ablation, Auto Profile
