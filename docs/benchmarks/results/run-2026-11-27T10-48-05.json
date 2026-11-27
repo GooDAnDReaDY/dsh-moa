@@ -1,0 +1,152 @@
+{
+  "at": "2026-11-27T10:49:21.208Z",
+  "model": "deepseek-chat",
+  "notes": "issue #387 AC: guarded critique on the seed set (compare: unguarded critique regressed to 91.7% in cycle 2)",
+  "configs": [
+    {
+      "config": "moa-2-critique-guarded",
+      "description": "2 candidates + guarded critique (#387): refined variants compete, originals preserved",
+      "tasks": 12,
+      "passRate": 1,
+      "tokensTotal": 8301,
+      "costUsdTotal": null,
+      "latencyP50Ms": 2398,
+      "latencyP95Ms": 3166,
+      "records": [
+        {
+          "taskId": "clamp-robust",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 218,
+          "completionTokens": 358,
+          "latencyMs": 2398,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "deep-get",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 270,
+          "completionTokens": 474,
+          "latencyMs": 2476,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "roman-numerals",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 242,
+          "completionTokens": 843,
+          "latencyMs": 3138,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "balanced-brackets",
+          "passed": true,
+          "testsTotal": 2,
+          "testsPassed": 2,
+          "promptTokens": 174,
+          "completionTokens": 272,
+          "latencyMs": 1907,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "group-by",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 322,
+          "completionTokens": 360,
+          "latencyMs": 2351,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "merge-intervals",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 214,
+          "completionTokens": 383,
+          "latencyMs": 2572,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "word-frequency",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 234,
+          "completionTokens": 585,
+          "latencyMs": 2628,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "async-debounce",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 264,
+          "completionTokens": 371,
+          "latencyMs": 1995,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "lru-cache",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 282,
+          "completionTokens": 407,
+          "latencyMs": 2124,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "csv-line-parse",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 238,
+          "completionTokens": 734,
+          "latencyMs": 3166,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "binary-search-insert",
+          "passed": true,
+          "testsTotal": 3,
+          "testsPassed": 3,
+          "promptTokens": 220,
+          "completionTokens": 188,
+          "latencyMs": 1710,
+          "costUsd": null,
+          "error": null
+        },
+        {
+          "taskId": "retry-with-backoff",
+          "passed": true,
+          "testsTotal": 4,
+          "testsPassed": 4,
+          "promptTokens": 260,
+          "completionTokens": 388,
+          "latencyMs": 2355,
+          "costUsd": null,
+          "error": null
+        }
+      ]
+    }
+  ],
+  "rawFile": "run-2026-11-27T10-48-05.json"
+}

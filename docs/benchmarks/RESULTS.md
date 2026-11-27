@@ -105,3 +105,22 @@ _Raw measurements: docs/benchmarks/results/run-2026-11-19T19-47-54.json_
 3. Профиль `balanced` = 2 кандидата + судья (+100% токенов за рост устойчивости на слабых/средних моделях и диверсификацию подходов; на seed-наборе не хуже baseline).
 4. Профиль `deep` = полный набор гейтов + multi-judge — для сложных многофайловых задач, где baseline недостаточен (вне покрытия seed-набора); критика и тяжёлые гейты — opt-in флагами.
 5. Ограничение замера честно зафиксировано: seed-набор — компактные одиночные задачи; вывод «MoA не добавляет pass-rate» применим к этому классу, для многофайловых реальных задач (#367 план) нужен расширенный набор.
+## Run 2026-11-27T10:49:21.208Z — model `deepseek-chat`
+
+> issue #387 AC: guarded critique on the seed set (compare: unguarded critique regressed to 91.7% in cycle 2)
+
+| Configuration | Tasks | Pass-rate | Tokens | Cost USD | Latency p50 (ms) | p95 (ms) |
+|---|---:|---:|---:|---:|---:|---:|
+| `moa-2-critique-guarded` — 2 candidates + guarded critique (#387): refined variants compete, originals preserved | 12 | 100.0% | 8301 | n/a | 2398 | 3166 |
+
+_Raw measurements: docs/benchmarks/results/run-2026-11-27T10-48-05.json_
+
+
+### Guarded critique verification (#387, 2026-11-27, DeepSeek V3, 12 tasks)
+
+| Configuration | Pass-rate | Tokens/task | Вывод |
+|---|---:|---:|---|
+| `moa-2-critique` (unguarded, cycle 2) | 91.7% | 672 | критик сломал корректное решение |
+| `moa-2-critique-guarded` (#387: refined variants compete) | **100.0%** | 692 | **регрессия устранена**, цена почти та же |
+
+Вывод: предохранитель «оригинал никогда не теряется, исправление конкурирует» возвращает pass-rate критики к baseline при сопоставимой цене. Критику можно включать безопасно.

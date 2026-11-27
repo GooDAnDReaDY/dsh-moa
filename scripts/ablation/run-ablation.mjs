@@ -110,6 +110,14 @@ const CONFIGURATIONS = {
     peerCritique: false,
     gates: true,
   },
+  'moa-2-critique-guarded': {
+    description: '2 candidates + guarded critique (#387): refined variants compete, originals preserved',
+    candidates: 2,
+    judge: true,
+    peerCritique: true,
+    guardedCritique: true,
+    gates: false,
+  },
 }
 
 const GATE_DIRECTIVE = [
@@ -291,13 +299,30 @@ async function evaluateConfig(args, apiKey, tasks, cfgName) {
 
     let workingTexts = candidates.map((c) => c.content)
     if (cfg.peerCritique) {
-      for (let i = 0; i < candidates.length; i++) {
-        const others = workingTexts.filter((_, j) => j !== i).join('\n\n---\n\n')
-        const crit = await callWithTiming(args, apiKey, [
-          { role: 'user', content: `${PEER_CRITIQUE_DIRECTIVE}\n\nTask:\n${taskDef.prompt}\n\nCandidate to review:\n${others || candidates[i].content}` },
-        ])
-        candidates[i].critiqueTokens = crit.promptTokens + crit.completionTokens
-        workingTexts[i] = crit.content
+      if (cfg.guardedCritique) {
+        // Guarded critique (#387): refined variants COMPETE - the judge sees
+        // originals AND refined variants as separate numbered candidates; a
+        // broken refinement can no longer destroy a correct original.
+        const guarded = []
+        for (let i = 0; i < candidates.length; i++) {
+          const others = workingTexts.filter((_, j) => j !== i).join('\n\n---\n\n')
+          const crit = await callWithTiming(args, apiKey, [
+            { role: 'user', content: `${PEER_CRITIQUE_DIRECTIVE}\n\nTask:\n${taskDef.prompt}\n\nCandidate to review:\n${others || candidates[i].content}` },
+          ])
+          candidates[i].critiqueTokens = crit.promptTokens + crit.completionTokens
+          guarded.push(workingTexts[i])
+          guarded.push(crit.content)
+        }
+        workingTexts = guarded
+      } else {
+        for (let i = 0; i < candidates.length; i++) {
+          const others = workingTexts.filter((_, j) => j !== i).join('\n\n---\n\n')
+          const crit = await callWithTiming(args, apiKey, [
+            { role: 'user', content: `${PEER_CRITIQUE_DIRECTIVE}\n\nTask:\n${taskDef.prompt}\n\nCandidate to review:\n${others || candidates[i].content}` },
+          ])
+          candidates[i].critiqueTokens = crit.promptTokens + crit.completionTokens
+          workingTexts[i] = crit.content
+        }
       }
     }
 
