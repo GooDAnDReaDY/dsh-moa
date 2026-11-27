@@ -44,6 +44,7 @@ test('events: runMoAPipeline emits full lifecycle events across consensus phases
     aggregator: { provider: 'p-judge', model: 'm-judge' },
     ask_clarifying_questions: false,
     peer_critique_enabled: true,
+    critique_guard_mode: 'strict',
     composite_merge_enabled: false,
   }
 

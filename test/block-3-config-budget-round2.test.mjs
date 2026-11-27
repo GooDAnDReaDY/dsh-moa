@@ -354,6 +354,7 @@ test('Issue #164: Round 2 preserves trimmed candidate slot identities and never 
     ],
     aggregator: { provider: 'mock', model: 'judge' },
     peer_critique_enabled: true,
+    critique_guard_mode: 'strict',
     budget_guard_enabled: true,
     max_budget_usd: 0.05,
     budget_action: 'trim',

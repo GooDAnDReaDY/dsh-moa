@@ -119,6 +119,7 @@ test('runMoAPipeline: Round 2 peer critique updates candidate workspace on disk'
         ],
         aggregator: { provider: 'p-agg', model: 'm-agg' },
         peer_critique_enabled: true,
+        critique_guard_mode: 'strict',
         allow_candidate_override: true,
         ask_clarifying_questions: false,
       },
