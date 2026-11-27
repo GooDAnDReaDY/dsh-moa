@@ -31,7 +31,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { TASKS, getTasks } from './tasks.mjs'
-import { runHarness } from './harness.mjs'
+import { runHarness, extractAllFileBlocks } from './harness.mjs'
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 const RESULTS_DIR = path.join(REPO_ROOT, 'docs', 'benchmarks')
@@ -335,7 +335,11 @@ async function evaluateConfig(args, apiKey, tasks, cfgName) {
       finalText = judged.content
     }
 
-    const impl = extractCodeBlock(finalText)
+    // Multi-file tasks (#388): a candidate answer may declare several file
+    // blocks; each is written at its declared relative path.
+    const impl = taskDef.contextFiles
+      ? extractAllFileBlocks(finalText)
+      : extractCodeBlock(finalText)
     const verdict = runHarness(taskDef, impl)
     const promptTokens = candidates.reduce((acc, c) => acc + c.promptTokens, 0)
     const completionTokens = candidates.reduce((acc, c) => acc + c.completionTokens, 0)
